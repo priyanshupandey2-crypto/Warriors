@@ -1,2 +1,0 @@
-# Warriors
-Final evaluation project
