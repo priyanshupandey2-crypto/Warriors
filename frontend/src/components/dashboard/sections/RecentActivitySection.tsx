@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui';
+import { Card, SectionHeader, Icon } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -35,15 +35,21 @@ export function RecentActivitySection({ activities }: RecentActivitySectionProps
   };
 
   return (
-    <section className="space-y-md">
-      <h2 className="text-headline-lg text-on-background">Recent Activity</h2>
+    <section className="space-y-lg">
+      <SectionHeader title="Recent Activity" />
 
       <div className="space-y-sm">
         {activities.map((activity, index) => (
           <Card key={activity.id} variant="outlined" className="p-md">
             <div className="flex items-start gap-md">
               {/* Icon */}
-              <div className="text-2xl flex-shrink-0">{activity.icon}</div>
+              <div className="flex-shrink-0 text-primary">
+                {typeof activity.icon === 'string' ? (
+                  <Icon name={activity.icon as any} size={24} />
+                ) : (
+                  activity.icon
+                )}
+              </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">

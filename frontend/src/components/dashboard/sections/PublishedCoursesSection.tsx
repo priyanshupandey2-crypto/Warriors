@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Course } from '@/types/course';
 import { CourseCard } from '@/components/domain';
+import { SectionHeader, Button } from '@/components/ui';
 
 interface PublishedCoursesSectionProps {
   courses: Course[];
@@ -37,21 +38,26 @@ export function PublishedCoursesSection({
   const hasMore = sorted.length > maxDisplay;
 
   return (
-    <section className="space-y-md">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-headline-lg text-on-background">
-            {sorted.some((c) => (c.progress || 0) > 0)
-              ? 'Continue Learning'
-              : 'Explore Published Courses'}
-          </h2>
-          <p className="text-body-md text-on-surface-variant mt-xs">
-            {sorted.some((c) => (c.progress || 0) > 0)
-              ? 'Pick up where you left off'
-              : 'Find your next course to learn from'}
-          </p>
-        </div>
-      </div>
+    <section className="space-y-lg">
+      <SectionHeader
+        title={
+          sorted.some((c) => (c.progress || 0) > 0)
+            ? 'Continue Learning'
+            : 'Explore Published Courses'
+        }
+        subtitle={
+          sorted.some((c) => (c.progress || 0) > 0)
+            ? 'Pick up where you left off'
+            : 'Find your next course to learn from'
+        }
+        action={
+          hasMore && (
+            <Button variant="ghost" size="sm" onClick={() => router.push('/published-courses')}>
+              View All
+            </Button>
+          )
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
         {displayedCourses.map((course) => (

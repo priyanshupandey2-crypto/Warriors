@@ -112,7 +112,8 @@ export default function CourseDetailPage() {
         items: getCourseDetailNavigation(courseId, pathname),
       }}
     >
-      <main className="max-w-6xl mx-auto space-y-xl py-lg px-md">
+      <main className="w-full space-y-lg py-lg px-md">
+        <div className="max-w-6xl mx-auto space-y-lg w-full">
         {/* Course Header */}
         <CourseHeader course={course} />
 
@@ -151,6 +152,7 @@ export default function CourseDetailPage() {
             isLoading={submitting}
           />
         )}
+        </div>
       </main>
     </AppShell>
   );

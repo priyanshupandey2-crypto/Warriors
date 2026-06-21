@@ -83,7 +83,8 @@ export default function PublishedCoursesPage() {
         items: getMainNavigation(pathname),
       }}
     >
-      <main className="max-w-6xl mx-auto space-y-lg py-lg px-md">
+      <main className="w-full space-y-lg py-lg px-md">
+        <div className="max-w-6xl mx-auto space-y-lg w-full">
         {/* Header */}
         <PageHeader
           title="Explore Courses"
@@ -178,6 +179,7 @@ export default function PublishedCoursesPage() {
               </div>
             )}
           </section>
+        </div>
         </div>
       </main>
     </AppShell>

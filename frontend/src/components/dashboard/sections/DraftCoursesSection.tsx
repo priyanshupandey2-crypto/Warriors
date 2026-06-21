@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { DraftCourse } from '@/types/course';
-import { Button, Card, Badge } from '@/components/ui';
+import { Button, Card, Badge, SectionHeader } from '@/components/ui';
 
 interface DraftCoursesSectionProps {
   drafts: DraftCourse[];
@@ -29,13 +29,15 @@ export function DraftCoursesSection({ drafts }: DraftCoursesSectionProps) {
   };
 
   return (
-    <section className="space-y-md">
-      <div className="flex justify-between items-center">
-        <h2 className="text-headline-lg text-on-background">My Draft Courses</h2>
-        <span className="text-label-md text-on-surface-variant">
-          {drafts.length} draft{drafts.length !== 1 ? 's' : ''}
-        </span>
-      </div>
+    <section className="space-y-lg">
+      <SectionHeader
+        title="My Draft Courses"
+        action={
+          <span className="text-label-md text-on-surface-variant">
+            {drafts.length} draft{drafts.length !== 1 ? 's' : ''}
+          </span>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
         {drafts.map((draft) => (

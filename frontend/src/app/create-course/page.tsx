@@ -134,20 +134,21 @@ export default function CreateCoursePage() {
         ],
       }}
     >
-      <div className="space-y-lg">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-display-lg-mobile md:text-display-lg text-on-background">
-            Create Your Course
-          </h1>
-          <p className="text-body-lg text-on-surface-variant mt-sm max-w-2xl">
-            Describe your course idea and let our AI generate a complete, professional
-            curriculum in minutes.
-          </p>
-        </div>
+      <div className="w-full space-y-lg">
+        <div className="max-w-7xl mx-auto space-y-lg w-full">
+          {/* Page Header */}
+          <div>
+            <h1 className="text-display-lg-mobile md:text-display-lg text-on-background">
+              Create Your Course
+            </h1>
+            <p className="text-body-lg text-on-surface-variant mt-sm max-w-2xl">
+              Describe your course idea and let our AI generate a complete, professional
+              curriculum in minutes.
+            </p>
+          </div>
 
-        {/* Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+          {/* Two-Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
           {/* Form (Left) */}
           <div className="lg:col-span-1">
             <CourseForm onSubmit={handleSubmit} isLoading={isLoading} />
@@ -160,6 +161,7 @@ export default function CreateCoursePage() {
               <AIGenerationPanel />
             </div>
           </div>
+        </div>
         </div>
 
         {/* Generation Progress Modal (shown during generation) */}

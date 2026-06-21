@@ -11,3 +11,5 @@ export { ConfirmationDialog } from './ConfirmationDialog';
 export { Icon } from './Icon';
 export { FormGroup } from './FormGroup';
 export { RangeSlider } from './RangeSlider';
+export { SectionHeader } from './SectionHeader';
+export { Modal } from './Modal';
