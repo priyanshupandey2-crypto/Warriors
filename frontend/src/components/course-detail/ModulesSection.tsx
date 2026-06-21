@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CourseModule } from '@/types/course';
+import { Icon } from '@/components/ui';
 
 interface ModulesSectionProps {
   modules: CourseModule[];
@@ -43,8 +44,12 @@ export function ModulesSection({ modules }: ModulesSectionProps) {
               </div>
 
               {/* Toggle Icon */}
-              <div className="ml-lg flex-shrink-0 text-on-surface-variant">
-                {expandedModule === module.id ? '▼' : '▶'}
+              <div className="ml-lg flex-shrink-0">
+                <Icon
+                  name={expandedModule === module.id ? 'ChevronDown' : 'ChevronRight'}
+                  size={20}
+                  className="text-on-surface-variant"
+                />
               </div>
             </button>
 
@@ -55,7 +60,7 @@ export function ModulesSection({ modules }: ModulesSectionProps) {
                   <div key={lesson.id} className="flex gap-md p-sm rounded-lg hover:bg-surface-container-low transition-colors">
                     {/* Icon */}
                     <div className="flex-shrink-0 w-8 h-8 rounded bg-primary-container/20 flex items-center justify-center text-primary">
-                      📝
+                      <Icon name="FileText" size={16} />
                     </div>
 
                     {/* Lesson Info */}
@@ -64,8 +69,9 @@ export function ModulesSection({ modules }: ModulesSectionProps) {
                         {lesson.title}
                       </h4>
                       {lesson.duration && (
-                        <p className="text-label-sm text-on-surface-variant mt-xs">
-                          ⏱ {lesson.duration} minutes
+                        <p className="text-label-sm text-on-surface-variant mt-xs flex items-center gap-xs">
+                          <Icon name="Clock" size={14} />
+                          {lesson.duration} minutes
                         </p>
                       )}
                     </div>

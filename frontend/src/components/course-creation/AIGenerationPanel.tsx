@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui';
+import { Card, Icon } from '@/components/ui';
 
 interface GenerationFeature {
   icon: string;
@@ -10,27 +10,27 @@ interface GenerationFeature {
 
 const generationFeatures: GenerationFeature[] = [
   {
-    icon: '📋',
+    icon: 'ListChecks',
     title: 'Learning Objectives',
     description: '5-7 clear, measurable goals for what students will learn',
   },
   {
-    icon: '📚',
+    icon: 'BookOpen',
     title: 'Structured Modules',
     description: '3-5 organized sections covering all key topics',
   },
   {
-    icon: '📝',
+    icon: 'FileText',
     title: 'Comprehensive Lessons',
     description: '15-20 lesson units with detailed explanations and examples',
   },
   {
-    icon: '✅',
+    icon: 'CheckCircle',
     title: 'Quiz Questions',
     description: 'Assessment questions to test understanding throughout the course',
   },
   {
-    icon: '🏆',
+    icon: 'Trophy',
     title: 'Capstone Project',
     description: 'Real-world application project to demonstrate mastery',
   },
@@ -41,7 +41,9 @@ export function AIGenerationPanel() {
     <Card variant="elevated" className="space-y-lg">
       {/* Header */}
       <div className="space-y-sm">
-        <div className="text-4xl">✨</div>
+        <div className="p-md bg-primary-container rounded-lg w-fit">
+          <Icon name="Sparkles" size={32} className="text-primary" />
+        </div>
         <h3 className="text-headline-lg text-on-background font-bold">
           AI Course Generation
         </h3>
@@ -65,8 +67,8 @@ export function AIGenerationPanel() {
               className="flex gap-md p-sm rounded-lg hover:bg-surface-container-low transition-colors"
             >
               {/* Icon */}
-              <div className="text-2xl flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                {feature.icon}
+              <div className="flex-shrink-0 text-primary">
+                <Icon name={feature.icon as any} size={20} />
               </div>
 
               {/* Content */}
@@ -91,19 +93,19 @@ export function AIGenerationPanel() {
         <h4 className="text-label-md font-bold text-on-surface">Why Use AI?</h4>
         <ul className="space-y-xs text-label-sm text-on-surface-variant">
           <li className="flex gap-sm">
-            <span className="flex-shrink-0">⚡</span>
+            <Icon name="Zap" size={16} className="flex-shrink-0 text-primary mt-0.5" />
             <span>Generate complete courses in minutes, not days</span>
           </li>
           <li className="flex gap-sm">
-            <span className="flex-shrink-0">🎯</span>
+            <Icon name="Target" size={16} className="flex-shrink-0 text-primary mt-0.5" />
             <span>Personalized content for your specific audience</span>
           </li>
           <li className="flex gap-sm">
-            <span className="flex-shrink-0">📊</span>
+            <Icon name="BarChart3" size={16} className="flex-shrink-0 text-primary mt-0.5" />
             <span>Professional structure based on learning science</span>
           </li>
           <li className="flex gap-sm">
-            <span className="flex-shrink-0">✏️</span>
+            <Icon name="PenTool" size={16} className="flex-shrink-0 text-primary mt-0.5" />
             <span>Easy to edit and refine after generation</span>
           </li>
         </ul>

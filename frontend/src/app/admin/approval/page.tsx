@@ -75,7 +75,6 @@ export default function AdminApprovalPage() {
           <div className="lg:col-span-2">
             {courses.length === 0 ? (
               <EmptyState
-                icon="✅"
                 title="All Caught Up!"
                 message="No courses are currently pending review. All submissions have been processed."
               />
