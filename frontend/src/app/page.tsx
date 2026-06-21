@@ -29,7 +29,7 @@ export default function Home() {
         }
       />
 
-      <main className="px-gutter py-xxl max-w-container-max mx-auto">
+      <main className="pt-16 px-gutter py-xxl max-w-container-max mx-auto">
         {/* Hero Section */}
         <section className="space-y-lg mb-xxl">
           <h1 className="text-display-lg-mobile md:text-display-lg text-on-background leading-tight">
