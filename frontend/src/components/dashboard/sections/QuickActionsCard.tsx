@@ -15,7 +15,7 @@ export function QuickActionsCard() {
             <Icon name="Plus" size={24} className="text-primary" />
           </div>
           <div>
-            <h3 className="text-headline-md font-headline-md text-on-surface mb-sm">Create New Course</h3>
+            <h3 className="text-headline-md  text-on-surface mb-sm">Create New Course</h3>
             <p className="text-body-md text-on-surface-variant">
               Use AI to generate a personalized course
             </p>
@@ -38,7 +38,7 @@ export function QuickActionsCard() {
             <Icon name="Globe" size={24} className="text-secondary" />
           </div>
           <div>
-            <h3 className="text-headline-md font-headline-md text-on-surface mb-sm">Browse Courses</h3>
+            <h3 className="text-headline-md  text-on-surface mb-sm">Browse Courses</h3>
             <p className="text-body-md text-on-surface-variant">
               Explore published courses from expert instructors
             </p>

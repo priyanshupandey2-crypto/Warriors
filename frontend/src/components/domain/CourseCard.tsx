@@ -70,7 +70,7 @@ export function CourseCard({
       <div className="p-md flex-1 flex flex-col gap-md">
         <div>
           <div className="flex justify-between items-start gap-sm mb-sm">
-            <h3 className="text-headline-sm font-headline-md text-on-surface flex-1">{title}</h3>
+            <h3 className="text-headline-sm  text-on-surface flex-1">{title}</h3>
             {badge && badge}
           </div>
           {description && <p className="text-body-md text-on-surface-variant line-clamp-2">{description}</p>}

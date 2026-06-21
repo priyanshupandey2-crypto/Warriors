@@ -87,7 +87,7 @@ export function PublishedCoursesSection({
         <div className="flex justify-center pt-lg">
           <button
             onClick={() => router.push('/published-courses')}
-            className="text-primary font-label-lg hover:text-primary-container transition-colors duration-200 bg-transparent border-none cursor-pointer"
+            className="text-primary  hover:text-primary-container transition-colors duration-200 bg-transparent border-none cursor-pointer"
           >
             View All Courses →
           </button>

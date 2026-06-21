@@ -102,7 +102,7 @@ export default function MyCoursesPage() {
             <button
               key={tab.value}
               onClick={() => setActiveTab(tab.value)}
-              className={`px-lg py-sm rounded-lg font-medium text-label-md whitespace-nowrap transition-colors ${
+              className={`px-lg py-sm rounded-lg text-label-md whitespace-nowrap transition-colors ${
                 activeTab === tab.value
                   ? 'bg-primary text-on-primary'
                   : 'bg-surface-container text-on-surface hover:bg-surface-container-high'

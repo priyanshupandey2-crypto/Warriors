@@ -46,7 +46,7 @@ export function DraftCoursesSection({ drafts }: DraftCoursesSectionProps) {
               {/* Title and Badge */}
               <div className="space-y-sm">
                 <div className="flex items-start justify-between gap-sm">
-                  <h3 className="text-headline-sm text-on-surface font-headline-md flex-1 line-clamp-2">
+                  <h3 className="text-headline-sm text-on-surface  flex-1 line-clamp-2">
                     {draft.title || 'Untitled Course'}
                   </h3>
                   <Badge variant="primary">{draft.difficulty}</Badge>

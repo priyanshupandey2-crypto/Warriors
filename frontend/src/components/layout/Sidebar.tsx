@@ -41,7 +41,7 @@ export function Sidebar({ items, open = true, onClose, brand = 'AuraLearn' }: Si
       >
         {/* Header */}
         <div className="hidden md:block p-md border-b border-outline-variant">
-          <span className="text-headline-md font-headline-md text-primary tracking-tight">{brand}</span>
+          <span className="text-headline-md  text-primary tracking-tight">{brand}</span>
         </div>
 
         {/* Navigation */}
@@ -75,7 +75,7 @@ export function Sidebar({ items, open = true, onClose, brand = 'AuraLearn' }: Si
                       className={cn(
                         'flex items-center gap-md px-sm py-xs rounded-md text-label-sm transition-colors duration-200',
                         subItem.active
-                          ? 'text-primary font-label-md'
+                          ? 'text-primary '
                           : 'text-on-surface-variant hover:text-primary'
                       )}
                     >

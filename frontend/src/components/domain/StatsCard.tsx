@@ -29,8 +29,8 @@ export function StatsCard({ icon, label, value, iconColor = 'primary' }: StatsCa
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-label-md font-label-md text-on-surface-variant">{label}</p>
-        <p className="text-headline-sm font-headline-md text-on-surface">{value}</p>
+        <p className="text-label-md  text-on-surface-variant">{label}</p>
+        <p className="text-headline-sm  text-on-surface">{value}</p>
       </div>
     </Card>
   );

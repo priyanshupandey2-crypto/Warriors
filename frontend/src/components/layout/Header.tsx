@@ -30,12 +30,12 @@ export function Header({
       {/* Logo & Brand */}
       <div className="flex items-center gap-md">
         {logo && <div className="text-xl">{logo}</div>}
-        {brand && <span className="text-headline-md font-headline-md text-primary tracking-tight">{brand}</span>}
+        {brand && <span className="text-headline-md  text-primary tracking-tight">{brand}</span>}
       </div>
 
       {/* Navigation */}
       {navigation.length > 0 && (
-        <nav className="hidden md:flex gap-md font-body-md text-body-md">
+        <nav className="hidden md:flex gap-md  text-body-md">
           {navigation.map((item) => (
             <Link
               key={item.href}

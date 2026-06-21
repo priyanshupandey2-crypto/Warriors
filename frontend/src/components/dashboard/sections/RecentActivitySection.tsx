@@ -53,7 +53,7 @@ export function RecentActivitySection({ activities }: RecentActivitySectionProps
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <p className="text-body-md text-on-surface font-body-md">
+                <p className="text-body-md text-on-surface ">
                   {activity.title}
                 </p>
                 <p className="text-label-md text-on-surface-variant mt-xs">

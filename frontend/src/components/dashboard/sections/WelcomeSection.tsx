@@ -36,13 +36,13 @@ export function WelcomeSection({ user, stats }: WelcomeSectionProps) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-headline-md font-headline-md text-on-primary">
+              <span className="text-headline-md  text-on-primary">
                 {initials}
               </span>
             )}
           </div>
           <div>
-            <h1 className="text-headline-md font-headline-md text-on-background">
+            <h1 className="text-headline-md  text-on-background">
               Hello, {user.name.split(' ')[0]}
             </h1>
             <p className="text-body-md text-on-surface-variant">
