@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.app.config import settings
-from backend.app.tracing import get_langsmith_config
+from app.config import settings
+from app.tracing import get_langsmith_config
 
 router = APIRouter(prefix="/health", tags=["health"])
 

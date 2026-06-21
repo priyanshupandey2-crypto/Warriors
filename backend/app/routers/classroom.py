@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter, HTTPException, status
 from pathlib import Path
-from backend.app.schemas.classroom_schemas import (
+from app.schemas.classroom_schemas import (
     ClassroomWorkspace,
     LessonContent,
     QuizStructure,

@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter, HTTPException, status
 from pathlib import Path
-from backend.app.schemas.course_schemas import CourseGenerateRequest, CoursePreview, FeaturedCourse
+from app.schemas.course_schemas import CourseGenerateRequest, CoursePreview, FeaturedCourse
 from typing import List
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
