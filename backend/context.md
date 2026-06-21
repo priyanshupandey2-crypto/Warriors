@@ -146,6 +146,8 @@ Server runs on: `http://127.0.0.1:8000`
 
 **Note:** All imports use relative paths (e.g., `from app.config import settings`), so run from the `backend/` directory.
 
+**Note:** All imports use relative paths (e.g., `from app.config import settings`), so run from the `backend/` directory.
+
 ### Verify Installation
 ```bash
 # Foundation endpoints (her code)
@@ -342,6 +344,7 @@ The `Settings` class uses Pydantic to load and validate configuration from envir
 **Usage:**
 ```python
 # Note: Relative imports (from app.config, not from backend.app.config)
+# Note: Relative imports (from app.config, not from backend.app.config)
 from app.config import settings
 
 if settings.is_production():
@@ -381,6 +384,7 @@ Implements structured JSON logging for production-grade observability. Each log 
 
 **Usage:**
 ```python
+# Note: Relative import from app.logger
 # Note: Relative import from app.logger
 from app.logger import get_logger
 
@@ -428,6 +432,7 @@ Manages metrics for a single workflow execution.
 
 **Usage Example:**
 ```python
+# Note: Relative import from app.telemetry
 # Note: Relative import from app.telemetry
 from app.telemetry import create_run_context
 
@@ -525,6 +530,7 @@ def end_trace_run(
 **Usage Example:**
 ```python
 # Note: Relative imports from app.tracing
+# Note: Relative imports from app.tracing
 from app.tracing import trace_run, end_trace_run
 
 with trace_run(
@@ -552,6 +558,9 @@ with trace_run(
 For nested workflows, pass parent run_id to create child traces:
 
 ```python
+# Note: Relative imports from app.tracing
+from app.tracing import trace_run, end_trace_run
+
 # Note: Relative imports from app.tracing
 from app.tracing import trace_run, end_trace_run
 
@@ -651,6 +660,7 @@ curl http://127.0.0.1:8000/test-trace
 
 ```python
 # Note: All imports are relative (no backend.app prefix)
+# Note: All imports are relative (no backend.app prefix)
 from app.telemetry import create_run_context
 
 # Initialize
@@ -671,6 +681,7 @@ metrics = telemetry.complete("success")
 ### Creating a LangSmith Trace
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 # Note: All imports are relative (no backend.app prefix)
 from app.tracing import trace_run, end_trace_run
 
@@ -752,6 +763,7 @@ end_trace_run(
 
 ```python
 # Note: All imports are relative (no backend.app prefix)
+# Note: All imports are relative (no backend.app prefix)
 from app.tracing import trace_run, end_trace_run
 
 async def parent_agent():
@@ -780,6 +792,7 @@ async def parent_agent():
 ### Using Logging
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 # Note: All imports are relative (no backend.app prefix)
 from app.logger import get_logger
 
@@ -863,6 +876,7 @@ app/agents/
 # app/agents/research_agent.py
 
 # Note: All imports are relative (run from backend/ directory)
+# Note: All imports are relative (run from backend/ directory)
 from app.telemetry import create_run_context
 from app.tracing import trace_run, end_trace_run
 from app.logger import get_logger
@@ -928,6 +942,7 @@ async def research_agent(query: str, parent_run_id: str = None):
 # app/routes/research.py
 
 # Note: All imports are relative (run from backend/ directory)
+# Note: All imports are relative (run from backend/ directory)
 from fastapi import APIRouter
 from app.agents.research_agent import research_agent
 
@@ -943,6 +958,7 @@ async def query_research(query: str, parent_trace_id: str = None):
 Then register in `app/main.py`:
 ```python
 # All imports use relative paths
+# All imports use relative paths
 from app.routes import research
 
 app.include_router(research.router)
@@ -953,6 +969,9 @@ app.include_router(research.router)
 For workflows involving multiple agents with parent/child relationships:
 
 ```python
+# Note: All imports are relative (run from backend/ directory)
+from app.tracing import trace_run, end_trace_run
+
 # Note: All imports are relative (run from backend/ directory)
 from app.tracing import trace_run, end_trace_run
 
@@ -1025,13 +1044,26 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Install dependencies (one-time)
+# Navigate to backend folder
+cd Warriors/backend
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies (one-time)
 pip install -r requirements.txt
 
+# Start server (run from backend/ with venv activated)
 # Start server (run from backend/ with venv activated)
 python main.py
 
 # Server available at http://127.0.0.1:8000
 ```
+
+**Important:** Always run the app from the `Warriors/backend/` directory with the venv activated, since all imports use relative paths (e.g., `from app.config`)
 
 **Important:** Always run the app from the `Warriors/backend/` directory with the venv activated, since all imports use relative paths (e.g., `from app.config`)
 
