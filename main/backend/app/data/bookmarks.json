@@ -1,0 +1,32 @@
+{
+  "bookmarks": [
+    {
+      "id": "bookmark-001",
+      "lesson_id": "lesson-001",
+      "lesson_title": "What is Python and Why Learn It?",
+      "course_id": "course-001",
+      "course_title": "Python Programming Fundamentals",
+      "bookmarked_at": "2026-06-20T10:30:00Z",
+      "notes": "Great introduction, marked for review later"
+    },
+    {
+      "id": "bookmark-002",
+      "lesson_id": "lesson-004",
+      "lesson_title": "Variables and Data Types",
+      "course_id": "course-001",
+      "course_title": "Python Programming Fundamentals",
+      "bookmarked_at": "2026-06-20T14:45:00Z",
+      "notes": "Important concept, need to practice more examples"
+    },
+    {
+      "id": "bookmark-003",
+      "lesson_id": "lesson-006",
+      "lesson_title": "Lists and Tuples",
+      "course_id": "course-001",
+      "course_title": "Python Programming Fundamentals",
+      "bookmarked_at": "2026-06-21T09:15:00Z",
+      "notes": "Useful reference for list operations"
+    }
+  ],
+  "total_bookmarks": 3
+}

@@ -1,0 +1,130 @@
+{
+  "user_id": "user-123",
+  "user_name": "Alice Johnson",
+  "dashboard_stats": {
+    "enrolled_courses": 3,
+    "completed_courses": 1,
+    "in_progress_courses": 2,
+    "total_learning_hours": 24.5,
+    "total_points_earned": 450,
+    "current_streak_days": 7,
+    "longest_streak_days": 14
+  },
+  "enrolled_courses": [
+    {
+      "course_id": "course-001",
+      "course_title": "Python Programming Fundamentals",
+      "progress_percentage": 35,
+      "lessons_completed": 7,
+      "total_lessons": 20,
+      "enrolled_date": "2026-06-15T08:00:00Z",
+      "last_accessed": "2026-06-21T14:30:00Z",
+      "current_module": "Module 2: Core Concepts and Data Structures"
+    },
+    {
+      "course_id": "course-002",
+      "course_title": "Advanced Web Development with React",
+      "progress_percentage": 12,
+      "lessons_completed": 3,
+      "total_lessons": 25,
+      "enrolled_date": "2026-06-18T10:00:00Z",
+      "last_accessed": "2026-06-20T16:45:00Z",
+      "current_module": "Module 1: React Fundamentals"
+    },
+    {
+      "course_id": "course-005",
+      "course_title": "Mobile App Development with Flutter",
+      "progress_percentage": 8,
+      "lessons_completed": 2,
+      "total_lessons": 24,
+      "enrolled_date": "2026-06-19T11:30:00Z",
+      "last_accessed": "2026-06-21T12:00:00Z",
+      "current_module": "Module 1: Getting Started with Flutter"
+    }
+  ],
+  "completed_courses": [
+    {
+      "course_id": "course-099",
+      "course_title": "Introduction to Web Development",
+      "completion_date": "2026-06-10T15:20:00Z",
+      "final_score": 92,
+      "certificate_url": "https://certificates.example.com/web-dev-101"
+    }
+  ],
+  "weekly_activity": {
+    "week_of": "2026-06-17",
+    "total_minutes_learned": 420,
+    "days_active": 5,
+    "lessons_completed": 8,
+    "quizzes_taken": 3,
+    "daily_breakdown": {
+      "Monday": 85,
+      "Tuesday": 90,
+      "Wednesday": 0,
+      "Thursday": 95,
+      "Friday": 75,
+      "Saturday": 45,
+      "Sunday": 30
+    }
+  },
+  "learning_consistency": {
+    "heatmap_data": [
+      {"date": "2026-06-15", "activity_level": 3, "minutes": 85},
+      {"date": "2026-06-16", "activity_level": 2, "minutes": 45},
+      {"date": "2026-06-17", "activity_level": 4, "minutes": 120},
+      {"date": "2026-06-18", "activity_level": 3, "minutes": 95},
+      {"date": "2026-06-19", "activity_level": 2, "minutes": 60},
+      {"date": "2026-06-20", "activity_level": 4, "minutes": 110},
+      {"date": "2026-06-21", "activity_level": 5, "minutes": 130}
+    ],
+    "consistency_score": 78,
+    "average_daily_minutes": 77.14
+  },
+  "upcoming_milestones": [
+    {
+      "id": "milestone-001",
+      "title": "Complete Module 2",
+      "course_id": "course-001",
+      "progress": 65,
+      "target_date": "2026-06-25",
+      "reward_points": 50
+    },
+    {
+      "id": "milestone-002",
+      "title": "Complete 5 Quizzes",
+      "course_id": "course-001",
+      "progress": 60,
+      "target_date": "2026-06-28",
+      "reward_points": 100
+    },
+    {
+      "id": "milestone-003",
+      "title": "Maintain 7-Day Learning Streak",
+      "course_id": "all",
+      "progress": 100,
+      "target_date": "2026-06-22",
+      "reward_points": 75
+    }
+  ],
+  "achievements": [
+    {
+      "id": "badge-001",
+      "title": "Getting Started",
+      "description": "Complete your first lesson",
+      "earned_at": "2026-06-15T09:30:00Z",
+      "icon": "🚀"
+    },
+    {
+      "id": "badge-002",
+      "title": "Week Warrior",
+      "description": "Learn 5 days in a week",
+      "earned_at": "2026-06-21T23:59:00Z",
+      "icon": "🏆"
+    }
+  ],
+  "recommended_next_steps": [
+    "Complete the Variables and Data Types lesson in Python course",
+    "Take the Module 1 quiz in React course",
+    "Bookmark helpful lessons for future reference"
+  ]
+}

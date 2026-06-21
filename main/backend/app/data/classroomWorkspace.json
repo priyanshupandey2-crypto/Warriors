@@ -1,0 +1,234 @@
+{
+  "course_id": "course-001",
+  "course_title": "Python Programming Fundamentals",
+  "lessons": [
+    {
+      "id": "lesson-001",
+      "title": "What is Python and Why Learn It?",
+      "order": 1,
+      "content_markdown": "# What is Python and Why Learn It?\n\n## Introduction\nPython is a powerful, easy-to-learn programming language used by beginners and experts alike. From web development to data science, Python powers the tools used by millions.\n\n## Why Python?\n- **Easy Syntax**: Python reads like plain English\n- **Versatile**: Used in web, data science, AI, automation\n- **Large Community**: Extensive libraries and support\n- **High Demand**: One of the most sought-after programming skills\n\n## What You'll Build\nBy the end of this course, you'll build real applications and understand programming concepts that apply to any language.\n\n## Your Learning Path\n1. Understand Python basics\n2. Master data structures\n3. Learn functions and modules\n4. Build projects\n5. Explore advanced topics",
+      "duration_minutes": 15,
+      "learning_objectives": [
+        "Understand what Python is and its applications",
+        "Know why Python is beginner-friendly",
+        "Identify career opportunities with Python"
+      ],
+      "key_concepts": [
+        "Python definition",
+        "Use cases",
+        "Industry adoption",
+        "Career paths"
+      ]
+    },
+    {
+      "id": "lesson-002",
+      "title": "Installing Python and Setting Up Your Environment",
+      "order": 2,
+      "content_markdown": "# Installing Python and Setting Up Your Environment\n\n## Download Python\n1. Visit [python.org](https://www.python.org)\n2. Click Downloads\n3. Select Python 3.11 or latest\n\n## Installation Steps\n### Windows\n- Run the installer\n- **Check**: Add Python to PATH\n- Click Install Now\n\n### Mac\n- Download the macOS installer\n- Run the installer\n- Follow prompts\n\n### Linux\n```bash\nsudo apt-get install python3\n```\n\n## Verify Installation\nOpen terminal/command prompt and run:\n```bash\npython --version\n```\n\n## Choose Your IDE\n- **VS Code** (Recommended): Free, lightweight\n- **PyCharm**: Full-featured IDE\n- **Jupyter Notebook**: Great for learning\n\n## Your First Program\nCreate a file named `hello.py`:\n```python\nprint('Hello, World!')\n```\n\nRun it:\n```bash\npython hello.py\n```",
+      "duration_minutes": 25,
+      "learning_objectives": [
+        "Install Python correctly",
+        "Set up a development environment",
+        "Run your first Python program"
+      ],
+      "key_concepts": [
+        "Python installation",
+        "IDE selection",
+        "Environment setup",
+        "Running scripts"
+      ]
+    },
+    {
+      "id": "lesson-003",
+      "title": "Your First Python Program",
+      "order": 3,
+      "content_markdown": "# Your First Python Program\n\n## Understanding print()\nThe `print()` function displays output to the screen.\n\n## Basic Syntax\n```python\nprint('Hello, Python!')\nprint(42)\nprint(3.14)\n```\n\n## Multiple Arguments\n```python\nprint('I am', 25, 'years old')\n```\n\n## Comments\nComments explain your code:\n```python\n# This is a single-line comment\n\n\"\"\"\nThis is a multi-line comment.\nIt can span multiple lines.\n\"\"\"\n```\n\n## String Formatting\n```python\nname = 'Alice'\nage = 25\nprint(f'{name} is {age} years old')\n```\n\n## Practice\nWrite a program that prints:\n- Your name\n- Your age\n- Your favorite hobby\n\nThen combine them in a sentence using f-strings.",
+      "duration_minutes": 20,
+      "learning_objectives": [
+        "Use print() function effectively",
+        "Understand comments in Python",
+        "Format strings with variables"
+      ],
+      "key_concepts": [
+        "print() function",
+        "Comments",
+        "String formatting",
+        "f-strings"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "quiz-001",
+      "title": "Python Basics Quiz",
+      "description": "Test your understanding of Python fundamentals",
+      "questions": [
+        {
+          "id": "q-001",
+          "question_text": "What is the correct syntax for printing 'Hello' in Python?",
+          "question_type": "multiple_choice",
+          "options": [
+            {
+              "id": "opt-001",
+              "text": "print('Hello')",
+              "is_correct": true
+            },
+            {
+              "id": "opt-002",
+              "text": "echo('Hello')",
+              "is_correct": false
+            },
+            {
+              "id": "opt-003",
+              "text": "println('Hello')",
+              "is_correct": false
+            },
+            {
+              "id": "opt-004",
+              "text": "printf('Hello')",
+              "is_correct": false
+            }
+          ],
+          "explanation": "In Python, we use the print() function to output text to the console.",
+          "difficulty": "Easy"
+        },
+        {
+          "id": "q-002",
+          "question_text": "Which symbol is used for single-line comments in Python?",
+          "question_type": "multiple_choice",
+          "options": [
+            {
+              "id": "opt-005",
+              "text": "#",
+              "is_correct": true
+            },
+            {
+              "id": "opt-006",
+              "text": "//",
+              "is_correct": false
+            },
+            {
+              "id": "opt-007",
+              "text": "--",
+              "is_correct": false
+            },
+            {
+              "id": "opt-008",
+              "text": "/*",
+              "is_correct": false
+            }
+          ],
+          "explanation": "Python uses the hash symbol (#) to denote single-line comments.",
+          "difficulty": "Easy"
+        },
+        {
+          "id": "q-003",
+          "question_text": "What will this code output? print(5 + 3 * 2)",
+          "question_type": "multiple_choice",
+          "options": [
+            {
+              "id": "opt-009",
+              "text": "11",
+              "is_correct": true
+            },
+            {
+              "id": "opt-010",
+              "text": "16",
+              "is_correct": false
+            },
+            {
+              "id": "opt-011",
+              "text": "10",
+              "is_correct": false
+            },
+            {
+              "id": "opt-012",
+              "text": "8",
+              "is_correct": false
+            }
+          ],
+          "explanation": "Python follows order of operations (PEMDAS). Multiplication happens before addition, so 3 * 2 = 6, then 5 + 6 = 11.",
+          "difficulty": "Medium"
+        }
+      ],
+      "passing_score": 70,
+      "total_points": 100
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-001",
+      "title": "Module 1 Practical Assessment",
+      "description": "Complete practical tasks to demonstrate your understanding",
+      "tasks": [
+        {
+          "id": "task-001",
+          "task_description": "Write a Python program that prints your name, age, and favorite programming language in three separate lines.",
+          "instructions": "Create a file named 'about_me.py'. Use three print() statements. Each statement should print one piece of information.",
+          "deadline_days": 3,
+          "points": 20
+        },
+        {
+          "id": "task-002",
+          "task_description": "Create a program that uses variables and f-strings to format a sentence.",
+          "instructions": "Define variables for your name, favorite food, and hobby. Use an f-string to create a sentence: 'I am [name], I love [food], and I enjoy [hobby]'.",
+          "deadline_days": 3,
+          "points": 30
+        },
+        {
+          "id": "task-003",
+          "task_description": "Add comments to explain a Python program.",
+          "instructions": "Take any Python program and add meaningful comments explaining what each line does. Comments should be clear and helpful for someone learning Python.",
+          "deadline_days": 3,
+          "points": 25
+        }
+      ],
+      "total_points": 75
+    }
+  ],
+  "capstone": {
+    "id": "capstone-001",
+    "title": "Personal Portfolio Website Generator",
+    "business_problem": "You are a junior developer who needs to quickly generate a professional portfolio website from structured data. You need an automated Python tool that takes information about projects, skills, and experiences, then generates a complete HTML website.",
+    "objectives": [
+      "Parse structured data (JSON/dictionaries)",
+      "Generate HTML dynamically using Python",
+      "Apply CSS styling to create a professional appearance",
+      "Deploy the website to a public platform",
+      "Handle edge cases and validate user input"
+    ],
+    "deliverables": [
+      "A Python script that reads project/skill data",
+      "Generated HTML files for at least 3 pages (Home, Projects, Contact)",
+      "Professional CSS styling",
+      "Hosted website with working links",
+      "Documentation explaining how to use the generator"
+    ],
+    "evaluation_criteria": {
+      "Functionality": "Website displays all projects and skills correctly",
+      "Code Quality": "Code is clean, commented, and follows Python conventions",
+      "Styling": "Website is visually appealing and responsive",
+      "Documentation": "Clear instructions on how to use the generator",
+      "Creativity": "Extra features beyond requirements (animations, themes, etc.)"
+    },
+    "expected_outcomes": [
+      "Understand Python file I/O operations",
+      "Learn HTML generation techniques",
+      "Practice working with structured data",
+      "Gain experience deploying web content",
+      "Build a real portfolio project for your resume"
+    ],
+    "difficulty_level": "Beginner",
+    "estimated_hours": 20
+  },
+  "progress": {
+    "lessons_completed": 2,
+    "total_lessons": 20,
+    "quizzes_completed": 0,
+    "total_quizzes": 5,
+    "assessments_completed": 0,
+    "capstone_started": false,
+    "completion_percentage": 10,
+    "last_accessed": "2026-06-21T14:30:00Z"
+  }
+}

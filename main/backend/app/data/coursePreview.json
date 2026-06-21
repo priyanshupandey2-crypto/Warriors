@@ -1,0 +1,92 @@
+{
+  "id": "course-001",
+  "title": "Python Programming Fundamentals",
+  "description": "Master the basics of Python programming with hands-on projects and real-world examples.",
+  "difficulty_level": "Beginner",
+  "total_duration_hours": 32,
+  "learning_objectives": [
+    "Understand Python syntax and data types",
+    "Master control flow and functions",
+    "Work with lists, dictionaries, and file operations",
+    "Build real-world projects with libraries",
+    "Apply debugging and best practices"
+  ],
+  "overview": "This comprehensive course teaches you Python from scratch. You'll start with basic syntax and gradually progress to building practical applications. By the end, you'll have the skills to solve real-world problems with Python.",
+  "modules": [
+    {
+      "id": "module-001",
+      "title": "Python Basics and Setup",
+      "description": "Introduction to Python, installation, and development environment setup.",
+      "duration_hours": 8,
+      "lessons_count": 5,
+      "order": 1
+    },
+    {
+      "id": "module-002",
+      "title": "Core Concepts and Data Structures",
+      "description": "Learn variables, data types, operators, and Python data structures.",
+      "duration_hours": 12,
+      "lessons_count": 8,
+      "order": 2
+    },
+    {
+      "id": "module-003",
+      "title": "Functions and File Handling",
+      "description": "Master function definition, scope, and working with files.",
+      "duration_hours": 12,
+      "lessons_count": 7,
+      "order": 3
+    }
+  ],
+  "lesson_sequence": [
+    {
+      "id": "lesson-001",
+      "title": "What is Python and Why Learn It?",
+      "duration_minutes": 15,
+      "order": 1
+    },
+    {
+      "id": "lesson-002",
+      "title": "Installing Python and Setting Up Your Environment",
+      "duration_minutes": 25,
+      "order": 2
+    },
+    {
+      "id": "lesson-003",
+      "title": "Your First Python Program",
+      "duration_minutes": 20,
+      "order": 3
+    },
+    {
+      "id": "lesson-004",
+      "title": "Variables and Data Types",
+      "duration_minutes": 35,
+      "order": 4
+    },
+    {
+      "id": "lesson-005",
+      "title": "Working with Strings",
+      "duration_minutes": 40,
+      "order": 5
+    },
+    {
+      "id": "lesson-006",
+      "title": "Lists and Tuples",
+      "duration_minutes": 45,
+      "order": 6
+    },
+    {
+      "id": "lesson-007",
+      "title": "Dictionaries and Sets",
+      "duration_minutes": 40,
+      "order": 7
+    },
+    {
+      "id": "lesson-008",
+      "title": "Control Flow: If Statements",
+      "duration_minutes": 35,
+      "order": 8
+    }
+  ],
+  "learning_roadmap": "Week 1: Python Basics → Week 2: Data Structures → Week 3: Control Flow & Functions → Week 4: Projects & Best Practices"
+}
