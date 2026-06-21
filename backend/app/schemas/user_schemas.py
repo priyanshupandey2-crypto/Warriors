@@ -1,0 +1,26 @@
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+
+class UserBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., max_length=100)
+    role: str = Field(default="learner", max_length=50)
+
+
+class UserCreate(UserBase):
+    password: str = Field(..., min_length=6)
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    email: Optional[str] = Field(None, max_length=100)
+    role: Optional[str] = Field(None, max_length=50)
+
+
+class UserResponse(UserBase):
+    id: int
+    courses_enrolled: List[int] = []
+
+    class Config:
+        from_attributes = True

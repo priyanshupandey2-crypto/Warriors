@@ -7,6 +7,9 @@ logger = get_logger(__name__)
 
 Base = declarative_base()
 
+# Import all models here so they are registered with Base
+from app.models.user import User
+
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DATABASE_ECHO,
