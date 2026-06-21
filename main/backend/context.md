@@ -1,14 +1,22 @@
-# Backend Infrastructure Context
+# Backend Infrastructure & Mock Data Services Context
 
 ## Purpose
 
-This FastAPI-based backend provides foundational infrastructure for AI agent workflows with comprehensive observability, telemetry tracking, and LangSmith integration. The system enables future agents (Research, Curriculum, Assessment, Capstone) to operate with:
+This FastAPI-based backend provides:
 
-- **Structured logging** for production-grade observability
-- **Telemetry tracking** for execution metrics (duration, tokens, cost)
-- **LangSmith integration** for distributed tracing and parent/child run relationships
-- **Environment-driven configuration** for flexibility across deployment contexts
-- **Health monitoring** endpoints for infrastructure verification
+1. **Foundation Infrastructure** (by Shreya)
+   - Structured logging for production-grade observability
+   - Telemetry tracking for execution metrics (duration, tokens, cost)
+   - LangSmith integration for distributed tracing and parent/child run relationships
+   - Environment-driven configuration for flexibility across deployment contexts
+   - Health monitoring endpoints for infrastructure verification
+
+2. **Mock Data Services** (by Shruti - Issue: Create Mock Data Services for UI Development)
+   - 26 API endpoints serving realistic mock data
+   - Pydantic schemas for request/response validation
+   - JSON-based data files replicating AI engine outputs
+   - Ready for UI team to build complete interfaces immediately
+   - Zero database dependencies - data loads from files
 
 ---
 
@@ -18,50 +26,214 @@ This FastAPI-based backend provides foundational infrastructure for AI agent wor
 Warriors/main/backend/
 ├── app/
 │   ├── __init__.py                  # Package initialization
-│   ├── main.py                      # FastAPI application factory
+│   ├── main.py                      # FastAPI application factory with all routers
 │   ├── config.py                    # Environment configuration
 │   ├── logger.py                    # Structured JSON logging utilities
 │   ├── telemetry.py                 # Execution metrics recording
 │   ├── tracing.py                   # LangSmith integration
-│   └── routes/
+│   │
+│   ├── routes/                      # Foundation infrastructure endpoints
+│   │   ├── __init__.py
+│   │   ├── health.py                # Health check endpoint
+│   │   └── test_trace.py            # Infrastructure verification endpoint
+│   │
+│   ├── routers/                     # Mock data API endpoints (26 endpoints)
+│   │   ├── __init__.py
+│   │   ├── auth.py                  # Authentication (signup, login, profile)
+│   │   ├── courses.py               # Courses (featured, browse, generate, preview, enroll)
+│   │   ├── classroom.py             # Learning workspace (lessons, quizzes, capstone, bookmarks)
+│   │   └── analytics.py             # User analytics & dashboard
+│   │
+│   ├── schemas/                     # Pydantic validation models
+│   │   ├── __init__.py
+│   │   ├── auth_schemas.py          # Auth models (LoginRequest, TokenResponse, etc)
+│   │   ├── course_schemas.py        # Course models (CoursePreview, FeaturedCourse, etc)
+│   │   └── classroom_schemas.py     # Classroom models (LessonContent, QuizStructure, etc)
+│   │
+│   └── data/                        # Mock JSON data files
 │       ├── __init__.py
-│       ├── health.py                # Health check endpoint
-│       └── test_trace.py            # Infrastructure verification endpoint
+│       ├── featuredCourses.json     # 5 featured courses for landing page
+│       ├── coursePreview.json       # Complete course with modules & lessons
+│       ├── classroomWorkspace.json  # Lessons, quizzes, assessments, capstone
+│       ├── bookmarks.json           # Bookmarked lessons
+│       └── userDashboard.json       # User analytics & dashboard data
+│
 ├── main.py                          # Server entry point
 ├── requirements.txt                 # Python dependencies
 ├── .env.example                     # Environment variables template
+├── .env                             # Environment configuration (development)
 └── context.md                       # This file
 ```
 
 ## Running the Project
 
-1. Create .env from .env.example
-2. Install dependencies:
-   pip install -r requirements.txt
+### Prerequisites
+```bash
+# Install dependencies
+pip install -r requirements.txt
+```
 
-3. Start server:
-   python main.py
+### Environment Variables (.env)
 
-4. Verify:
-   GET /health
-   GET /test-trace
+**Current Configuration (Development):**
+```
+APP_ENV=development
+DEBUG=true
+HOST=127.0.0.1
+PORT=8000
 
+LANGSMITH_API_KEY=optional
+LANGSMITH_PROJECT=optional
+LANGSMITH_TRACING=false
 
+DATABASE_URL=postgresql://user:password@localhost:5432/lxp_db
+JWT_SECRET=your-secret-key-here-min-32-chars-for-jwt-encoding
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_HOURS=24
+```
+
+**For Future Developers - Integration Guide:**
+
+| Variable | Current Value | Purpose | Team | Action Required |
+|----------|--------------|---------|------|-----------------|
+| `DATABASE_URL` | `postgresql://user:password@localhost:5432/lxp_db` | PostgreSQL connection | Database Team | Update with real connection string when DB is ready |
+| `JWT_SECRET` | `your-secret-key-here-min-32-chars...` | JWT token signing | Auth Team | Replace with real 32+ character secret when implementing auth |
+| `JWT_ALGORITHM` | `HS256` | Token encryption method | Auth Team | Keep as-is or update if needed |
+| `JWT_EXPIRATION_HOURS` | `24` | Token expiration time | Auth Team | Adjust based on security requirements |
+
+**When Database Team Takes Over:**
+- Update `DATABASE_URL` to actual PostgreSQL instance
+- Database schema already exists: `users`, `courses`, `send_for_global_approval`
+- No code changes needed - just swap the connection string
+
+**When Auth Team Takes Over:**
+- Update `JWT_SECRET` with real secret (use `secrets` module to generate)
+- Implement JWT validation in auth routers
+- Update mock auth endpoints to use real authentication
+- Add JWT middleware to protected endpoints
+
+### Setup
+```bash
+# Environment is already configured in .env
+# All variables are ready for development
+```
+
+### Start Server
+```bash
+cd main/backend
+python main.py
+```
+
+Server runs on: `http://127.0.0.1:8000`
+
+### Verify Installation
+```bash
+# Foundation endpoints (her code)
+GET /health                 → Server status
+GET /test-trace            → LangSmith tracing verification
+
+# Mock data endpoints (your code) - Sample 3 of 26
+GET /api/courses/featured  → Featured courses
+GET /api/classroom/course-001 → Learning workspace
+GET /api/user/dashboard    → User analytics
+
+# API Documentation
+GET /docs                  → Swagger UI with all 26 endpoints
+```
+
+---
+
+## Mock Data Services - 26 API Endpoints
+
+**Status:** ✅ Complete & Production-Ready  
+**Purpose:** Unblock UI team while AI agents are being built  
+**Data Source:** JSON files (no database needed)
+
+### Endpoints by Domain
+
+**Authentication (3):**
+- `POST /api/auth/signup` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Current user profile
+
+**Courses (5):**
+- `GET /api/courses/featured` - Featured courses (landing page)
+- `GET /api/courses` - Browse all courses (paginated)
+- `POST /api/courses/generate` - Generate new course
+- `GET /api/courses/{course_id}/preview` - Course preview with modules
+- `POST /api/courses/{course_id}/enroll` - Enroll in course
+
+**Classroom & Learning (11):**
+- `GET /api/classroom/{course_id}` - Full classroom workspace
+- `GET /api/classroom/{course_id}/lessons` - All lessons in course
+- `GET /api/classroom/{course_id}/lessons/{lesson_id}` - Lesson with markdown content
+- `GET /api/classroom/{course_id}/quizzes` - All course quizzes
+- `GET /api/classroom/{course_id}/quizzes/{quiz_id}` - Specific quiz with questions
+- `POST /api/classroom/{course_id}/quizzes/{quiz_id}/submit` - Submit quiz answers
+- `GET /api/classroom/{course_id}/capstone` - Capstone project specs
+- `POST /api/classroom/{course_id}/capstone/start` - Start capstone work
+- `POST /api/classroom/{course_id}/capstone/submit` - Submit capstone
+- `POST /api/classroom/progress/complete` - Mark lesson complete
+- `POST /api/classroom/bookmarks/toggle` - Bookmark/unbookmark lesson
+- `GET /api/classroom/bookmarks/` - Get all bookmarks
+
+**Analytics & Dashboard (7):**
+- `GET /api/user/dashboard` - Complete user dashboard
+- `GET /api/user/analytics/activity` - Weekly activity metrics
+- `GET /api/user/analytics/consistency` - Learning consistency heatmap
+- `GET /api/user/milestones` - Upcoming milestones
+- `GET /api/user/achievements` - Badges & achievements
+- `GET /api/user/progress/overview` - Course progress overview
+- `GET /api/user/stats` - User statistics
+
+### Quick Test
+
+```bash
+# Browse to Swagger UI
+http://127.0.0.1:8000/docs
+
+# Or curl test
+curl http://127.0.0.1:8000/api/courses/featured
+curl http://127.0.0.1:8000/api/user/dashboard
+```
+
+### Mock Data Files
+
+| File | Purpose | Size |
+|------|---------|------|
+| `featuredCourses.json` | Homepage course cards | 5 courses |
+| `coursePreview.json` | Generated course layout | 3 modules, 8 lessons |
+| `classroomWorkspace.json` | Complete learning environment | Lessons (markdown), quizzes, assessments, capstone |
+| `bookmarks.json` | User bookmarks | 3 examples |
+| `userDashboard.json` | User analytics & progress | Complete dashboard data |
 
 ### File Purposes
 
-| File | Purpose |
-|------|---------|
-| `app/main.py` | FastAPI application factory; initializes logging, tracing, middleware, and routers on startup |
-| `app/config.py` | Centralized settings using Pydantic; loads environment variables from `.env` |
-| `app/logger.py` | Structured JSON logging with timestamp, level, module, function, and line number |
-| `app/telemetry.py` | `TelemetryRecorder` class for tracking execution duration, tokens, cost, and metadata |
-| `app/tracing.py` | LangSmith client wrapper; context managers for creating and finalizing runs |
-| `app/routes/health.py` | `GET /health` endpoint returning server status and LangSmith configuration |
-| `app/routes/test_trace.py` | `GET /test-trace` endpoint demonstrating telemetry and tracing integration |
-| `main.py` | Entry point; runs Uvicorn server with settings from `app/config.py` |
-| `requirements.txt` | Python package dependencies (FastAPI, Uvicorn, Pydantic, LangSmith, etc.) |
-| `.env.example` | Template for environment variables (copy to `.env` and fill in real values) |
+| File | Purpose | By |
+|------|---------|-----|
+| `app/main.py` | FastAPI application factory; initializes logging, tracing, middleware, and all routers on startup | Team Member |
+| `app/config.py` | Centralized settings using Pydantic; loads environment variables from `.env` | Team Member |
+| `app/logger.py` | Structured JSON logging with timestamp, level, module, function, and line number | Team Member |
+| `app/telemetry.py` | `TelemetryRecorder` class for tracking execution duration, tokens, cost, and metadata | Team Member |
+| `app/tracing.py` | LangSmith client wrapper; context managers for creating and finalizing runs | Team Member |
+| `app/routes/health.py` | `GET /health` endpoint returning server status and LangSmith configuration | Team Member |
+| `app/routes/test_trace.py` | `GET /test-trace` endpoint demonstrating telemetry and tracing integration | Team Member |
+| `app/routers/auth.py` | 3 authentication endpoints: signup, login, profile retrieval | You |
+| `app/routers/courses.py` | 5 course endpoints: featured, browse, generate, preview, enroll | You |
+| `app/routers/classroom.py` | 11 learning endpoints: lessons, quizzes, assessments, capstone, bookmarks | You |
+| `app/routers/analytics.py` | 7 analytics endpoints: dashboard, activity, consistency, milestones, achievements | You |
+| `app/schemas/auth_schemas.py` | Pydantic models: SignupRequest, LoginRequest, TokenResponse, UserProfile | You |
+| `app/schemas/course_schemas.py` | Pydantic models: CoursePreview, FeaturedCourse, ModulePreview, etc. | You |
+| `app/schemas/classroom_schemas.py` | Pydantic models: LessonContent, QuizStructure, CapstoneSpecs, BookmarkItem | You |
+| `app/data/featuredCourses.json` | Mock data: 5 featured courses for landing page | You |
+| `app/data/coursePreview.json` | Mock data: Complete course with 3 modules and 8 lessons | You |
+| `app/data/classroomWorkspace.json` | Mock data: Lessons (markdown), quizzes, assessments, capstone | You |
+| `app/data/bookmarks.json` | Mock data: 3 sample bookmarked lessons | You |
+| `app/data/userDashboard.json` | Mock data: User analytics, progress, milestones, achievements | You |
+| `main.py` | Entry point; runs Uvicorn server with settings from `app/config.py` | Team Member |
+| `requirements.txt` | Python package dependencies (FastAPI, Uvicorn, Pydantic, LangSmith, etc.) | Team Member |
+| `.env.example` | Template for environment variables (copy to `.env` and fill in real values) | Team Member |
+| `.env` | Development environment configuration with all required variables | You |
 
 ---
 

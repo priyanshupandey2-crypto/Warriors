@@ -5,6 +5,7 @@ from app.config import settings
 from app.logger import configure_logging, get_logger
 from app.tracing import configure_langsmith
 from app.routes import health, test_trace
+from app.routers import auth, courses, classroom, analytics
 
 logger = get_logger(__name__)
 
@@ -37,6 +38,10 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health.router)
     app.include_router(test_trace.router)
+    app.include_router(auth.router)
+    app.include_router(courses.router)
+    app.include_router(classroom.router)
+    app.include_router(analytics.router)
 
     @app.on_event("startup")
     async def startup_event():
