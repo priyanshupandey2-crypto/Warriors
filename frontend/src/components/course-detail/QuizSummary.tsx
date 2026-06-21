@@ -1,7 +1,7 @@
 'use client';
 
 import { QuizSummary as Quiz } from '@/types/course';
-import { Card, Badge } from '@/components/ui';
+import { Card, Badge, SectionHeader } from '@/components/ui';
 
 interface QuizSummaryProps {
   quizzes?: Quiz[];
@@ -13,8 +13,8 @@ export function QuizSummary({ quizzes = [] }: QuizSummaryProps) {
   }
 
   return (
-    <section className="space-y-md">
-      <h2 className="text-headline-lg text-on-background">Assessments</h2>
+    <section className="space-y-lg">
+      <SectionHeader title="Assessments" />
 
       <div className="space-y-sm">
         {quizzes.map((quiz) => (

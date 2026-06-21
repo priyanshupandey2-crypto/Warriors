@@ -16,7 +16,7 @@ const statusColors = {
 
 export function CourseHeader({ course }: CourseHeaderProps) {
   return (
-    <div className="space-y-lg">
+    <div className="space-y-lg pb-lg border-b border-surface-container">
       {/* Title & Badges */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-md">
         <div className="flex-1">

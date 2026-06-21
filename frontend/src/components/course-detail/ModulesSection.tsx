@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CourseModule } from '@/types/course';
-import { Icon } from '@/components/ui';
+import { Icon, SectionHeader } from '@/components/ui';
 
 interface ModulesSectionProps {
   modules: CourseModule[];
@@ -18,8 +18,8 @@ export function ModulesSection({ modules }: ModulesSectionProps) {
   };
 
   return (
-    <section className="space-y-md">
-      <h2 className="text-headline-lg text-on-background">Course Modules</h2>
+    <section className="space-y-lg">
+      <SectionHeader title="Course Modules" />
 
       <div className="space-y-sm">
         {modules.map((module) => (

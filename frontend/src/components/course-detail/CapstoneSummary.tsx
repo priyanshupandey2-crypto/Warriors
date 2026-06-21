@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge } from '@/components/ui';
+import { Card, Badge, SectionHeader } from '@/components/ui';
 
 interface Capstone {
   title: string;
@@ -19,8 +19,8 @@ export function CapstoneSummary({ capstone }: CapstoneSummaryProps) {
   }
 
   return (
-    <section className="space-y-md">
-      <h2 className="text-headline-lg text-on-background">Capstone Project</h2>
+    <section className="space-y-lg">
+      <SectionHeader title="Capstone Project" />
 
       <Card variant="elevated" className="space-y-md">
         <div className="flex items-start justify-between gap-md">

@@ -41,7 +41,7 @@ export function DraftActions({ courseId, onSave, onSubmit, isLoading = false }: 
             disabled={isLoading}
             loading={isLoading}
           >
-            💾 Save Draft
+            Save Draft
           </Button>
           <Button
             variant="primary"
@@ -51,7 +51,7 @@ export function DraftActions({ courseId, onSave, onSubmit, isLoading = false }: 
             disabled={isLoading || showConfirmation}
             loading={isLoading}
           >
-            ✅ Submit for Approval
+            Submit for Approval
           </Button>
         </div>
 
@@ -78,7 +78,7 @@ export function DraftActions({ courseId, onSave, onSubmit, isLoading = false }: 
           </div>
           <div className="bg-error-container/20 p-md rounded-lg border border-error">
             <p className="text-label-md text-error font-medium">
-              ⚠️ This action cannot be undone until reviewed
+              This action cannot be undone until reviewed
             </p>
           </div>
         </div>
