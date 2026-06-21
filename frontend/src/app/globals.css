@@ -1,0 +1,109 @@
+@import '../styles/variables.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply m-0 p-0 box-border;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-on-surface font-sans transition-colors;
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+}
+
+/* Typography utilities */
+@layer components {
+  .text-display-lg {
+    font-size: var(--font-display-lg);
+    line-height: 56px;
+  }
+
+  .text-display-lg-mobile {
+    font-size: var(--font-display-lg-mobile);
+    line-height: 44px;
+  }
+
+  .text-headline-lg {
+    font-size: var(--font-headline-lg);
+    line-height: 40px;
+  }
+
+  .text-headline-lg-mobile {
+    font-size: var(--font-headline-lg-mobile);
+    line-height: 32px;
+  }
+
+  .text-headline-md {
+    font-size: var(--font-headline-md);
+    line-height: 32px;
+  }
+
+  .text-body-lg {
+    font-size: var(--font-body-lg);
+    line-height: 28px;
+  }
+
+  .text-body-md {
+    font-size: var(--font-body-md);
+    line-height: 24px;
+  }
+
+  .text-label-md {
+    font-size: var(--font-label-md);
+    line-height: 20px;
+  }
+
+  .text-label-sm {
+    font-size: var(--font-label-sm);
+    line-height: 16px;
+  }
+
+  /* Focus ring for keyboard navigation */
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Smooth transitions */
+  .transition-fast {
+    transition-duration: var(--transition-fast);
+  }
+
+  .transition-standard {
+    transition-duration: var(--transition-standard);
+  }
+
+  .transition-slow {
+    transition-duration: var(--transition-slow);
+  }
+}
+
+/* Remove default button styles */
+button {
+  @apply cursor-pointer;
+}
+
+/* Remove default input styles */
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-surface-container-low;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-outline-variant rounded-full hover:bg-outline transition-colors;
+}

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>All Courses | AuraLearn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary": "#772cd8",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-secondary-container": "#fffbff",
+                    "on-background": "#0b1c30",
+                    "surface-bright": "#f8f9ff",
+                    "on-primary-container": "#002e53",
+                    "surface-variant": "#d3e4fe",
+                    "surface": "#f8f9ff",
+                    "outline-variant": "#bfc7d5",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed": "#00201e",
+                    "on-surface": "#0b1c30",
+                    "inverse-surface": "#213145",
+                    "outline": "#707884",
+                    "on-primary-fixed-variant": "#00497f",
+                    "inverse-primary": "#a0c9ff",
+                    "surface-container-high": "#dce9ff",
+                    "on-surface-variant": "#3f4753",
+                    "on-error": "#ffffff",
+                    "primary-container": "#0697ff",
+                    "tertiary-fixed": "#65f8f0",
+                    "on-secondary-fixed-variant": "#6000bf",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#914cf2",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "background": "#f8f9ff",
+                    "primary-fixed": "#d2e4ff",
+                    "tertiary-container": "#00a59f",
+                    "surface-container-low": "#eff4ff",
+                    "on-tertiary-container": "#003330",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container": "#e5eeff",
+                    "tertiary": "#006a66",
+                    "surface-tint": "#0061a7",
+                    "on-primary-fixed": "#001c37",
+                    "primary-fixed-dim": "#a0c9ff",
+                    "on-tertiary-fixed-variant": "#00504d",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#ecdcff",
+                    "on-error-container": "#93000a",
+                    "primary": "#0061a7",
+                    "on-secondary-fixed": "#280056",
+                    "tertiary-fixed-dim": "#3fdbd4",
+                    "secondary-fixed-dim": "#d6baff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "xxl": "48px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "margin-mobile": "16px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "xs": "4px",
+                    "xl": "32px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .course-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .course-card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 97, 167, 0.15);
+        }
+        .glass-header {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest dark:bg-inverse-surface shadow-sm sticky top-0 z-50 glass-header">
+<nav class="flex justify-between items-center w-full px-lg md:px-xl py-md max-w-container-max mx-auto">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">AuraLearn</span>
+<div class="hidden md:flex gap-lg items-center">
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed border-b-2 border-primary font-bold pb-1 transition-colors duration-200" href="#">Browse Courses</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="hidden md:block font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200">Sign In</button>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">Get Started</button>
+</div>
+</nav>
+</header>
+<main class="flex-grow">
+<!-- Hero Search Section -->
+<section class="bg-surface-container-low dark:bg-surface-dim pt-xxl pb-xl px-md">
+<div class="max-w-container-max mx-auto text-center md:text-left">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-md text-on-surface">Expand Your Knowledge</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl max-w-2xl">Discover high-quality courses taught by industry experts across Design, Business, and Computer Science.</p>
+<div class="relative max-w-2xl group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-[48px] pr-lg py-md rounded-xl border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-body-md shadow-sm" placeholder="Search for courses, skills, or authors..." type="text"/>
+</div>
+</div>
+</section>
+<!-- Filters & Course Grid -->
+<section class="max-w-container-max mx-auto px-lg py-xxl">
+<div class="flex flex-col md:flex-row gap-xl">
+<!-- Sidebar Filters -->
+<aside class="w-full md:w-64 flex-shrink-0 space-y-xl">
+<div>
+<h3 class="font-label-md text-label-md text-primary mb-md uppercase tracking-wider">Categories</h3>
+<div class="space-y-sm">
+<label class="flex items-center gap-sm group cursor-pointer">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">All Categories</span>
+</label>
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Computer Science</span>
+</label>
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Business &amp; Strategy</span>
+</label>
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Creative Design</span>
+</label>
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Marketing</span>
+</label>
+</div>
+</div>
+<div class="pt-md border-t border-outline-variant">
+<h3 class="font-label-md text-label-md text-primary mb-md uppercase tracking-wider">Difficulty</h3>
+<div class="space-y-sm">
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 border-outline-variant text-primary focus:ring-primary" name="difficulty" type="radio"/>
+<span class="font-body-md text-body-md text-on-surface">Beginner</span>
+</label>
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 border-outline-variant text-primary focus:ring-primary" name="difficulty" type="radio"/>
+<span class="font-body-md text-body-md text-on-surface">Intermediate</span>
+</label>
+<label class="flex items-center gap-sm group cursor-pointer">
+<input class="w-5 h-5 border-outline-variant text-primary focus:ring-primary" name="difficulty" type="radio"/>
+<span class="font-body-md text-body-md text-on-surface">Advanced</span>
+</label>
+</div>
+</div>
+</aside>
+<!-- Course Grid Area -->
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-xl">
+<p class="font-label-md text-label-md text-on-surface-variant">Showing <span class="font-bold text-on-surface">248</span> courses</p>
+<select class="bg-transparent border-none font-label-md text-label-md text-primary focus:ring-0 cursor-pointer">
+<option>Newest First</option>
+<option>Most Popular</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+</select>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Course Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional top-down view of a designer's desk with a clean laptop, digital tablet, and modern sketching tools. The aesthetic is clean and high-key, using bright whites and electric blue accents. Soft studio lighting creates professional depth and a serene learning atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBooGc5QJtuxOHshZMexrY_wyFLz5LL9N39tiT-WVVMw7tRNpDoIX-YPgEY8a4-5CtBAj8qP269EtqjgczzbuGyHyj6_j4hlRQrga8DATDrpH_2k4JKmA52zrXQPVm_j6AQMULxRvDytBsK46ch-osXUYV5WZAOBqy-Y4NyTQPekqTvDD2y9mvCLAfHpTrf4RQxv2raIMSxCucXzgpTj94hYbDUx_nN6rdkx-CJ-DlV6LamPvCwjduk8FguF_uCk4XUsBIJK4A3fWAI"/>
+<span class="absolute top-md left-md bg-secondary text-on-secondary px-sm py-xs rounded text-label-sm font-bold">Design</span>
+</div>
+<div class="p-lg flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2">UI/UX Design Fundamentals for Modern Products</h3>
+</div>
+<div class="flex items-center gap-md mb-lg text-on-surface-variant text-label-md">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bar_chart</span> Intermediate</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">schedule</span> 12h 30m</span>
+</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="font-headline-md text-primary">$89.99</span>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">View Course</button>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up of a high-resolution monitor displaying clean, colorful lines of code and data visualizations. The lighting is moody but clear, highlighting vibrant teal and blue hues. The environment suggests a high-tech developer workspace with a focus on precision and digital innovation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyAFTx27UIQBf_RCR806ZHhhswqxc9rOI6DOh8EOJ7cHYCZFy6wiOdsuTcdoIK0mqya4CoLm9SH_og-h1cThwFvFJ13qSYPBTO3-xLs02GPCSvhQ3FUrqrRVzzDmdXCOG_oxLT37mRiwbe6eqPXCUTxwS_QK7H3EbbQ71_0Mzs8LuEQlkfBYD3VG4uurnTE16l-6a2mD310h26NztRriTdaNXqkp-qBn0srJnOXRnO76NtxXZPajBOmdjd0ogI65avPvdtBdIN5VP2"/>
+<span class="absolute top-md left-md bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded text-label-sm font-bold">CS</span>
+</div>
+<div class="p-lg flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2">Advanced Python Algorithms &amp; Data Structures</h3>
+</div>
+<div class="flex items-center gap-md mb-lg text-on-surface-variant text-label-md">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bar_chart</span> Advanced</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">schedule</span> 24h 15m</span>
+</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="font-headline-md text-primary">$124.99</span>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">View Course</button>
+</div>
+</div>
+</div>
+<!-- Course Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A minimalist bright office space with a blurred team in the background having a productive meeting. The foreground features a glass desk with a smartphone and a financial chart. The overall mood is energetic, optimistic, and corporate modern, aligned with high-end business education." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIrhWYbr5QO_CXNNRaUMqEVlbY6EBtzr7gsC5QGPOHPyFoJZ7T7T8G25Ga_HGlfNjgILFCq7gON9Cv5GU3f0FAw8oXLaqpLjnnF6pgfeI4yzlaOlkxwm4DAgxJUFER7sNM5Ks-QGqSbib5MzNqLt15BXyx7bKB1eg6JmRAJ1PbfCICbAo7OTSC2WKT2mAWYaqG-oILoyLHjuUe8NTOA4Kxh3Zir5Oz7qSNRXDL_4LW9x4n6KaH8ZmFMWS653b3SHCX33baDWnKMPOe"/>
+<span class="absolute top-md left-md bg-primary-container text-on-primary-container px-sm py-xs rounded text-label-sm font-bold">Business</span>
+</div>
+<div class="p-lg flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2">Mastering Digital Marketing &amp; Growth Hacking</h3>
+</div>
+<div class="flex items-center gap-md mb-lg text-on-surface-variant text-label-md">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bar_chart</span> Beginner</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">schedule</span> 8h 45m</span>
+</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="font-headline-md text-primary">Free</span>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">Enroll Now</button>
+</div>
+</div>
+</div>
+<!-- Course Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A futuristic digital interface showing 3D structural models and interactive charts in a bright, ethereal space. Glowing blue and purple gradients illuminate the scene, conveying a sense of momentum and advanced technological mastery. The style is ultra-modern and corporate-tech focused." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKkp4xkRkQ9Kn9mQ6RqsXSpK0niIqTzpE4spE1nVKFsoESnBL_tCqnPNWbezhx9SfiWy5GRBuK0g-lLH3J0mo_Ih9evuiJ4_sq8VwFO-ychH2CTYuu0CNe59ZuD40WVXuhgGu-D39QFk3APggYK1G5Iq0qdamPsKcYzdu8Ga1kKxOpc2ILmc0YfqwNH9yBDbL8k0IyKdoKFbBQiB3JGiOQIv2dBA-hbuvJl_Qb88Dcu8ZMoY1Way2KTh8mSzO1VakP16lQFEEaQtql"/>
+<span class="absolute top-md left-md bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded text-label-sm font-bold">CS</span>
+</div>
+<div class="p-lg flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2">Intro to Artificial Intelligence &amp; Neural Networks</h3>
+</div>
+<div class="flex items-center gap-md mb-lg text-on-surface-variant text-label-md">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bar_chart</span> Beginner</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">schedule</span> 15h 00m</span>
+</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="font-headline-md text-primary">$99.99</span>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">View Course</button>
+</div>
+</div>
+</div>
+<!-- Course Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A clean, stylish workspace featuring professional photography equipment and a color-calibrated monitor showing vibrant landscape photos. The lighting is natural and soft, creating an inviting and creative mood. Accents of electric blue highlight the professional nature of the creative toolkit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVCTfV0hAVREREPUKkUe5O8TBOP-zbWT_htIvnRphm9VgneJpWnLPgskc-zxDjeevBAotRVzYzEdFfnuvm6brwD7K5ZBDA4RhXAk-06rXBkUcSUDyeYC9qkG6VifREUCepyiVPyKsCXStXz_YqDHxJG0SUw-WeKM2j_wSsoIrVSia7RkrT7J_eH_XT4Fg-8oUmcUpJRHogpkQIRRkEFhpj20DnMgrM-OuzZiwV1UQ2z23Cu3dbwHzsd9Ovs12X39yf8Ks9A6Wmy5LW"/>
+<span class="absolute top-md left-md bg-secondary text-on-secondary px-sm py-xs rounded text-label-sm font-bold">Design</span>
+</div>
+<div class="p-lg flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2">Professional Brand Identity Design</h3>
+</div>
+<div class="flex items-center gap-md mb-lg text-on-surface-variant text-label-md">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bar_chart</span> Intermediate</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">schedule</span> 18h 20m</span>
+</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="font-headline-md text-primary">$74.99</span>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">View Course</button>
+</div>
+</div>
+</div>
+<!-- Course Card 6 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
+<div class="relative h-48 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of a person's hands typing on a sleek keyboard with a blurred background showing a large glass window overlooking a sunny modern cityscape. A minimalist notebook and a cup of coffee are nearby. The mood is high-energy and focused, perfect for professional development and business strategy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWIBBBaUgZf421HNntuZMFNmuvQmYMTSasF_D73n8E3548iLzcGgHyQhHBPgSDZOHagL24uO1biXLt0EIAm_gw5xP4c_0wt0frCFZGWR1jCX4DQlEqfG3NUV6_Qtji1vLNMPUouTWlq5WO2TP6eYy_3k-l88I86YvfGIHb2o5xjc49focncXa-PREBO8I862SuHasH7ZxKTgPuNhxJmJAWZ2-I6kXAYtqQt6KY_ngx2oSnG9gZOrx1Ifggawyta82tze-EThvwyNTb"/>
+<span class="absolute top-md left-md bg-primary-container text-on-primary-container px-sm py-xs rounded text-label-sm font-bold">Business</span>
+</div>
+<div class="p-lg flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2">Strategic Leadership &amp; Management 2024</h3>
+</div>
+<div class="flex items-center gap-md mb-lg text-on-surface-variant text-label-md">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bar_chart</span> Advanced</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">schedule</span> 10h 45m</span>
+</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="font-headline-md text-primary">$149.99</span>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">View Course</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-xxl flex justify-center items-center gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">3</button>
+<span class="text-outline">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">12</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / CTA -->
+<section class="max-w-container-max mx-auto px-lg py-xxl mb-xxl">
+<div class="bg-primary rounded-xxl p-xl md:p-xxl flex flex-col md:flex-row items-center justify-between gap-xl relative overflow-hidden">
+<div class="absolute inset-0 opacity-10">
+
+</div>
+<div class="relative z-10 text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-primary mb-md">Not sure where to start?</h2>
+<p class="font-body-lg text-body-lg text-primary-fixed max-w-lg opacity-90">Take our quick skill assessment to get a personalized learning path tailored to your career goals.</p>
+</div>
+<div class="relative z-10">
+<button class="bg-on-primary text-primary px-xl py-md rounded-xl font-headline-md hover:bg-primary-fixed transition-colors shadow-lg active:scale-95">Take Skill Quiz</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-dim">
+<div class="w-full px-lg md:px-xl py-xxl flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto">
+<div class="mb-lg md:mb-0">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">AuraLearn</span>
+<p class="mt-sm font-label-md text-label-md text-on-surface-variant max-w-xs text-center md:text-left">Empowering future leaders through momentum-driven digital education.</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-md">
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Cookie Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Contact Us</a>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant opacity-80">© 2024 AuraLearn. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions and interactions logic
+        document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => {
+            el.addEventListener('change', (e) => {
+                // Mock filter logic: ripple effect or subtle feedback
+                const parent = e.target.closest('label');
+                parent.classList.add('scale-95');
+                setTimeout(() => parent.classList.remove('scale-95'), 100);
+            });
+        });
+
+        // Search bar focus effects
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary');
+        });
+
+        // Scroll listener for glass header enhancement
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.classList.remove('shadow-sm');
+            } else {
+                header.classList.add('shadow-sm');
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,149 @@
+frontend/
+├── 📄 Configuration Files
+│   ├── package.json              # Dependencies & scripts
+│   ├── tsconfig.json             # TypeScript configuration
+│   ├── tailwind.config.ts        # Tailwind theme & tokens
+│   ├── postcss.config.js         # CSS processing
+│   ├── next.config.js            # Next.js configuration
+│   ├── .gitignore                # Git ignore rules
+│   ├── .env.example              # Environment template
+│   └── README.md                 # Developer guide
+│
+├── 📚 Documentation
+│   ├── FOUNDATION_SUMMARY.md     # Complete overview
+│   └── CHECKLIST.md              # Implementation checklist
+│
+└── src/
+    ├── 🎨 styles/
+    │   └── variables.css         # Design tokens (colors, typography, spacing)
+    │
+    ├── 📄 app/
+    │   ├── layout.tsx            # Root layout
+    │   ├── page.tsx              # Landing page (/)
+    │   ├── globals.css           # Global styles
+    │   └── not-found.tsx         # 404 page
+    │
+    ├── 🧩 components/
+    │   ├── index.ts              # Barrel export
+    │   │
+    │   ├── layout/               # Layout shell components
+    │   │   ├── Header.tsx        # Top navigation
+    │   │   ├── Sidebar.tsx       # Left navigation
+    │   │   ├── AppShell.tsx      # Combined layout
+    │   │   └── (no index.ts)
+    │   │
+    │   ├── ui/                   # Reusable UI primitives
+    │   │   ├── Button.tsx        # Button component
+    │   │   ├── Input.tsx         # Text input
+    │   │   ├── Textarea.tsx      # Multi-line input
+    │   │   ├── Select.tsx        # Dropdown select
+    │   │   ├── Card.tsx          # Card container
+    │   │   ├── Badge.tsx         # Badge/pill component
+    │   │   ├── Loader.tsx        # Loading spinner
+    │   │   └── index.ts          # Barrel export
+    │   │
+    │   └── domain/               # Domain-specific components
+    │       ├── StatsCard.tsx     # Metric display card
+    │       ├── CourseCard.tsx    # Course listing card
+    │       └── index.ts          # Barrel export
+    │
+    ├── 🏪 store/                 # Zustand state stores
+    │   ├── authStore.ts          # Authentication state
+    │   ├── courseStore.ts        # Course data & actions
+    │   ├── generationStore.ts    # AI generation progress
+    │   ├── uiStore.ts            # Global UI state
+    │   └── index.ts              # Barrel export
+    │
+    ├── 🪝 hooks/                 # Custom React hooks
+    │   ├── useAuth.ts            # Authentication logic
+    │   ├── useCourses.ts         # Course operations
+    │   ├── useUI.ts              # UI state helpers
+    │   └── index.ts              # Barrel export
+    │
+    ├── 📝 types/                 # TypeScript type definitions
+    │   ├── course.ts             # Course interfaces
+    │   ├── user.ts               # User interfaces
+    │   ├── auth.ts               # Auth request/response
+    │   └── api.ts                # API response wrappers
+    │
+    └── 🔧 lib/                   # Utilities & configuration
+        ├── api.ts                # Axios client with interceptors
+        ├── utils.ts              # Helper functions (cn)
+        ├── constants.ts          # App-wide constants
+        └── types.ts              # Type re-exports
+
+KEY FILES SUMMARY
+═══════════════════════════════════════════════════════════════
+
+🎨 Design System
+   • src/styles/variables.css     → All color tokens, typography, spacing
+   • tailwind.config.ts           → Custom Tailwind theme
+   • src/app/globals.css          → Global styles & utilities
+
+🧩 Components Ready to Use
+   UI Primitives: Button, Input, Textarea, Select, Card, Badge, Loader
+   Domain: StatsCard, CourseCard
+   Layout: Header, Sidebar, AppShell
+
+🏪 State Management (Zustand)
+   • authStore      → User, auth token, login/logout
+   • courseStore    → Courses, enrollment, drafts
+   • generationStore → AI generation progress
+   • uiStore        → Sidebar, theme, notifications
+
+🪝 Hooks for Components
+   • useAuth()      → Login, signup, user state
+   • useCourses()   → Fetch courses, create, enroll
+   • useUI()        → Sidebar toggle, notifications
+
+📝 Types (Fully Typed)
+   • Course, User, LoginRequest, etc.
+   • Ready for backend integration
+
+🔧 API Setup
+   • Axios client with auth interceptors
+   • Ready for `NEXT_PUBLIC_API_URL` env var
+
+USAGE EXAMPLES
+═══════════════════════════════════════════════════════════════
+
+Import Components:
+   import { Button, Input, Card } from '@/components/ui'
+   import { Header, Sidebar, AppShell } from '@/components/layout'
+   import { CourseCard } from '@/components/domain'
+
+Use State:
+   const { user, login } = useAuthStore()
+   const { courses, enrollCourse } = useCourseStore()
+
+Call Hooks:
+   const { user, isAuthenticated } = useAuth()
+   const { showNotification } = useUI()
+
+Build Pages:
+   import { AppShell, Header, Sidebar } from '@/components'
+   import { Button, Input } from '@/components/ui'
+   import { useAuth } from '@/hooks'
+
+   export default function MyPage() {
+     const { user } = useAuth()
+     return (
+       <AppShell>
+         <h1>Hello, {user?.name}</h1>
+       </AppShell>
+     )
+   }
+
+GETTING STARTED
+═══════════════════════════════════════════════════════════════
+
+1. Install dependencies:
+   $ npm install
+
+2. Start development server:
+   $ npm run dev
+
+3. Open http://localhost:3000
+
+4. Start building pages using the foundation!
+

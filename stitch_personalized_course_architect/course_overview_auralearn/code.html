@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mastering UX Psychology - AuraLearn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .roadmap-line {
+            background: linear-gradient(to bottom, #0697ff 0%, #00a59f 100%);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary": "#772cd8",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary-container": "#fffbff",
+                      "on-background": "#0b1c30",
+                      "surface-bright": "#f8f9ff",
+                      "on-primary-container": "#002e53",
+                      "surface-variant": "#d3e4fe",
+                      "surface": "#f8f9ff",
+                      "outline-variant": "#bfc7d5",
+                      "error": "#ba1a1a",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#00201e",
+                      "on-surface": "#0b1c30",
+                      "inverse-surface": "#213145",
+                      "outline": "#707884",
+                      "on-primary-fixed-variant": "#00497f",
+                      "inverse-primary": "#a0c9ff",
+                      "surface-container-high": "#dce9ff",
+                      "on-surface-variant": "#3f4753",
+                      "on-error": "#ffffff",
+                      "primary-container": "#0697ff",
+                      "tertiary-fixed": "#65f8f0",
+                      "on-secondary-fixed-variant": "#6000bf",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#914cf2",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "background": "#f8f9ff",
+                      "primary-fixed": "#d2e4ff",
+                      "tertiary-container": "#00a59f",
+                      "surface-container-low": "#eff4ff",
+                      "on-tertiary-container": "#003330",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container": "#e5eeff",
+                      "tertiary": "#006a66",
+                      "surface-tint": "#0061a7",
+                      "on-primary-fixed": "#001c37",
+                      "primary-fixed-dim": "#a0c9ff",
+                      "on-tertiary-fixed-variant": "#00504d",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed": "#ecdcff",
+                      "on-error-container": "#93000a",
+                      "primary": "#0061a7",
+                      "on-secondary-fixed": "#280056",
+                      "tertiary-fixed-dim": "#3fdbd4",
+                      "secondary-fixed-dim": "#d6baff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xxl": "48px",
+                      "gutter": "24px",
+                      "container-max": "1280px",
+                      "margin-mobile": "16px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Inter"],
+                      "display-lg-mobile": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "label-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface shadow-sm dark:shadow-none fixed top-0 w-full z-50">
+<div class="flex justify-between items-center w-full px-lg md:px-xl py-md max-w-container-max mx-auto">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">AuraLearn</span>
+</div>
+<div class="hidden md:flex items-center gap-xl">
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed border-b-2 border-primary font-bold pb-1 transition-colors duration-200" href="#">Browse Courses</a>
+</div>
+<div class="flex items-center gap-md">
+<button class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200 px-md py-sm">Sign In</button>
+<button class="bg-primary text-on-primary font-label-md px-lg py-sm rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 Active:scale-95">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-xxl">
+<!-- Hero Header -->
+<section class="relative overflow-hidden pt-xxl pb-xl px-md">
+
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row items-center gap-xl relative z-10">
+<div class="flex-1 text-center md:text-left">
+<span class="bg-tertiary-container text-on-tertiary-container text-label-sm px-md py-sm rounded-full mb-md inline-block">AI-Tailored Learning</span>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-md">Mastering UX Psychology</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl max-w-2xl">Dive deep into the human mind. Learn to craft digital experiences that resonate emotionally and cognitively through behavioral design principles and scientific research methodologies.</p>
+<div class="flex flex-col sm:flex-row gap-md justify-center md:justify-start">
+<button class="bg-primary text-on-primary font-headline-md px-xl py-md rounded-xl shadow-lg hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300">Enroll in Course</button>
+<button class="flex items-center justify-center gap-sm border border-outline text-on-surface font-headline-md px-xl py-md rounded-xl hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">play_circle</span>
+                            Preview Lessons
+                        </button>
+</div>
+</div>
+<div class="flex-1 w-full max-w-md animate-float">
+<div class="aspect-video rounded-xxl shadow-2xl overflow-hidden relative group">
+<img class="w-full h-full object-cover" data-alt="A clean, vibrant digital illustration representing UX Psychology. It features a stylized glowing brain with circuit-like connections and soft-edged geometric shapes in Electric Blue and Teal. The lighting is bright and optimistic, set against a clean white background with subtle depth and modern shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE7fXp5aGtEk-6biFOaMxxAOufWudKgnGujOcvo01TLwkkPjE37Ecn2PNKBYooqPDjKyxLgoXk5epZfi2ODQHnDFpbyGX_jDnJMPDh9FeQwpIgp6C91YmIod1sdK4jCXzMU7_6BPGDnVvR-ITg1BAgwfHYHVc3LRRoIV43mUwImJg3QiAuWZ6ytfsJ9xN4K5oJGDel5Q7x_b0BxjCf20AADlwgcEFpkZ6WnXNVqUX5kw1oX08p8w1wKAc6BVhm1rfBrMwGsukdGz4e"/>
+<div class="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-500"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Success Message -->
+<section class="bg-surface-container-low py-xl px-md">
+<div class="max-w-container-max mx-auto">
+<div class="bg-surface-container-lowest rounded-xxl p-xl md:p-xxl shadow-sm border border-primary/10 text-center flex flex-col items-center gap-md">
+<div class="w-20 h-20 bg-tertiary-container/20 rounded-full flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">celebration</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary">Course Tailored Successfully</h2>
+<p class="font-body-lg text-on-surface-variant max-w-xl">Our AI engine has analyzed your learning goals and professional background to build a roadmap perfectly aligned with your career trajectory.</p>
+</div>
+</div>
+</section>
+<!-- Roadmap & Curriculum Grid -->
+<section class="py-xxl px-md bg-white">
+<div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- AI Generation Roadmap -->
+<div class="lg:col-span-4 flex flex-col gap-lg">
+<h3 class="font-headline-md text-headline-md text-on-background px-md">Tailoring Process</h3>
+<div class="relative pl-xl flex flex-col gap-xl py-md">
+<div class="absolute left-[31px] top-0 bottom-0 w-1 roadmap-line rounded-full opacity-20"></div>
+<!-- Step 1 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Collecting Learning Objectives</h4>
+<p class="text-label-sm text-on-surface-variant">Defining success metrics for your journey.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Building Course Modules</h4>
+<p class="text-label-sm text-on-surface-variant">Structuring logical learning paths.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Building Lessons</h4>
+<p class="text-label-sm text-on-surface-variant">Developing deep-dive content &amp; theory.</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Building Assessments</h4>
+<p class="text-label-sm text-on-surface-variant">Creating progress validation points.</p>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Preparing Quizzes</h4>
+<p class="text-label-sm text-on-surface-variant">Generating knowledge reinforcement tasks.</p>
+</div>
+</div>
+<!-- Step 6 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Hands-on Activities</h4>
+<p class="text-label-sm text-on-surface-variant">Practical labs and simulation building.</p>
+</div>
+</div>
+<!-- Step 7 -->
+<div class="relative flex items-start gap-md group">
+<div class="relative z-10 w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-md">check</span>
+</div>
+<div>
+<h4 class="font-label-md text-on-background font-bold">Creating Capstone</h4>
+<p class="text-label-sm text-on-surface-variant">Synthesizing final project challenge.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Curriculum Section -->
+<div class="lg:col-span-8">
+<div class="flex items-center justify-between mb-xl">
+<h3 class="font-headline-md text-headline-md text-on-background">Curriculum Overview</h3>
+<span class="text-label-md text-on-surface-variant">8 Modules • 32 Lessons • 12h Total</span>
+</div>
+<div class="space-y-md">
+<!-- Module 1 -->
+<div class="group border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest hover:border-primary transition-all duration-300">
+<button class="w-full flex items-center justify-between p-lg text-left" onclick="toggleAccordion('module-1')">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">Module 1: Cognitive Foundations</h4>
+<p class="text-label-sm text-on-surface-variant">4 Lessons • 1 Quiz</p>
+</div>
+</div>
+<span class="material-symbols-outlined transition-transform duration-300" id="icon-module-1">expand_more</span>
+</button>
+<div class="hidden p-lg pt-0 border-t border-outline-variant bg-surface/30" id="module-1">
+<ul class="space-y-md">
+<li class="flex items-center justify-between py-sm border-b border-outline-variant/30">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm">play_circle</span>
+<span class="font-body-md">Understanding Mental Models</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">15 min</span>
+</li>
+<li class="flex items-center justify-between py-sm border-b border-outline-variant/30">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm">play_circle</span>
+<span class="font-body-md">Hick's Law in Action</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">22 min</span>
+</li>
+<li class="flex items-center justify-between py-sm border-b border-outline-variant/30">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm">quiz</span>
+<span class="font-body-md">Knowledge Check: Cognitive Load</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">5 min</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Module 2 -->
+<div class="group border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest hover:border-primary transition-all duration-300">
+<button class="w-full flex items-center justify-between p-lg text-left" onclick="toggleAccordion('module-2')">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">Module 2: Behavioral Patterns</h4>
+<p class="text-label-sm text-on-surface-variant">6 Lessons • Hands-on Activity</p>
+</div>
+</div>
+<span class="material-symbols-outlined transition-transform duration-300" id="icon-module-2">expand_more</span>
+</button>
+<div class="hidden p-lg pt-0 border-t border-outline-variant bg-surface/30" id="module-2">
+<p class="text-on-surface-variant py-md">Explore how users make decisions and the biases that influence digital interactions. Includes a deep dive into social proof and loss aversion.</p>
+</div>
+</div>
+<!-- Module 3 -->
+<div class="group border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest hover:border-primary transition-all duration-300">
+<button class="w-full flex items-center justify-between p-lg text-left" onclick="toggleAccordion('module-3')">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">Module 3: Information Architecture</h4>
+<p class="text-label-sm text-on-surface-variant">5 Lessons • Assessment</p>
+</div>
+</div>
+<span class="material-symbols-outlined transition-transform duration-300" id="icon-module-3">expand_more</span>
+</button>
+<div class="hidden p-lg pt-0 border-t border-outline-variant bg-surface/30" id="module-3">
+<p class="text-on-surface-variant py-md">Learn the psychology behind card sorting, navigation patterns, and how human memory affects menu structures.</p>
+</div>
+</div>
+<!-- Capstone -->
+<div class="group border border-primary rounded-xl overflow-hidden bg-primary-container/5 hover:bg-primary-container/10 transition-all duration-300">
+<button class="w-full flex items-center justify-between p-lg text-left" onclick="toggleAccordion('capstone')">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined">workspace_premium</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">Final Capstone Project</h4>
+<p class="text-label-sm text-primary font-bold">End-to-End UX Psychology Audit</p>
+</div>
+</div>
+<span class="material-symbols-outlined transition-transform duration-300" id="icon-capstone">expand_more</span>
+</button>
+<div class="hidden p-lg pt-0 border-t border-primary/20" id="capstone">
+<div class="py-md space-y-sm">
+<p class="text-on-surface">Apply everything you've learned to a real-world product. You will:</p>
+<ul class="list-disc pl-md text-on-surface-variant space-y-xs">
+<li>Conduct a behavioral audit of a live application.</li>
+<li>Propose changes based on 5+ cognitive principles.</li>
+<li>Present a Figma prototype showing before/after metrics.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Counter Section -->
+<section class="py-xxl bg-surface-container-high px-md">
+<div class="max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-lg">
+<div class="text-center p-xl bg-surface-container-lowest rounded-xxl shadow-sm">
+<p class="text-display-lg-mobile md:text-display-lg font-bold text-primary">12k+</p>
+<p class="font-label-md text-on-surface-variant">Active Students</p>
+</div>
+<div class="text-center p-xl bg-surface-container-lowest rounded-xxl shadow-sm">
+<p class="text-display-lg-mobile md:text-display-lg font-bold text-secondary">4.9</p>
+<p class="font-label-md text-on-surface-variant">Average Rating</p>
+</div>
+<div class="text-center p-xl bg-surface-container-lowest rounded-xxl shadow-sm">
+<p class="text-display-lg-mobile md:text-display-lg font-bold text-tertiary">92%</p>
+<p class="font-label-md text-on-surface-variant">Completion Rate</p>
+</div>
+<div class="text-center p-xl bg-surface-container-lowest rounded-xxl shadow-sm">
+<p class="text-display-lg-mobile md:text-display-lg font-bold text-on-surface">15+</p>
+<p class="font-label-md text-on-surface-variant">Industry Partners</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-dim mt-xxl">
+<div class="w-full px-lg md:px-xl py-xxl flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto gap-xl">
+<div class="flex flex-col items-center md:items-start gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">AuraLearn</span>
+<p class="text-label-md text-on-surface-variant max-w-xs text-center md:text-left">Empowering the next generation of designers through AI-augmented learning experiences.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="text-label-md text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="text-label-md text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Terms of Service</a>
+<a class="text-label-md text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Cookie Policy</a>
+<a class="text-label-md text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Contact Us</a>
+</div>
+<div class="text-label-md text-on-surface-variant">
+                © 2024 AuraLearn. All rights reserved.
+            </div>
+</div>
+</footer>
+<script>
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            if (content.classList.contains('hidden')) {
+                // Close others if you want exclusive accordion
+                // document.querySelectorAll('[id^="module-"], #capstone').forEach(el => el.classList.add('hidden'));
+                
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Initialize with first module open
+        window.addEventListener('DOMContentLoaded', () => {
+            toggleAccordion('module-1');
+        });
+    </script>
+</body></html>

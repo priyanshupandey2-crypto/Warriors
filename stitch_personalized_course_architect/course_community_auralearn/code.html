@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AuraLearn Community | Collaborate &amp; Grow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #bfc7d5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #707884;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#cbdbf5",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#00a59f",
+                      "outline": "#707884",
+                      "on-background": "#0b1c30",
+                      "secondary-fixed-dim": "#d6baff",
+                      "outline-variant": "#bfc7d5",
+                      "on-primary-container": "#002e53",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container": "#e5eeff",
+                      "inverse-primary": "#a0c9ff",
+                      "primary-fixed-dim": "#a0c9ff",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary-fixed-variant": "#00497f",
+                      "primary-fixed": "#d2e4ff",
+                      "tertiary": "#006a66",
+                      "secondary-container": "#914cf2",
+                      "on-secondary-container": "#fffbff",
+                      "background": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#6000bf",
+                      "on-surface-variant": "#3f4753",
+                      "surface-container-low": "#eff4ff",
+                      "error-container": "#ffdad6",
+                      "secondary": "#772cd8",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#0061a7",
+                      "secondary-fixed": "#ecdcff",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#0697ff",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#213145",
+                      "surface-container-high": "#dce9ff",
+                      "primary": "#0061a7",
+                      "on-tertiary-fixed-variant": "#00504d",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed": "#001c37",
+                      "tertiary-fixed-dim": "#3fdbd4",
+                      "surface": "#f8f9ff",
+                      "tertiary-fixed": "#65f8f0",
+                      "on-tertiary-container": "#003330",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed": "#280056",
+                      "on-tertiary-fixed": "#00201e",
+                      "on-surface": "#0b1c30",
+                      "surface-bright": "#f8f9ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "container-max": "1280px",
+                      "xxl": "48px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "xs": "4px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "display-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="bg-surface-container-lowest sticky top-0 z-50 shadow-sm border-b border-surface-variant/30">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-xl">
+<span class="text-headline-md font-headline-md font-bold text-primary">AuraLearn</span>
+<nav class="hidden md:flex gap-lg items-center">
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors duration-200" href="#">My Learning</a>
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors duration-200" href="#">Courses</a>
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors duration-200" href="#">Paths</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-label-md text-label-md" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-label-md w-64 focus:ring-2 focus:ring-primary-container outline-none transition-all" placeholder="Search community..." type="text"/>
+</div>
+<button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant relative transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-surface-variant cursor-pointer active:scale-95 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a diverse young female student with glasses, smiling warmly. She is in a brightly lit, modern co-working space with soft blue and white accents in the background. The lighting is crisp and optimistic, reflecting a high-end educational brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiQBow4fZilbZ2XNNUNtCDbd3GX3WSbau-uZ8fDK8DqDaTsD-NEGWNNDaSqmhVKCXJxB-JQLY8h0bIQf1OrENxfvjiUinhKe9c-r7RmgRvxACxG4PRLZ61typ9tPYViH2kRGdZjHk9J8KOIbirH31x7VvLP6Ldgxq_ABm9JR1duseeACu1CIbPF4bnBE07lltUZjWDrlbL4MoOTkNHu1H6cnxLSxtBv-iqsMWxFXlnsK3XbW1y6C2Z1eN8afwny-_wyYyQbLgYI7Qa"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex w-full max-w-container-max mx-auto px-gutter gap-lg py-lg">
+<!-- Sidebar: Course Channels -->
+<aside class="hidden lg:flex flex-col w-64 shrink-0 gap-lg">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-variant/20">
+<h3 class="text-label-sm font-label-sm text-outline uppercase tracking-wider mb-md px-sm">My Course Channels</h3>
+<div class="space-y-sm">
+<button class="w-full flex items-center gap-sm p-sm rounded-lg bg-primary-container/10 text-primary font-label-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">psychology</span>
+<span class="truncate">UX Psychology</span>
+</button>
+<button class="w-full flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-label-md">
+<span class="material-symbols-outlined text-[20px]">code</span>
+<span class="truncate">Python for Data</span>
+</button>
+<button class="w-full flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-label-md">
+<span class="material-symbols-outlined text-[20px]">brush</span>
+<span class="truncate">UI Design Masterclass</span>
+</button>
+<button class="w-full flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-label-md">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+<span class="truncate">Growth Marketing</span>
+</button>
+</div>
+<hr class="my-md border-surface-variant/30"/>
+<button class="w-full flex items-center gap-sm p-sm rounded-lg text-outline hover:text-primary transition-colors font-label-md italic">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Browse Channels</span>
+</button>
+</div>
+<div class="bg-primary text-on-primary rounded-xl p-lg shadow-lg relative overflow-hidden group">
+<div class="relative z-10">
+<h4 class="font-headline-md text-headline-md mb-xs">Aura AI Tutor</h4>
+<p class="text-label-sm opacity-90 mb-md">Stuck on a lesson? Ask the AI community assistant for help!</p>
+<button class="bg-on-primary text-primary px-md py-xs rounded-full font-label-sm hover:bg-primary-fixed transition-colors">Ask Aura</button>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[100px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+</div>
+</aside>
+<!-- Central Discussion Feed -->
+<section class="flex-1 min-w-0 flex flex-col gap-lg">
+<!-- Feed Header & Controls -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-background">Mastering UX Psychology</h1>
+<p class="text-on-surface-variant text-body-md">2.4k Students • 12 Active Now</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-md rounded-full font-label-md font-bold flex items-center gap-sm shadow-md hover:shadow-xl hover:translate-y-[-2px] active:scale-95 transition-all" onclick="document.getElementById('post-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined">edit_square</span>
+                    Start a Discussion
+                </button>
+</div>
+<!-- Thread Feed -->
+<div class="space-y-md">
+<!-- Post 1 -->
+<article class="bg-surface-container-lowest rounded-xl p-lg border border-surface-variant/20 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex gap-md">
+<img class="w-12 h-12 rounded-full object-cover border border-surface-variant/30" data-alt="Close-up portrait of a male student with a creative vibe, wearing a denim jacket, in a minimalist studio setting. The lighting uses soft cool blues and clean whites, aligning with the modern professional edtech aesthetic. He looks thoughtful and engaged." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4HuMR5siTtTEmDa70bT5j4iW3BUtmVgvsTRnadV_OHlRTrMg7TG0zFq5S-wv6-mY7lOZOrZQ9tUZXiy9atxSYbSGpS2FWHgmUWyT827nx4VOi0OLnyU7eg8wTqo426wkEOWCrNyuY5X4PZut-AHF_LuemNfw6w2xUC3jE6qfsASIHQyRltRFRIVhORRq_PH1GoFEVhvl4WkeFcElBaL9uLd2acT_gBBG6uUfn4pe0nSUEGh0OlVOfzx3Qjvytq1BhBEempdQrS7UL"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-xs">
+<div class="flex items-center gap-sm">
+<span class="font-bold text-on-surface text-body-md">Alex Chen</span>
+<span class="text-outline text-label-sm">• 2h ago</span>
+<span class="bg-tertiary-container/10 text-tertiary text-label-sm px-sm py-xs rounded-full">#CaseStudy</span>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h2 class="text-headline-md font-headline-md text-on-surface mb-sm">How do you balance "Friction" vs "Speed" in onboarding?</h2>
+<p class="text-on-surface-variant text-body-md mb-md leading-relaxed">
+                                I'm currently working on the Module 4 project. The lesson says friction can be good for high-intent apps, but I'm worried about drop-offs. Does anyone have examples of "good friction" they've encountered recently?
+                            </p>
+<div class="flex items-center gap-xl text-outline border-t border-surface-variant/20 pt-md">
+<button class="flex items-center gap-xs hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">thumb_up</span>
+<span class="font-label-md">24</span>
+</button>
+<button class="flex items-center gap-xs hover:text-secondary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">forum</span>
+<span class="font-label-md">8 Replies</span>
+</button>
+<button class="flex items-center gap-xs hover:text-on-surface transition-colors group ml-auto">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">share</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Post 2 -->
+<article class="bg-surface-container-lowest rounded-xl p-lg border border-surface-variant/20 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex gap-md">
+<img class="w-12 h-12 rounded-full object-cover border border-surface-variant/30" data-alt="A portrait of a cheerful African American woman in a professional workspace. She is wearing a modern yellow sweater that contrasts beautifully with a clean, high-tech background featuring soft blue glass elements. The image style is premium, vibrant, and corporate modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF7EVMnwhrWhuipJUfskZWecJFaB4xSNDSGgjcozPK2ygRbcDidyOtHxJY9v4yWRft6Yhmxn3i0-C8uFDe8pJ74x9GUzR6LzR4iBULVBVqK6KiWQFPQZlODFRz2EdBAgSdL3QFXjB2trJWkXHHlb9T13jBz5l8Y94iQRhCDVq7W0riMefZ0cXp-Km8aVVk31LMwXYIdyGhguw-2Yex7etnk1w0UPi5eYRWqwOKE7cFKA5a2a667acDOiUVZckD-TyKxtF9e7zpWX8I"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-xs">
+<div class="flex items-center gap-sm">
+<span class="font-bold text-on-surface text-body-md">Sarah Jenkins</span>
+<span class="text-outline text-label-sm">• 5h ago</span>
+<span class="bg-primary-container/10 text-primary text-label-sm px-sm py-xs rounded-full">#Insights</span>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h2 class="text-headline-md font-headline-md text-on-surface mb-sm">Just finished the 'Dark Patterns' module—eye opening!</h2>
+<p class="text-on-surface-variant text-body-md mb-md leading-relaxed">
+                                I never realized how many "roach motels" I interact with daily. The ethics of UX really makes you rethink every button placement. Highly recommend checking out the extra reading list in section 3.2.
+                            </p>
+<div class="w-full h-48 rounded-xl bg-cover bg-center mb-md border border-surface-variant/30" data-alt="A sophisticated digital artwork illustrating various UI/UX design patterns. It features translucent glass cards, vibrant electric blue paths, and subtle glowing icons in a dark-mode but professionally lit environment. The style is conceptual, representing digital ethics and user flow complexity." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD1G3oHqGz9P-31AN7Q8KtRdqZd0_C0Jrv1a1d5By0HFBgF2S9TbLdx1vyVSrHPbHVAt1Td1MGvFx_KDcKTgXovGDzNa7uM-MHZqv6gS0Rlo3u6HMzJLGRW5TOZf7UsjbThzQZW0OS-F3JgCP8bVigUrt1Sn9BrY1X4zJAiOO_LKI7a83_sQbHIN1wvSKTvfZ7WEfPvmNe6gPc0PrnwJaNkbrTrA0h2Ama2zsqoqiOjChvyxxc4koroZ0X6PlKJTIxyQcxUmd1dtFmV')"></div>
+<div class="flex items-center gap-xl text-outline border-t border-surface-variant/20 pt-md">
+<button class="flex items-center gap-xs hover:text-primary transition-colors text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">thumb_up</span>
+<span class="font-label-md">112</span>
+</button>
+<button class="flex items-center gap-xs hover:text-secondary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">forum</span>
+<span class="font-label-md">15 Replies</span>
+</button>
+<button class="flex items-center gap-xs hover:text-on-surface transition-colors group ml-auto">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Post 3 -->
+<article class="bg-surface-container-lowest rounded-xl p-lg border border-surface-variant/20 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex gap-md">
+<img class="w-12 h-12 rounded-full object-cover border border-surface-variant/30" data-alt="A portrait of a senior creative professional with a graying beard and stylish glasses, looking friendly and approachable. The background is a blurred office with vibrant plants and cool-toned furniture. The aesthetic is clean, energetic, and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy220xR_xV7KmCE6P7ephkq4oFV7OPPj0m6c8GroEn2k0bgB5K4ke7QQoOMbAZ-7Fy98iECbQ0piNDlgS41n93vwiWkTkownZBJ37WnNN9YcyrDN9I3UFbZB4E7uuPdWe_FS5tI6jccND7MbC8LVFAWQl9GIPp_NG37pPjeKzVExzw_tif32m6FpbLg9DEq0H3ShkgZniePrB-guE6mDKieZiqAED103FkwGwtLOiHzgH024qHBmaScfwx20HSKwAfXKrGi4TAClMC"/>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-xs">
+<div class="flex items-center gap-sm">
+<span class="font-bold text-on-surface text-body-md">David Miller</span>
+<span class="text-outline text-label-sm">• 8h ago</span>
+<span class="bg-secondary-container/10 text-secondary text-label-sm px-sm py-xs rounded-full">#Resources</span>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h2 class="text-headline-md font-headline-md text-on-surface mb-sm">Master List: Psychology Laws for Designers</h2>
+<p class="text-on-surface-variant text-body-md mb-md leading-relaxed">
+                                Compiled a Notion doc with every law mentioned so far + examples. Hope this helps with the upcoming quiz! 🚀
+                            </p>
+<div class="flex items-center gap-xl text-outline border-t border-surface-variant/20 pt-md">
+<button class="flex items-center gap-xs hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">thumb_up</span>
+<span class="font-label-md">356</span>
+</button>
+<button class="flex items-center gap-xs hover:text-secondary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">forum</span>
+<span class="font-label-md">42 Replies</span>
+</button>
+<button class="flex items-center gap-xs hover:text-on-surface transition-colors group ml-auto">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">ios_share</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- Right Sidebar: Active Members & Events -->
+<aside class="hidden xl:flex flex-col w-72 shrink-0 gap-lg">
+<!-- Active Members -->
+<div class="bg-surface-container-lowest rounded-xl p-md border border-surface-variant/20 shadow-sm">
+<div class="flex items-center justify-between mb-md px-sm">
+<h3 class="text-label-sm font-label-sm text-outline uppercase tracking-wider">Active Members</h3>
+<span class="w-2 h-2 bg-tertiary rounded-full animate-pulse"></span>
+</div>
+<div class="space-y-md px-sm">
+<div class="flex items-center gap-md">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a young person with short hair and a warm smile, wearing a professional navy blue shirt. Minimalist light-filled background. High-fidelity edtech style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1dwylLlaL6wclrI_ts-kAvHbiGIvzkylxRX9Tvz09UP5yYA9LWQ4UPERTc5lFIGodORolkSSh6qOGAFMMrfpjBXYfuFZZc-KjyuDNHTMOQn0qQdnrWpwPJeA31K8fJsO0FxA88tar2YmzKR7eVUcck6VHrvI7bZe1eSPCdxx6J7T9DXVuyUCvL5bsTHpqyzRN0_LK6eHNDnMG22Api4nyebvlW1NenId3huvY3RXQSErs0fhZqZRxwVKtLltM1otmtP2yC7a_qO8f"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary border-2 border-surface-container-lowest rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-on-surface truncate">Jamie Lin</p>
+<p class="text-[10px] text-tertiary">Reading Module 2</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of an elegant young woman with braided hair, in a bright modern home office. Vibrant blue accents. Professional edtech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZna9_M95LfIIHhdoVeQ4SQyFn36y6aLxeAcNaNJSRVSo6l1SIwWluDD7IiKHEVWlBr4DCy8ToOT5A1WP1-H4MbYlHu4rFgZ3O8MCnPo5qG_Oab7HDTGP4d6wOqbY5Js5uLiFxu30cgrXEdfHootIA4enSU1qxL8-CIVjN0UNZYlSZzmaZ4l77daH7qd9gv9WZmEz9B_eu1mzfFnA6YGe4yvfxCPMw_p7YzjaV6cy-x5_nbUHBN-j6zJioif8jHsSd5F2OnSzrKcgo"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary border-2 border-surface-container-lowest rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-on-surface truncate">Amara Okoro</p>
+<p class="text-[10px] text-tertiary">Active in Discussions</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a male student with short hair, smiling confidently. Bright studio lighting, corporate modern aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDh-o2tk2f2zyBjtGQnTtn0mIcxl6PB8UoED2cDADRTwFIC61ioViAboDqtvYZQsZFTVRGf0DWmAVDHh2Qbr4bZbKT2uWrpNrTVBRV4ByxKQmH4qBqM24nEA49oLL5Y7PSdVEqmrxwC7eJUcc7spzijzzEW_23pH4WAOm8aAB-nxaxEv6cWHpt0YEFenLXAKgWRR0jP5ShcLj36w4qgaxOxe6CpfQHK5h1XiHXB29rlsD8QDDX6zre-QjyHiM59ARCU7spOiaUre9b"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary border-2 border-surface-container-lowest rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-on-surface truncate">Tomas Varga</p>
+<p class="text-[10px] text-tertiary">Working on Project</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a professional young woman with dark hair, looking thoughtful. Soft vibrant colors, high-end design style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmP-BErm8FRxVrbvudB8ekq-nDP2y4TshOHrwb6vaR0OB3x2vjD6zCEJ-KaFSP2Dv9OE7v4Xq69bu1EvU9BVPNmKPal6v_IjvpqGgwsBa28IouxQiGwZw8AQ1MIF69bxJ0IFlDePat2j6BU6CR_mxfaTWb2ZXOHJKtBaPcIN6HxO8mCbF37MUCTiuC6WO5bmfba09PBQHYnKSm0C9G5R-ps7mqj-Js-rd2lbikd-O_C2L7FjcWHKHBsc6c6tMMnuqF2_UXB1juYoti"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary border-2 border-surface-container-lowest rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-on-surface truncate">Sophie Zhang</p>
+<p class="text-[10px] text-tertiary">Viewing Resources</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-lg pt-md border-t border-surface-variant/20 text-primary font-label-sm hover:underline">View all 24 online</button>
+</div>
+<!-- Upcoming Live Q&A -->
+<div class="bg-surface-container-highest/40 rounded-xl p-lg border border-primary-container/20 relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-xs text-secondary mb-sm">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+<span class="text-label-sm font-bold uppercase">Live Q&amp;A Session</span>
+</div>
+<h4 class="text-body-lg font-bold text-on-surface mb-xs">Ethical UX with Prof. Aris</h4>
+<p class="text-label-sm text-on-surface-variant mb-md">Tomorrow at 10:00 AM EST</p>
+<button class="w-full bg-secondary text-on-secondary py-sm rounded-lg font-label-md hover:bg-secondary-container transition-colors">Set Reminder</button>
+</div>
+<div class="absolute -right-2 -top-2 opacity-5">
+<span class="material-symbols-outlined text-[80px]">calendar_month</span>
+</div>
+</div>
+<!-- Course Progress Quick Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md border border-surface-variant/20 shadow-sm">
+<h3 class="text-label-sm font-label-sm text-outline uppercase tracking-wider mb-md px-sm">Your Progress</h3>
+<div class="px-sm">
+<div class="flex justify-between items-end mb-xs">
+<span class="text-headline-md font-bold text-on-surface">64%</span>
+<span class="text-label-sm text-outline">12/18 Lessons</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="w-[64%] h-full bg-primary rounded-full"></div>
+</div>
+<button class="w-full mt-md flex items-center justify-center gap-sm p-sm rounded-lg border border-primary/30 text-primary hover:bg-primary/5 transition-colors font-label-md">
+<span>Continue Learning</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low mt-xxl border-t border-surface-variant/20">
+<div class="w-full py-xl px-gutter max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="text-label-md font-label-md font-bold text-primary">AuraLearn AI</span>
+<span class="text-label-sm text-on-surface-variant">© 2024 AuraLearn AI. All rights reserved.</span>
+</div>
+<div class="flex gap-lg">
+<a class="text-on-surface-variant font-label-sm hover:text-primary underline" href="#">Privacy</a>
+<a class="text-on-surface-variant font-label-sm hover:text-primary underline" href="#">Terms</a>
+<a class="text-on-surface-variant font-label-sm hover:text-primary underline" href="#">Support</a>
+</div>
+</div>
+</footer>
+<!-- New Discussion Modal (Hidden by default) -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-on-background/40 backdrop-blur-sm p-margin-mobile" id="post-modal">
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+<div class="p-lg border-b border-surface-variant/20 flex items-center justify-between">
+<h2 class="text-headline-md font-bold text-on-surface">New Discussion</h2>
+<button class="p-2 hover:bg-surface-container rounded-full text-outline transition-colors" onclick="document.getElementById('post-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg space-y-md">
+<div>
+<label class="block text-label-sm font-bold text-on-surface-variant mb-xs">Topic Title</label>
+<input class="w-full p-md bg-surface-container-low border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="What's on your mind?" type="text"/>
+</div>
+<div>
+<label class="block text-label-sm font-bold text-on-surface-variant mb-xs">Category</label>
+<div class="flex flex-wrap gap-xs">
+<button class="px-md py-xs rounded-full border border-primary text-primary font-label-sm bg-primary/5">Question</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-outline font-label-sm hover:border-primary transition-colors">Showcase</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-outline font-label-sm hover:border-primary transition-colors">Resource</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-outline font-label-sm hover:border-primary transition-colors">Career Advice</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm font-bold text-on-surface-variant mb-xs">Content</label>
+<textarea class="w-full p-md bg-surface-container-low border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none" placeholder="Share your thoughts or ask a question..." rows="4"></textarea>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low flex justify-end gap-md">
+<button class="px-lg py-md text-on-surface-variant font-label-md hover:text-on-surface" onclick="document.getElementById('post-modal').classList.add('hidden')">Cancel</button>
+<button class="bg-primary text-on-primary px-xl py-md rounded-full font-label-md font-bold shadow-md hover:shadow-lg transition-all" onclick="document.getElementById('post-modal').classList.add('hidden')">Post Discussion</button>
+</div>
+</div>
+</div>
+<script>
+        // Simple micro-interaction for active member pulse
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeDots = document.querySelectorAll('.bg-tertiary.rounded-full');
+            setInterval(() => {
+                activeDots.forEach(dot => {
+                    dot.classList.add('scale-125');
+                    setTimeout(() => dot.classList.remove('scale-125'), 300);
+                });
+            }, 3000);
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('post-modal').classList.add('hidden');
+            }
+        });
+    </script>
+</body></html>

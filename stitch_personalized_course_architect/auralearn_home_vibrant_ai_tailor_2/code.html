@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AuraLearn | The Future of Learning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#280056",
+                    "secondary-fixed": "#ecdcff",
+                    "on-secondary-fixed-variant": "#6000bf",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed": "#00201e",
+                    "surface-bright": "#f8f9ff",
+                    "secondary": "#772cd8",
+                    "tertiary-fixed-dim": "#3fdbd4",
+                    "secondary-container": "#914cf2",
+                    "surface-container": "#e5eeff",
+                    "inverse-surface": "#213145",
+                    "outline-variant": "#bfc7d5",
+                    "on-tertiary-fixed-variant": "#00504d",
+                    "tertiary-container": "#00a59f",
+                    "outline": "#707884",
+                    "on-error-container": "#93000a",
+                    "on-background": "#0b1c30",
+                    "error": "#ba1a1a",
+                    "on-tertiary-container": "#003330",
+                    "on-primary-fixed": "#001c37",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-primary-container": "#002e53",
+                    "on-surface": "#0b1c30",
+                    "background": "#f8f9ff",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#a0c9ff",
+                    "primary-container": "#0697ff",
+                    "on-primary-fixed-variant": "#00497f",
+                    "surface": "#f8f9ff",
+                    "on-surface-variant": "#3f4753",
+                    "surface-tint": "#0061a7",
+                    "surface-container-low": "#eff4ff",
+                    "primary-fixed": "#d2e4ff",
+                    "surface-variant": "#d3e4fe",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#cbdbf5",
+                    "tertiary-fixed": "#65f8f0",
+                    "inverse-primary": "#a0c9ff",
+                    "primary": "#0061a7",
+                    "surface-container-highest": "#d3e4fe",
+                    "tertiary": "#006a66",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#d6baff",
+                    "on-secondary-container": "#fffbff",
+                    "surface-container-high": "#dce9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "gutter": "24px",
+                    "sm": "8px",
+                    "container-max": "1280px",
+                    "lg": "24px",
+                    "xxl": "48px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow {
+            box-shadow: 0 12px 16px -4px rgba(0, 97, 167, 0.06);
+        }
+        .hover-lift {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 97, 167, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="w-full top-0 sticky z-50 bg-surface shadow-sm dark:bg-surface-container-low">
+<div class="flex justify-between items-center h-16 px-gutter max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-headline-md" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed-dim">AuraLearn</span>
+</div>
+<div class="hidden md:flex items-center gap-xl">
+<a class="font-body-md text-body-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Browse Courses</a>
+<div class="flex items-center gap-md">
+<button class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200">Sign In</button>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container active:scale-95 transition-all">Get Started</button>
+</div>
+</div>
+<button class="md:hidden p-sm rounded-full hover:bg-surface-container-lowest">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative overflow-hidden pt-xxl pb-xxl px-gutter max-w-container-max mx-auto">
+<div class="grid lg:grid-cols-2 gap-xxl items-center">
+<div class="z-10 text-center lg:text-left">
+<div class="inline-flex items-center gap-xs px-md py-xs bg-primary-fixed text-on-primary-fixed rounded-full mb-lg">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label-md text-label-md">Powered by Advanced AI</span>
+</div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-md leading-tight">
+                        The Future of Learning, <br/>
+<span class="text-primary">Tailored for You</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl max-w-xl mx-auto lg:mx-0">
+                        Stop following rigid curriculums. Use AI to generate personalized, deep-dive courses on any topic in seconds, optimized for your schedule and expertise level.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-md justify-center lg:justify-start">
+<button class="bg-primary text-on-primary px-xl py-md rounded-xl font-headline-md text-headline-md hover:bg-primary-container hover:text-on-primary-container shadow-lg active:scale-95 transition-all">
+                            Start Learning Now
+                        </button>
+<button class="bg-surface-container text-primary px-xl py-md rounded-xl font-headline-md text-headline-md hover:bg-surface-container-high active:scale-95 transition-all border border-primary-fixed">
+                            Watch Demo
+                        </button>
+</div>
+</div>
+<div class="relative hidden lg:block">
+<div class="absolute -top-12 -right-12 w-64 h-64 bg-primary-container opacity-20 blur-3xl rounded-full"></div>
+<div class="absolute -bottom-12 -left-12 w-48 h-48 bg-secondary-container opacity-20 blur-3xl rounded-full"></div>
+<div class="relative glass border border-white p-lg rounded-xxl custom-shadow">
+<img class="w-full h-auto rounded-xl" data-alt="A premium 3D digital illustration of a sleek educational environment. A floating holographic tablet displays complex scientific diagrams and vibrant learning progress bars. The lighting is soft and high-key with electric blue and teal glowing accents, suggesting a high-tech yet approachable educational tool for a modern student." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUlnYuqAsHd6li0kSpURxB2PdY9YYjfQl_dsOOl4Lo7ZnWfPYib4EunwKOXn9ioV1XbhWz7BOKqe6R0EcqhKBGOr6-IWskZunb3XRX2gxzWRWM0u6ijhtLG8lETyIj7LTO2GiDe8bDrl_m4yNOUjsWGM2QLNi0vi7nd-hKuLxWcXne11AIdplCqvKeFAlsiZ6yy6F7w8SezJBxq0kvO5sImNohCwu4oH7K_mhtdDFo3G0nR543OWxEtnl9hAyCaFSFkC9zobLHDyh9"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Chat Section -->
+<section class="bg-surface-container-low py-xxl">
+<div class="px-gutter max-w-container-max mx-auto">
+<div class="text-center mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-sm">What would you like to master today?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Your AI tutor is ready to build your custom syllabus.</p>
+</div>
+<div class="max-w-3xl mx-auto glass border border-white rounded-xxl custom-shadow overflow-hidden">
+<!-- Chat Header -->
+<div class="bg-primary p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="text-white">
+<p class="font-label-md text-label-md">Aura AI Tutor</p>
+<p class="text-[12px] opacity-80">Online &amp; Ready</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-white">more_vert</span>
+</div>
+<!-- Chat Body -->
+<div class="p-lg space-y-lg h-[400px] overflow-y-auto bg-white/40">
+<div class="flex items-start gap-md">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-white text-[18px]">smart_toy</span>
+</div>
+<div class="bg-surface-container-high p-md rounded-xl rounded-tl-none max-w-[80%] text-on-surface">
+<p class="font-body-md text-body-md">Tell me what you want to learn! To get the best results, include the topic, difficulty, target audience, and duration.</p>
+</div>
+</div>
+<!-- Pill Suggestions -->
+<div class="space-y-sm">
+<p class="font-label-sm text-label-sm text-on-surface-variant ml-10">Try these prompts:</p>
+<div class="flex flex-wrap gap-sm ml-10">
+<button class="bg-white border border-outline-variant px-md py-sm rounded-full font-label-md text-label-md text-on-surface hover:border-primary hover:text-primary transition-all text-left max-w-full">
+                                    "Create a 4-week advanced course on Sustainable Investing for Finance Professionals."
+                                </button>
+<button class="bg-white border border-outline-variant px-md py-sm rounded-full font-label-md text-label-md text-on-surface hover:border-primary hover:text-primary transition-all text-left max-w-full">
+                                    "Build a beginner's guide to Greek Mythology for middle school students, 2 weeks duration."
+                                </button>
+<button class="bg-white border border-outline-variant px-md py-sm rounded-full font-label-md text-label-md text-on-surface hover:border-primary hover:text-primary transition-all text-left max-w-full">
+                                    "I want to learn advanced Rust programming over 3 months, focusing on systems architecture."
+                                </button>
+</div>
+</div>
+</div>
+<!-- Chat Input -->
+<div class="p-lg border-t border-surface-container bg-white">
+<div class="relative flex items-center gap-md">
+<input class="w-full pl-md pr-32 py-md rounded-xl border-surface-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-low transition-all outline-none" placeholder="Explain the concept of..." type="text"/>
+<button class="absolute right-2 top-2 bottom-2 bg-primary text-on-primary px-lg rounded-lg font-label-md text-label-md flex items-center gap-sm hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-95">
+<span>Tailor My Course</span>
+<span class="material-symbols-outlined text-[18px]">auto_fix</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Sample Courses Section -->
+<section class="py-xxl px-gutter max-w-container-max mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-xl gap-md">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-sm">Sample Courses</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg">Explore high-quality courses generated by our community using Aura AI.</p>
+</div>
+<button class="text-primary font-bold font-body-md flex items-center gap-sm group">
+                    View all courses
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-xl">
+<!-- Course Card 1 -->
+<div class="bg-surface rounded-xxl overflow-hidden custom-shadow hover-lift border border-surface-container">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="A vibrant digital art piece representing Quantum Computing. Intricate neon blue and purple neural pathways connect atomic structures in a dark cosmic space, creating a sense of advanced science and futuristic technology. The visual style is crisp, high-energy, and modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASVem1NvD130fYZRvTo2uvteNmHKKvtkRoJofGTt_asSa8NjpUK6ZxS_9OlGlh_vvp5l3bs_njftaH5jzwvQ_iRmdn779WHqSCrir9sKf90Xu_5tvuZKcwbGUVQrQWQoPYW2Zr9f6nO-KL5Kht4lhazvO2zKJUTXTb6zrFixnK3Ve2ALjb9pXCr9D-4JHwTpmVfDDTFvuQCkN0ml-67qlWl1VEt6cqrH6ah_xfUcjArWELFXw8JZez53tUUZcW_XGvZ56Q327XziG2"/>
+<div class="absolute top-md right-md bg-tertiary-container text-on-tertiary-container px-md py-xs rounded-full font-label-sm text-label-sm">
+                            Advanced
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-md text-headline-md text-on-background mb-sm leading-tight">Fundamentals of Quantum Computing</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-2">Master qubits, superposition, and entanglement through our AI-curated interactive path.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-label-md text-label-md">8 Weeks</span>
+</div>
+<button class="text-primary font-bold hover:underline font-label-md">Preview Course</button>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface rounded-xxl overflow-hidden custom-shadow hover-lift border border-surface-container">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="A beautiful, clean illustration of UX design concepts. Elements like wireframes, color palettes, and emotional mapping icons float in an airy, white-mode composition with electric blue accents. The lighting is bright and cheerful, reflecting the psychology of great user experiences." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTlfxhGTKL2LCWDaIsKiB7TllGBe-M1cGLCPaLJarX32Dp6Vxd_52c04iyOEWMQQWt8_BTfrkPAaecQ7N4z3mlpImy4M7W3amG8iko_ZgagiQncQDql3LkJGW3VjQW9U55WE5-lyPNdE01SOQbJn7CXOkduB1ZBv4x5OUmXip3ZJH9KrpHP9cRjVME_lyGS6cOQZEWuJ5CPZaLdTTyAGVQzSSsfBeSCTNi0bB6rpTqW1YIw_-u-DbFNJYmQCskIHsy95Wz7P_1H06G"/>
+<div class="absolute top-md right-md bg-secondary-container text-on-secondary-container px-md py-xs rounded-full font-label-sm text-label-sm">
+                            Intermediate
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-md text-headline-md text-on-background mb-sm leading-tight">Mastering UX Psychology</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-2">Understand the cognitive principles behind high-conversion designs and user satisfaction.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-label-md text-label-md">4 Weeks</span>
+</div>
+<button class="text-primary font-bold hover:underline font-label-md">Preview Course</button>
+</div>
+</div>
+</div>
+<!-- Course Card 3 -->
+<div class="bg-surface rounded-xxl overflow-hidden custom-shadow hover-lift border border-surface-container">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="A sophisticated architectural visualization showing a blend of sleek glass skyscrapers and lush green urban spaces. The image is bathed in warm sunlight, highlighting clean lines and geometric symmetry. Professional, architectural style with high-end digital rendering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdSS3HYeqyxbDm2ml5_Ioyo5_7WJY1N2OrzXSN5ZAHuy1XoinNIOf3HGeGuf16haGo6JmXFhYNGV98lryblXXvkgqW1icBUAO5CnP8Uc_AZNPWqTx_2-lQcdmnxfYhmgTa41UPrxaih3KsH0S9K-boXXOpW71CDvpndfKjjzehgCz_YTrsDYdF4oiBhMMExlf_v7WFrpNzOp0xX3wpJkYueS_myNewe3hdrHhsDcyKuR6tMrODmgEomNk7wHiQjDC_TYGfm8mjAcMp"/>
+<div class="absolute top-md right-md bg-primary-fixed text-on-primary-fixed px-md py-xs rounded-full font-label-sm text-label-sm">
+                            Beginner
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-md text-headline-md text-on-background mb-sm leading-tight">Modern Architecture Principles</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-2">Explore the intersection of sustainability, form, and function in contemporary urban design.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-label-md text-label-md">6 Weeks</span>
+</div>
+<button class="text-primary font-bold hover:underline font-label-md">Preview Course</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-xxl bg-surface-container-low dark:bg-surface-container-lowest">
+<div class="flex flex-col md:flex-row justify-between items-center py-xl px-gutter max-w-container-max mx-auto">
+<div class="flex items-center gap-sm mb-md md:mb-0">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">AuraLearn</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface order-3 md:order-2">
+                © 2024 AuraLearn. Empowering minds through AI.
+            </p>
+<div class="flex gap-lg order-2 md:order-3 mb-md md:mb-0">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:text-primary hover:underline transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:text-primary hover:underline transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:text-primary hover:underline transition-opacity duration-200" href="#">Support</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple interaction for pill buttons in chat
+        document.querySelectorAll('.flex.flex-wrap.gap-sm button').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = document.querySelector('input[type="text"]');
+                input.value = button.innerText.trim().replace(/^"|"$/g, '');
+                input.focus();
+            });
+        });
+
+        // Small parallax/float effect for the hero image container
+        window.addEventListener('mousemove', (e) => {
+            const heroImage = document.querySelector('.lg\\:block .glass');
+            if (!heroImage) return;
+            const x = (window.innerWidth / 2 - e.pageX) / 50;
+            const y = (window.innerHeight / 2 - e.pageY) / 50;
+            heroImage.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    </script>
+</body></html>
