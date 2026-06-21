@@ -8,3 +8,6 @@ export { Loader } from './Loader';
 export { PageHeader } from './PageHeader';
 export { EmptyState } from './EmptyState';
 export { ConfirmationDialog } from './ConfirmationDialog';
+export { Icon } from './Icon';
+export { FormGroup } from './FormGroup';
+export { RangeSlider } from './RangeSlider';

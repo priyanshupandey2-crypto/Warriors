@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CourseDifficulty } from '@/types/course';
-import { Button, Input, Textarea, Select, Badge } from '@/components/ui';
+import { Button, Input, Textarea, Select, Badge, FormGroup } from '@/components/ui';
 import { Card } from '@/components/ui';
 
 interface CourseFormData {
@@ -107,8 +107,8 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-lg">
-        {/* Topic */}
-        <div>
+        <FormGroup>
+          {/* Topic */}
           <Input
             label="What topic do you want to teach?"
             placeholder="e.g., Machine Learning, Web Design, Marketing"
@@ -122,10 +122,8 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
             error={errors.topic}
             disabled={isLoading}
           />
-        </div>
 
-        {/* Difficulty */}
-        <div>
+          {/* Difficulty */}
           <Select
             label="Course Difficulty Level"
             value={formData.difficulty}
@@ -147,10 +145,8 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
               { value: 'ADVANCED', label: 'Advanced' },
             ]}
           />
-        </div>
 
-        {/* Target Audience */}
-        <div>
+          {/* Target Audience */}
           <Textarea
             label="Who is this course for?"
             placeholder="e.g., Software developers, Product managers, Entrepreneurs"
@@ -164,10 +160,8 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
             error={errors.targetAudience}
             disabled={isLoading}
           />
-        </div>
 
-        {/* Duration */}
-        <div>
+          {/* Duration */}
           <Input
             label="Course Duration (hours)"
             type="number"
@@ -186,10 +180,10 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
             disabled={isLoading}
             helperText="Estimated hours for learners to complete this course"
           />
-        </div>
+        </FormGroup>
 
         {/* Tags */}
-        <div>
+        <FormGroup>
           <label className="block text-label-md font-medium text-on-surface mb-sm">
             Relevant Topics (optional, max 5)
           </label>
@@ -226,10 +220,10 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
                       disabled={isLoading}
-                      className="ml-xs hover:opacity-70 disabled:opacity-50"
+                      className="ml-xs hover:opacity-70 disabled:opacity-50 font-bold text-sm"
                       aria-label={`Remove ${tag}`}
                     >
-                      ✕
+                      ×
                     </button>
                   </Badge>
                 ))}
@@ -242,7 +236,7 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
               </p>
             )}
           </div>
-        </div>
+        </FormGroup>
 
         {/* Submit Button */}
         <Button
@@ -253,7 +247,7 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
           disabled={!isFormValid || isLoading}
           loading={isLoading}
         >
-          {isLoading ? 'Generating Course...' : '✨ Generate with AI'}
+          {isLoading ? 'Generating Course...' : 'Generate with AI'}
         </Button>
 
         {isLoading && (

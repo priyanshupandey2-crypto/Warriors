@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui';
+import { Card, RangeSlider } from '@/components/ui';
 import { CourseDifficulty } from '@/types/course';
 
 interface CourseFiltersProps {
@@ -80,45 +80,30 @@ export function CourseFilters({
           </span>
         </div>
         <div className="space-y-md">
-          {/* Min Duration */}
-          <div>
-            <label className="text-label-sm text-on-surface-variant block mb-xs">
-              Min: {minDuration} hours
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="40"
-              value={minDuration}
-              onChange={(e) => {
-                const newMin = parseInt(e.target.value);
-                if (newMin <= maxDuration) {
-                  onDurationChange(newMin, maxDuration);
-                }
-              }}
-              className="w-full"
-            />
-          </div>
-
-          {/* Max Duration */}
-          <div>
-            <label className="text-label-sm text-on-surface-variant block mb-xs">
-              Max: {maxDuration} hours
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="40"
-              value={maxDuration}
-              onChange={(e) => {
-                const newMax = parseInt(e.target.value);
-                if (newMax >= minDuration) {
-                  onDurationChange(minDuration, newMax);
-                }
-              }}
-              className="w-full"
-            />
-          </div>
+          <RangeSlider
+            label="Min Duration"
+            min={0}
+            max={40}
+            value={minDuration}
+            onChange={(newMin) => {
+              if (newMin <= maxDuration) {
+                onDurationChange(newMin, maxDuration);
+              }
+            }}
+            showValue={false}
+          />
+          <RangeSlider
+            label="Max Duration"
+            min={0}
+            max={40}
+            value={maxDuration}
+            onChange={(newMax) => {
+              if (newMax >= minDuration) {
+                onDurationChange(minDuration, newMax);
+              }
+            }}
+            showValue={false}
+          />
         </div>
       </div>
 
