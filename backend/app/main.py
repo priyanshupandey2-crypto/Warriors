@@ -8,6 +8,7 @@ from app.routes import health
 from app.tracing import configure_langsmith
 from app.routes import test_trace
 from app.routers import courses
+from app.database import init_db, close_db
 
 logger = get_logger(__name__)
 
@@ -47,13 +48,16 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     async def startup_event():
-        """Log application startup."""
+        """Log application startup and initialize database."""
         logger.info(f"Application startup - Environment: {settings.APP_ENV}, Debug: {settings.DEBUG}")
         logger.info(f"LangSmith tracing enabled: {settings.is_tracing_enabled()}")
+        await init_db()
+        logger.info("Database initialized successfully")
 
     @app.on_event("shutdown")
     async def shutdown_event():
-        """Log application shutdown."""
+        """Log application shutdown and close database."""
+        await close_db()
         logger.info("Application shutdown")
 
     return app

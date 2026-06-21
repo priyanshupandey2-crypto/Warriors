@@ -23,52 +23,80 @@ This FastAPI-based backend provides:
 ## Project Structure
 
 ```
-Warriors/main/backend/
-├── app/
-│   ├── __init__.py                  # Package initialization
-│   ├── main.py                      # FastAPI application factory with all routers
-│   ├── config.py                    # Environment configuration
-│   ├── logger.py                    # Structured JSON logging utilities
-│   ├── telemetry.py                 # Execution metrics recording
-│   ├── tracing.py                   # LangSmith integration
+Warriors/
+├── backend/
+│   ├── venv/                        # Virtual environment (created with python -m venv venv)
 │   │
-│   ├── routes/                      # Foundation infrastructure endpoints
-│   │   ├── __init__.py
-│   │   ├── health.py                # Health check endpoint
-│   │   └── test_trace.py            # Infrastructure verification endpoint
+│   ├── app/
+│   │   ├── __init__.py              # Package initialization
+│   │   ├── main.py                  # FastAPI application factory with all routers
+│   │   ├── config.py                # Environment configuration (includes database config)
+│   │   ├── database.py              # SQLAlchemy async engine and session management
+│   │   ├── logger.py                # Structured JSON logging utilities
+│   │   ├── telemetry.py             # Execution metrics recording
+│   │   ├── tracing.py               # LangSmith integration
+│   │   │
+│   │   ├── routes/                  # Foundation infrastructure endpoints
+│   │   │   ├── __init__.py
+│   │   │   ├── health.py            # Health check endpoint
+│   │   │   └── test_trace.py        # Infrastructure verification endpoint
+│   │   │
+│   │   ├── routers/                 # Mock data API endpoints (26 endpoints)
+│   │   │   ├── __init__.py
+│   │   │   ├── auth.py              # Authentication (signup, login, profile)
+│   │   │   ├── courses.py           # Courses (featured, browse, generate, preview, enroll)
+│   │   │   ├── classroom.py         # Learning workspace (lessons, quizzes, capstone, bookmarks)
+│   │   │   └── analytics.py         # User analytics & dashboard
+│   │   │
+│   │   ├── schemas/                 # Pydantic validation models
+│   │   │   ├── __init__.py
+│   │   │   ├── auth_schemas.py      # Auth models (LoginRequest, TokenResponse, etc)
+│   │   │   ├── course_schemas.py    # Course models (CoursePreview, FeaturedCourse, etc)
+│   │   │   └── classroom_schemas.py # Classroom models (LessonContent, QuizStructure, etc)
+│   │   │
+│   │   └── data/                    # Mock JSON data files
+│   │       ├── __init__.py
+│   │       ├── featuredCourses.json     # 5 featured courses for landing page
+│   │       ├── coursePreview.json       # Complete course with modules & lessons
+│   │       ├── classroomWorkspace.json  # Lessons, quizzes, assessments, capstone
+│   │       ├── bookmarks.json           # Bookmarked lessons
+│   │       └── userDashboard.json       # User analytics & dashboard data
 │   │
-│   ├── routers/                     # Mock data API endpoints (26 endpoints)
-│   │   ├── __init__.py
-│   │   ├── auth.py                  # Authentication (signup, login, profile)
-│   │   ├── courses.py               # Courses (featured, browse, generate, preview, enroll)
-│   │   ├── classroom.py             # Learning workspace (lessons, quizzes, capstone, bookmarks)
-│   │   └── analytics.py             # User analytics & dashboard
-│   │
-│   ├── schemas/                     # Pydantic validation models
-│   │   ├── __init__.py
-│   │   ├── auth_schemas.py          # Auth models (LoginRequest, TokenResponse, etc)
-│   │   ├── course_schemas.py        # Course models (CoursePreview, FeaturedCourse, etc)
-│   │   └── classroom_schemas.py     # Classroom models (LessonContent, QuizStructure, etc)
-│   │
-│   └── data/                        # Mock JSON data files
-│       ├── __init__.py
-│       ├── featuredCourses.json     # 5 featured courses for landing page
-│       ├── coursePreview.json       # Complete course with modules & lessons
-│       ├── classroomWorkspace.json  # Lessons, quizzes, assessments, capstone
-│       ├── bookmarks.json           # Bookmarked lessons
-│       └── userDashboard.json       # User analytics & dashboard data
+│   ├── main.py                      # Server entry point
+│   ├── requirements.txt              # Python dependencies
+│   ├── alembic.ini                  # Database migration configuration
+│   ├── .env.example                 # Environment variables template
+│   ├── .env                         # Environment configuration (development)
+│   └── context.md                   # This file
 │
-├── main.py                          # Server entry point
-├── requirements.txt                 # Python dependencies
-├── .env.example                     # Environment variables template
-├── .env                             # Environment configuration (development)
-└── context.md                       # This file
+├── frontend/                        # React application (coming soon)
+├── .gitignore                       # Git ignore patterns
+└── readme.md                        # Project README
 ```
 
 ## Running the Project
 
-### Prerequisites
+### Prerequisites: Setup Virtual Environment
+
+**Requirements:**
+- Python 3.13+ (Python 3.14 not yet supported due to package compatibility)
+- PostgreSQL connection (Neon.tech cloud or local)
+
 ```bash
+# Navigate to backend folder
+cd Warriors/backend
+
+# Create virtual environment with Python 3.13
+py -3.13 -m venv venv
+
+# Activate virtual environment
+# On Windows (PowerShell):
+venv\Scripts\Activate.ps1
+# On Windows (CMD):
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 ```
@@ -86,45 +114,37 @@ LANGSMITH_API_KEY=optional
 LANGSMITH_PROJECT=optional
 LANGSMITH_TRACING=false
 
-DATABASE_URL=postgresql://user:password@localhost:5432/lxp_db
-JWT_SECRET=your-secret-key-here-min-32-chars-for-jwt-encoding
-JWT_ALGORITHM=HS256
-JWT_EXPIRATION_HOURS=24
+DATABASE_URL=postgresql+psycopg://neondb_owner:npg_KTayGdMrR38W@ep-nameless-mode-aql1jeqa-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_ECHO=false
+DATABASE_POOL_SIZE=20
+DATABASE_MAX_OVERFLOW=0
 ```
 
-**For Future Developers - Integration Guide:**
+**Database Configuration:**
 
-| Variable | Current Value | Purpose | Team | Action Required |
-|----------|--------------|---------|------|-----------------|
-| `DATABASE_URL` | `postgresql://user:password@localhost:5432/lxp_db` | PostgreSQL connection | Database Team | Update with real connection string when DB is ready |
-| `JWT_SECRET` | `your-secret-key-here-min-32-chars...` | JWT token signing | Auth Team | Replace with real 32+ character secret when implementing auth |
-| `JWT_ALGORITHM` | `HS256` | Token encryption method | Auth Team | Keep as-is or update if needed |
-| `JWT_EXPIRATION_HOURS` | `24` | Token expiration time | Auth Team | Adjust based on security requirements |
+| Variable | Current Value | Purpose |
+|----------|--------------|---------|
+| `DATABASE_URL` | `postgresql+psycopg://...` | PostgreSQL connection via psycopg driver (Neon cloud hosted) |
+| `DATABASE_ECHO` | `false` | Log SQL statements (set to `true` for debugging) |
+| `DATABASE_POOL_SIZE` | `20` | Connection pool size for concurrent requests |
+| `DATABASE_MAX_OVERFLOW` | `0` | Max temporary overflow connections beyond pool size |
 
-**When Database Team Takes Over:**
-- Update `DATABASE_URL` to actual PostgreSQL instance
-- Database schema already exists: `users`, `courses`, `send_for_global_approval`
-- No code changes needed - just swap the connection string
-
-**When Auth Team Takes Over:**
-- Update `JWT_SECRET` with real secret (use `secrets` module to generate)
-- Implement JWT validation in auth routers
-- Update mock auth endpoints to use real authentication
-- Add JWT middleware to protected endpoints
-
-### Setup
-```bash
-# Environment is already configured in .env
-# All variables are ready for development
-```
+**Status:** ✅ **Database Connected & Initialized**
+- Using **Neon.tech** PostgreSQL (cloud-hosted)
+- Driver: **psycopg v3.2.13** (async-capable)
+- Tables auto-created on application startup via `init_db()`
+- Connection pooling enabled (20 persistent connections)
 
 ### Start Server
+
 ```bash
-cd main/backend
+# From Warriors/backend directory with venv activated
 python main.py
 ```
 
 Server runs on: `http://127.0.0.1:8000`
+
+**Note:** All imports use relative paths (e.g., `from app.config import settings`), so run from the `backend/` directory.
 
 ### Verify Installation
 ```bash
@@ -239,6 +259,58 @@ curl http://127.0.0.1:8000/api/user/dashboard
 
 ## Implemented Components
 
+### Database Connection
+
+**File:** `app/database.py`
+
+Manages PostgreSQL connection and SQLAlchemy ORM setup for async operations.
+
+**Components:**
+
+- `Base` - SQLAlchemy declarative base for all ORM models. All models inherit from this class.
+- `engine` - Async SQLAlchemy engine with connection pooling
+  - Uses `postgresql+asyncpg://` driver for async operations
+  - Pool size configurable via `DATABASE_POOL_SIZE` (default: 20)
+  - `pool_pre_ping=True` ensures stale connections are refreshed
+- `async_session` - Session factory for creating database sessions
+- `get_db()` - FastAPI dependency that provides database sessions to route handlers
+- `init_db()` - Initializes all database tables on application startup
+- `close_db()` - Gracefully closes database connections on shutdown
+
+**Usage in Route Handlers:**
+
+```python
+from fastapi import APIRouter, Depends
+from app.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+router = APIRouter()
+
+@router.get("/example")
+async def example_endpoint(db: AsyncSession = Depends(get_db)):
+    # Use db for queries
+    result = await db.execute(...)
+    return result
+```
+
+**Creating ORM Models:**
+
+```python
+from app.database import Base
+from sqlalchemy import Column, String, Integer
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    email = Column(String(100), unique=True)
+```
+
+Models are automatically registered when imported, and tables are created on `init_db()`.
+
+---
+
 ### Configuration
 
 **File:** `app/config.py`
@@ -251,12 +323,16 @@ The `Settings` class uses Pydantic to load and validate configuration from envir
 |----------|---------|---------|
 | `APP_ENV` | development | Deployment environment (development/production) |
 | `DEBUG` | True | Enable debug mode for development |
+| `HOST` | 127.0.0.1 | Server bind address |
+| `PORT` | 8000 | Server listen port |
+| `DATABASE_URL` | postgresql+psycopg://user:password@localhost:5432/warriors_db | PostgreSQL connection string (using psycopg driver) |
+| `DATABASE_ECHO` | False | Log SQL statements (True for debugging) |
+| `DATABASE_POOL_SIZE` | 20 | Connection pool size |
+| `DATABASE_MAX_OVERFLOW` | 0 | Max overflow connections |
 | `LANGSMITH_API_KEY` | None | API key for LangSmith authentication |
 | `LANGSMITH_PROJECT` | None | LangSmith project name for organizing runs |
 | `LANGSMITH_TRACING` | False | Enable/disable LangSmith tracing |
 | `LANGSMITH_ENDPOINT` | https://api.smith.langchain.com | LangSmith API endpoint URL |
-| `HOST` | 127.0.0.1 | Server bind address |
-| `PORT` | 8000 | Server listen port |
 
 **Helper Methods:**
 
@@ -265,6 +341,7 @@ The `Settings` class uses Pydantic to load and validate configuration from envir
 
 **Usage:**
 ```python
+# Note: Relative imports (from app.config, not from backend.app.config)
 from app.config import settings
 
 if settings.is_production():
@@ -304,6 +381,7 @@ Implements structured JSON logging for production-grade observability. Each log 
 
 **Usage:**
 ```python
+# Note: Relative import from app.logger
 from app.logger import get_logger
 
 logger = get_logger(__name__)
@@ -350,6 +428,7 @@ Manages metrics for a single workflow execution.
 
 **Usage Example:**
 ```python
+# Note: Relative import from app.telemetry
 from app.telemetry import create_run_context
 
 # Create and start recording
@@ -445,6 +524,7 @@ def end_trace_run(
 
 **Usage Example:**
 ```python
+# Note: Relative imports from app.tracing
 from app.tracing import trace_run, end_trace_run
 
 with trace_run(
@@ -472,6 +552,9 @@ with trace_run(
 For nested workflows, pass parent run_id to create child traces:
 
 ```python
+# Note: Relative imports from app.tracing
+from app.tracing import trace_run, end_trace_run
+
 # Parent trace
 with trace_run("parent-workflow") as parent_id:
     # Do parent work
@@ -567,6 +650,7 @@ curl http://127.0.0.1:8000/test-trace
 ### Creating a Telemetry Run
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 from app.telemetry import create_run_context
 
 # Initialize
@@ -587,6 +671,7 @@ metrics = telemetry.complete("success")
 ### Creating a LangSmith Trace
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 from app.tracing import trace_run, end_trace_run
 
 # Create trace context
@@ -666,6 +751,7 @@ end_trace_run(
 ### Nested Parent/Child Tracing
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 from app.tracing import trace_run, end_trace_run
 
 async def parent_agent():
@@ -694,6 +780,7 @@ async def parent_agent():
 ### Using Logging
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 from app.logger import get_logger
 
 logger = get_logger(__name__)
@@ -712,10 +799,11 @@ except Exception as e:
 
 ## Current Status
 
-✅ **FastAPI Server Configured**
+✅ **FastAPI Server Running**
 - Application factory pattern in `app/main.py`
 - Automatic startup and shutdown event handlers
 - CORS middleware enabled for cross-origin requests
+- Server running on http://127.0.0.1:8000
 
 ✅ **Environment Management Configured**
 - Settings loaded from `.env` file via Pydantic
@@ -738,15 +826,18 @@ except Exception as e:
 - `end_trace_run()` function for attaching metrics
 - Support for parent/child run relationships
 
-✅ **Tracing Enabled**
-- Startup logs confirm LangSmith configuration
-- Traces appear in LangSmith dashboard with all metrics
-- Test endpoint (`GET /test-trace`) demonstrates integration
+✅ **Database Connection Initialized**
+- PostgreSQL connected via Neon.tech (cloud-hosted)
+- psycopg driver for async operations
+- Connection pooling enabled (20 concurrent connections)
+- Tables auto-created on startup via `init_db()`
+- Database module in `app/database.py` provides: `Base` (ORM base class), `get_db()` dependency, session management
 
-✅ **Infrastructure Ready for Future AI Agents**
+✅ **Infrastructure Ready for Future AI Agents & ORM Models**
 - All utilities are reusable by new agents
-- No changes to existing infrastructure required
-- Agents import and use utilities directly
+- Database session injection ready for API endpoints
+- `Base` class ready for ORM model definitions
+- Alembic migrations configured for schema management
 
 ---
 
@@ -771,6 +862,7 @@ app/agents/
 ```python
 # app/agents/research_agent.py
 
+# Note: All imports are relative (run from backend/ directory)
 from app.telemetry import create_run_context
 from app.tracing import trace_run, end_trace_run
 from app.logger import get_logger
@@ -835,6 +927,7 @@ async def research_agent(query: str, parent_run_id: str = None):
 ```python
 # app/routes/research.py
 
+# Note: All imports are relative (run from backend/ directory)
 from fastapi import APIRouter
 from app.agents.research_agent import research_agent
 
@@ -849,6 +942,7 @@ async def query_research(query: str, parent_trace_id: str = None):
 
 Then register in `app/main.py`:
 ```python
+# All imports use relative paths
 from app.routes import research
 
 app.include_router(research.router)
@@ -859,6 +953,9 @@ app.include_router(research.router)
 For workflows involving multiple agents with parent/child relationships:
 
 ```python
+# Note: All imports are relative (run from backend/ directory)
+from app.tracing import trace_run, end_trace_run
+
 async def multi_agent_workflow(input_data):
     """Coordinate multiple agents with shared tracing."""
     
@@ -918,18 +1015,25 @@ No additional observability code needed—just use the provided utilities.
 ### Running the Server
 
 ```bash
-# Install dependencies
+# Navigate to backend folder
+cd Warriors/backend
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies (one-time)
 pip install -r requirements.txt
 
-# Copy environment template
-cp .env.example .env
-# Edit .env with your LangSmith credentials
-
-# Start server
+# Start server (run from backend/ with venv activated)
 python main.py
 
 # Server available at http://127.0.0.1:8000
 ```
+
+**Important:** Always run the app from the `Warriors/backend/` directory with the venv activated, since all imports use relative paths (e.g., `from app.config`)
 
 ### Health Check
 
@@ -948,6 +1052,112 @@ curl http://127.0.0.1:8000/test-trace
 ```
 http://127.0.0.1:8000/docs
 ```
+
+---
+
+## Database Setup Guide
+
+### Current Status
+✅ **Database is initialized and connected**
+- PostgreSQL hosted on Neon.tech (cloud-based)
+- Connection tested and working
+- Tables auto-created on startup
+
+### Technology Stack
+
+The following packages are configured in `requirements.txt`:
+- `sqlalchemy==2.0.36` - ORM and database toolkit
+- `psycopg[binary]==3.2.13` - PostgreSQL driver (async-capable, Python 3.13+ compatible)
+- `greenlet==3.1.1` - Required for SQLAlchemy async operations
+- `alembic==1.13.3` - Database migration tool
+
+### How the Database Works
+
+**1. Automatic Initialization**
+
+When the application starts, `init_db()` is called in `app/main.py` and:
+- Connects to PostgreSQL via the driver specified in `DATABASE_URL`
+- Creates all tables defined in ORM models (via `Base.metadata.create_all()`)
+- Logs: `"Database tables initialized successfully"`
+
+**2. Using the Database in API Endpoints**
+
+```python
+from fastapi import APIRouter, Depends
+from app.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+router = APIRouter()
+
+@router.post("/users")
+async def create_user(user_data: dict, db: AsyncSession = Depends(get_db)):
+    # db is automatically injected
+    # Use db for async queries: await db.execute(...), await db.query(...), etc.
+    return {"status": "created"}
+```
+
+**3. Database Dependency Injection**
+- FastAPI automatically injects database sessions via `Depends(get_db)`
+- Session is closed automatically after the endpoint completes
+- All queries use async/await: `await db.execute(...)`
+
+### Defining ORM Models
+
+When you're ready to add database models:
+
+```python
+from app.database import Base
+from sqlalchemy import Column, String, Integer
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    email = Column(String(100), unique=True)
+```
+
+**Important:** Models must:
+1. Inherit from `Base` imported from `app.database`
+2. Have `__tablename__` defined
+3. Be imported/registered before `init_db()` runs
+
+### Using Alembic for Schema Migrations
+
+When you need to modify the database schema without losing data:
+
+```bash
+# Create a migration from model changes
+alembic revision --autogenerate -m "add users table"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback migrations
+alembic downgrade -1
+```
+
+Configuration for migrations is in `alembic.ini`.
+
+### Troubleshooting
+
+**Connection Error: "could not connect to server"**
+- Verify `DATABASE_URL` in `.env` is correct
+- Check if Neon.tech instance is active
+- Ensure your IP is whitelisted (if applicable)
+
+**Connection Error: "sslmode not supported"**
+- Neon requires SSL: include `?sslmode=require` in DATABASE_URL (already configured)
+
+**"Database tables initialized successfully" not in logs**
+- Set `DATABASE_ECHO=true` in `.env` to see SQL statements
+- Check for ORM model import errors
+- Ensure models inherit from `Base`
+
+**Alembic Errors**
+- Run: `alembic current` to check current migration
+- Run: `alembic history` to see all migrations
+- Ensure migration files are in `alembic/versions/`
 
 ---
 

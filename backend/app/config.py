@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     HOST: str = "127.0.0.1"
     PORT: int = 8000
 
+    # PostgreSQL database configuration
+    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/warriors_db"
+    DATABASE_ECHO: bool = False
+    DATABASE_POOL_SIZE: int = 20
+    DATABASE_MAX_OVERFLOW: int = 0
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -31,6 +37,11 @@ class Settings(BaseSettings):
     def is_tracing_enabled(self) -> bool:
         """Check if LangSmith tracing is enabled."""
         return self.LANGSMITH_TRACING and self.LANGSMITH_API_KEY is not None
+
+    @property
+    def sync_database_url(self) -> str:
+        """Get synchronous database URL for migrations."""
+        return self.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
 
 
 settings = Settings()
