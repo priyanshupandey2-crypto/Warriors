@@ -15,7 +15,7 @@ export default function SignupPage() {
         <div className="space-y-lg text-center">
           <div className="text-5xl">✨</div>
           <div className="space-y-sm">
-            <h2 className="text-headline-lg text-on-background font-bold">
+            <h2 className="text-headline-md text-on-background font-bold">
               Start Your Journey
             </h2>
             <p className="text-body-md text-on-surface-variant">

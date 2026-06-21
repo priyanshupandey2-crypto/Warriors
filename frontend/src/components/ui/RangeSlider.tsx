@@ -3,7 +3,7 @@
 import { InputHTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
-export interface RangeSliderProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface RangeSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label?: string;
   min?: number;
   max?: number;

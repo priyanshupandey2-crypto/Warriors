@@ -59,7 +59,7 @@ export function PublishedCoursesSection({
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
         {displayedCourses.map((course) => (
           <div
             key={course.id}
@@ -67,7 +67,7 @@ export function PublishedCoursesSection({
               onCourseSelect?.(course.id);
               router.push(`/course/${course.id}`);
             }}
-            className="cursor-pointer"
+            className="cursor-pointer hover-lift"
           >
             <CourseCard
               id={course.id}
@@ -84,10 +84,10 @@ export function PublishedCoursesSection({
       </div>
 
       {hasMore && (
-        <div className="flex justify-center pt-md">
+        <div className="flex justify-center pt-lg">
           <button
             onClick={() => router.push('/published-courses')}
-            className="text-primary font-label-md hover:underline bg-transparent border-none cursor-pointer"
+            className="text-primary font-label-lg hover:text-primary-container transition-colors duration-200 bg-transparent border-none cursor-pointer"
           >
             View All Courses →
           </button>

@@ -54,7 +54,7 @@ export default function Home() {
 
         {/* Placeholder for future sections */}
         <section className="py-xxl border-t border-surface-container">
-          <h2 className="text-headline-lg text-on-background mb-lg">
+          <h2 className="text-headline-md text-on-background mb-lg">
             More content coming soon...
           </h2>
           <p className="text-body-md text-on-surface-variant">

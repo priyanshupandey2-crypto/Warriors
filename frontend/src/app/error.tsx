@@ -18,7 +18,7 @@ export default function Error({
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-gutter">
       <div className="text-center space-y-lg max-w-md">
         <h1 className="text-display-lg-mobile md:text-display-lg text-on-background">⚠️</h1>
-        <h2 className="text-headline-lg text-on-surface">Something went wrong!</h2>
+        <h2 className="text-headline-md text-on-surface">Something went wrong!</h2>
         <p className="text-body-md text-on-surface-variant">
           {error.message || 'An unexpected error occurred. Please try again.'}
         </p>

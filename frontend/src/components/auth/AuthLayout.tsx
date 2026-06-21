@@ -39,7 +39,7 @@ export function AuthLayout({
             <Card variant="elevated" className="w-full max-w-md p-lg lg:p-xl space-y-lg">
               {/* Header */}
               <div className="space-y-sm">
-                <h1 className="text-headline-lg text-on-background font-bold">
+                <h1 className="text-headline-sm text-on-background font-semibold">
                   {title}
                 </h1>
                 <p className="text-body-md text-on-surface-variant">{subtitle}</p>

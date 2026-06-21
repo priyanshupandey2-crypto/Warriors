@@ -52,7 +52,7 @@ export function getAdminNavigation(currentPath: string): SidebarItem[] {
   ];
 }
 
-export function getCourseDetailNavigation(courseId: string, currentPath: string): SidebarItem[] {
+export function getCourseDetailNavigation(_courseId: string, _currentPath: string): SidebarItem[] {
   return [
     {
       href: '/dashboard',

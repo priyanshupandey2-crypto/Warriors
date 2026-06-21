@@ -34,27 +34,27 @@ export function Sidebar({ items, open = true, onClose, brand = 'AuraLearn' }: Si
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed md:sticky top-0 left-0 h-screen w-64 bg-surface-container-lowest border-r border-surface-container',
-          'flex flex-col overflow-y-auto transition-transform duration-300 z-40',
+          'fixed md:sticky top-16 md:top-0 left-0 h-[calc(100vh-4rem)] md:h-screen w-64 bg-surface-container-lowest',
+          'border-r border-outline-variant flex flex-col overflow-y-auto transition-transform duration-300 z-40',
           !open && '-translate-x-full md:translate-x-0'
         )}
       >
         {/* Header */}
-        <div className="p-lg border-b border-surface-container">
-          <span className="text-headline-md font-bold text-primary">{brand}</span>
+        <div className="hidden md:block p-md border-b border-outline-variant">
+          <span className="text-headline-md font-headline-md text-primary tracking-tight">{brand}</span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-md space-y-xs">
+        <nav className="flex-1 px-sm py-md space-y-sm">
           {items.map((item) => (
             <div key={item.href}>
               <Link
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-md px-md py-sm rounded-lg transition-fast text-body-md font-medium',
+                  'flex items-center gap-md px-md py-sm rounded-lg text-label-md transition-colors duration-200',
                   item.active
-                    ? 'bg-primary-container text-on-primary-container'
-                    : 'text-on-surface-variant hover:bg-surface-container'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                 )}
               >
                 {item.icon && typeof item.icon === 'string' ? (
@@ -67,15 +67,15 @@ export function Sidebar({ items, open = true, onClose, brand = 'AuraLearn' }: Si
 
               {/* Sub Items */}
               {item.subItems && item.active && (
-                <div className="ml-lg mt-xs space-y-xs border-l-2 border-surface-container">
+                <div className="ml-md mt-xs space-y-sm border-l-2 border-outline-variant pl-md">
                   {item.subItems.map((subItem) => (
                     <Link
                       key={subItem.href}
                       href={subItem.href}
                       className={cn(
-                        'flex items-center gap-md px-md py-sm rounded-lg transition-fast text-label-md',
+                        'flex items-center gap-md px-sm py-xs rounded-md text-label-sm transition-colors duration-200',
                         subItem.active
-                          ? 'text-primary font-bold'
+                          ? 'text-primary font-label-md'
                           : 'text-on-surface-variant hover:text-primary'
                       )}
                     >
@@ -89,7 +89,7 @@ export function Sidebar({ items, open = true, onClose, brand = 'AuraLearn' }: Si
         </nav>
 
         {/* Footer */}
-        <div className="p-md border-t border-surface-container text-center text-label-sm text-on-surface-variant">
+        <div className="hidden md:block p-md border-t border-outline-variant text-center text-label-sm text-on-surface-variant">
           <p>© 2024 AuraLearn</p>
         </div>
       </aside>

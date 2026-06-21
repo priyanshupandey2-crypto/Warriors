@@ -28,7 +28,7 @@ export function WelcomeSection({ user, stats }: WelcomeSectionProps) {
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-lg">
         <div className="flex items-center gap-md">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-primary-container flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-primary-container flex items-center justify-center shadow-sm">
             {user.avatarUrl ? (
               <img
                 src={user.avatarUrl}
@@ -36,13 +36,13 @@ export function WelcomeSection({ user, stats }: WelcomeSectionProps) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-headline-md font-bold text-on-primary">
+              <span className="text-headline-md font-headline-md text-on-primary">
                 {initials}
               </span>
             )}
           </div>
           <div>
-            <h1 className="text-headline-lg text-on-background">
+            <h1 className="text-headline-md font-headline-md text-on-background">
               Hello, {user.name.split(' ')[0]}
             </h1>
             <p className="text-body-md text-on-surface-variant">
@@ -53,7 +53,7 @@ export function WelcomeSection({ user, stats }: WelcomeSectionProps) {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-sm">
         <StatsCard
           icon="BookOpen"
           label="Enrolled"

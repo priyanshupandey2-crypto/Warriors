@@ -72,9 +72,9 @@ export function PublishedCourseCard({
       <div className="p-lg flex-1 flex flex-col gap-md">
         {/* Title and Rating */}
         <div>
-          <h3 className="text-body-lg font-bold text-on-surface">{title}</h3>
+          <h3 className="text-headline-sm font-semibold text-on-surface">{title}</h3>
           {description && (
-            <p className="text-label-md text-on-surface-variant mt-sm line-clamp-2">{description}</p>
+            <p className="text-body-md text-on-surface-variant mt-sm line-clamp-2">{description}</p>
           )}
         </div>
 

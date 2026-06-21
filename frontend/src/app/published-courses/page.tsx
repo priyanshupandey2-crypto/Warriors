@@ -150,7 +150,7 @@ export default function PublishedCoursesPage() {
             {/* Courses Grid */}
             {filteredCourses.length === 0 ? (
               <div className="text-center py-2xl">
-                <h2 className="text-headline-md text-on-surface-variant">No courses found</h2>
+                <h2 className="text-headline-sm text-on-surface-variant">No courses found</h2>
                 <p className="text-body-md text-on-surface-variant mt-sm">
                   Try adjusting your filters or search term
                 </p>

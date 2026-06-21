@@ -34,7 +34,7 @@ export function AppShell({
       )}
 
       {/* Main Content */}
-      <div className={cn('flex-1 flex flex-col overflow-hidden', showSidebar && 'md:ml-0')}>
+      <div className={cn('flex-1 flex flex-col overflow-hidden')}>
         {/* Header */}
         {showHeader && (
           <Header
@@ -44,7 +44,7 @@ export function AppShell({
                 {showSidebar && (
                   <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="md:hidden p-sm hover:bg-surface-container-low rounded-lg transition-fast"
+                    className="md:hidden p-sm hover:bg-surface-container-low rounded-lg transition-colors duration-200"
                   >
                     ☰
                   </button>
@@ -57,7 +57,7 @@ export function AppShell({
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="px-gutter py-lg max-w-container-max mx-auto">{children}</div>
+          <div className="px-gutter py-xl max-w-container-max mx-auto w-full">{children}</div>
         </main>
       </div>
     </div>

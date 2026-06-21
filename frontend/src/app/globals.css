@@ -39,28 +39,57 @@ body {
   }
 
   .text-headline-md {
-    font-size: var(--font-headline-md);
+    font-size: 24px;
     line-height: 32px;
+    font-weight: 700;
+  }
+
+  .text-headline-sm {
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 600;
   }
 
   .text-body-lg {
-    font-size: var(--font-body-lg);
+    font-size: 18px;
     line-height: 28px;
+    font-weight: 400;
   }
 
   .text-body-md {
-    font-size: var(--font-body-md);
+    font-size: 16px;
     line-height: 24px;
+    font-weight: 400;
+  }
+
+  .text-body-sm {
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+
+  .text-label-lg {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
   }
 
   .text-label-md {
-    font-size: var(--font-label-md);
+    font-size: 14px;
     line-height: 20px;
+    font-weight: 500;
   }
 
   .text-label-sm {
-    font-size: var(--font-label-sm);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+
+  .text-label-xs {
+    font-size: 12px;
     line-height: 16px;
+    font-weight: 400;
   }
 
   /* Focus ring for keyboard navigation */
@@ -79,6 +108,22 @@ body {
 
   .transition-slow {
     transition-duration: var(--transition-slow);
+  }
+
+  /* Glass morphism effect from Stitch */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Hover lift effect from Stitch */
+  .hover-lift {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
   }
 }
 

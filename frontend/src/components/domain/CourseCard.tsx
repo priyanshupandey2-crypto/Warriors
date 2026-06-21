@@ -39,14 +39,14 @@ export function CourseCard({
   onResume,
 }: CourseCardProps) {
   return (
-    <Card variant="elevated" className="overflow-hidden flex flex-col h-full group hover:shadow-lg transition-shadow">
+    <Card variant="elevated" className="overflow-hidden flex flex-col h-full group hover:shadow-md transition-all duration-200">
       {/* Image Section */}
       {image && (
-        <div className="relative h-48 overflow-hidden bg-surface-container">
+        <div className="relative h-40 overflow-hidden bg-surface-container">
           <img
             src={image}
             alt={title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {difficulty && (
             <div className="absolute top-md right-md">
@@ -67,32 +67,32 @@ export function CourseCard({
       )}
 
       {/* Content Section */}
-      <div className="p-lg flex-1 flex flex-col gap-md">
+      <div className="p-md flex-1 flex flex-col gap-md">
         <div>
-          <div className="flex justify-between items-start gap-md mb-sm">
-            <h3 className="text-body-lg font-bold text-on-surface flex-1">{title}</h3>
+          <div className="flex justify-between items-start gap-sm mb-sm">
+            <h3 className="text-headline-sm font-headline-md text-on-surface flex-1">{title}</h3>
             {badge && badge}
           </div>
-          {description && <p className="text-label-md text-on-surface-variant">{description}</p>}
+          {description && <p className="text-body-md text-on-surface-variant line-clamp-2">{description}</p>}
         </div>
 
         {/* Progress Bar */}
         {progress !== undefined && (
-          <div className="space-y-xs">
-            <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+          <div className="space-y-sm">
+            <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-primary h-full rounded-full transition-all"
+                className="bg-primary h-full rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="flex justify-between text-label-sm text-outline">
+            <div className="flex justify-between text-label-sm text-on-surface-variant">
               <span>{progress}% Complete</span>
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-auto pt-md border-t border-surface-variant flex items-center justify-between gap-md">
+        <div className="mt-auto pt-md border-t border-outline-variant flex items-center justify-between gap-md">
           <div className="flex items-center gap-xs text-on-surface-variant">
             {duration && (
               <>

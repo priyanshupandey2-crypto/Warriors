@@ -27,10 +27,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            'w-full px-md py-sm rounded-lg border-2 border-outline-variant',
+            'w-full px-md py-sm rounded-lg border border-outline-variant',
             'bg-surface text-on-surface placeholder-on-surface-variant',
-            'focus:border-primary focus:outline-none focus-ring',
-            'transition-fast',
+            'focus:border-primary focus:outline-none focus:shadow-sm focus-ring',
+            'transition-colors duration-200',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             error && 'border-error',
             className

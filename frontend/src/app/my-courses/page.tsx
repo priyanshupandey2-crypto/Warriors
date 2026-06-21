@@ -102,14 +102,14 @@ export default function MyCoursesPage() {
             <button
               key={tab.value}
               onClick={() => setActiveTab(tab.value)}
-              className={`px-lg py-sm rounded-lg font-medium text-label-lg whitespace-nowrap transition-colors ${
+              className={`px-lg py-sm rounded-lg font-medium text-label-md whitespace-nowrap transition-colors ${
                 activeTab === tab.value
                   ? 'bg-primary text-on-primary'
                   : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
               }`}
             >
               {tab.label}
-              <span className="ml-sm text-label-md opacity-80">({tab.count})</span>
+              <span className="ml-sm text-label-sm opacity-80">({tab.count})</span>
             </button>
           ))}
         </div>
@@ -117,6 +117,7 @@ export default function MyCoursesPage() {
         {/* Courses Grid */}
         {filteredCourses.length === 0 ? (
           <EmptyState
+            icon="📚"
             title="No courses yet"
             message={
               activeTab === 'all'
@@ -142,7 +143,7 @@ export default function MyCoursesPage() {
                   {/* Content */}
                   <div className="p-lg space-y-md">
                     {/* Title */}
-                    <h3 className="text-headline-md text-on-surface font-bold line-clamp-2">
+                    <h3 className="text-headline-sm text-on-surface font-semibold line-clamp-2">
                       {course.title}
                     </h3>
 

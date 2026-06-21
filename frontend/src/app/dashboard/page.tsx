@@ -85,7 +85,7 @@ export default function DashboardPage() {
         ],
       }}
     >
-      <div className="max-w-6xl mx-auto w-full space-y-lg px-md py-lg">
+      <div className="w-full space-y-lg">
         {/* Welcome Section */}
         <WelcomeSection user={user} stats={mockStats} />
 

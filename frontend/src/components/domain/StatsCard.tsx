@@ -20,17 +20,17 @@ const iconColorMap = {
 
 export function StatsCard({ icon, label, value, iconColor = 'primary' }: StatsCardProps) {
   return (
-    <Card variant="elevated" className="flex items-center gap-md">
-      <div className={cn('p-md rounded-lg flex items-center justify-center', iconColorMap[iconColor])}>
+    <Card variant="elevated" className="flex items-center gap-md p-md hover-lift">
+      <div className={cn('p-sm rounded-lg flex items-center justify-center flex-shrink-0', iconColorMap[iconColor])}>
         {typeof icon === 'string' ? (
           <Icon name={icon as any} size={24} />
         ) : (
           icon
         )}
       </div>
-      <div className="flex-1">
-        <p className="text-label-sm uppercase tracking-wider text-outline">{label}</p>
-        <p className="text-headline-md font-bold text-on-surface">{value}</p>
+      <div className="flex-1 min-w-0">
+        <p className="text-label-md font-label-md text-on-surface-variant">{label}</p>
+        <p className="text-headline-sm font-headline-md text-on-surface">{value}</p>
       </div>
     </Card>
   );

@@ -39,29 +39,29 @@ export function DraftCoursesSection({ drafts }: DraftCoursesSectionProps) {
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
         {drafts.map((draft) => (
-          <Card key={draft.id} variant="elevated" className="flex flex-col">
-            <div className="p-lg space-y-md flex-1">
+          <Card key={draft.id} variant="elevated" className="flex flex-col hover-lift">
+            <div className="p-md space-y-md flex-1">
               {/* Title and Badge */}
               <div className="space-y-sm">
-                <div className="flex items-start justify-between gap-md">
-                  <h3 className="text-headline-md text-on-surface font-bold flex-1 line-clamp-2">
+                <div className="flex items-start justify-between gap-sm">
+                  <h3 className="text-headline-sm text-on-surface font-headline-md flex-1 line-clamp-2">
                     {draft.title || 'Untitled Course'}
                   </h3>
                   <Badge variant="primary">{draft.difficulty}</Badge>
                 </div>
 
                 {/* Topic */}
-                <p className="text-label-md text-on-surface-variant">{draft.topic}</p>
+                <p className="text-body-md text-on-surface-variant">{draft.topic}</p>
               </div>
 
               {/* Details */}
-              <div className="space-y-xs text-label-sm text-on-surface-variant">
+              <div className="space-y-xs text-label-md text-on-surface-variant">
                 <p>Duration: {draft.duration} hours</p>
                 <p>Audience: {draft.targetAudience}</p>
                 {draft.tags && draft.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-xs pt-xs">
+                  <div className="flex flex-wrap gap-sm pt-xs">
                     {draft.tags.slice(0, 2).map((tag) => (
                       <Badge key={tag} variant="secondary">
                         {tag}
@@ -75,13 +75,13 @@ export function DraftCoursesSection({ drafts }: DraftCoursesSectionProps) {
               </div>
 
               {/* Last saved */}
-              <p className="text-label-sm text-outline pt-xs">
+              <p className="text-label-sm text-on-surface-variant pt-md">
                 Saved {formatDate(draft.savedAt)}
               </p>
             </div>
 
             {/* Actions */}
-            <div className="px-lg pb-lg pt-md border-t border-surface-container flex gap-sm">
+            <div className="px-md pb-md pt-md border-t border-outline-variant flex gap-sm">
               <Button
                 variant="primary"
                 size="sm"
@@ -90,7 +90,7 @@ export function DraftCoursesSection({ drafts }: DraftCoursesSectionProps) {
               >
                 Continue
               </Button>
-              <Button variant="ghost" size="sm" fullWidth>
+              <Button variant="outline" size="sm" fullWidth>
                 Delete
               </Button>
             </div>

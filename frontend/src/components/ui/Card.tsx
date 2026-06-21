@@ -14,9 +14,9 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          'rounded-lg p-lg transition-fast',
-          variant === 'elevated' && 'bg-surface-container-lowest shadow-md border border-surface-container',
-          variant === 'outlined' && 'bg-surface border-2 border-outline-variant',
+          'rounded-lg p-lg transition-all duration-200',
+          variant === 'elevated' && 'bg-surface-container-lowest shadow-sm border border-outline-variant hover:shadow-md',
+          variant === 'outlined' && 'bg-surface border border-outline-variant hover:border-outline',
           className
         )}
         {...props}

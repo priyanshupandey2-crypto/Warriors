@@ -14,17 +14,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container',
-  secondary: 'bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container',
-  tertiary: 'bg-tertiary text-on-tertiary hover:bg-tertiary-container hover:text-on-tertiary-container',
-  outline: 'border-2 border-outline-variant text-on-surface hover:border-primary hover:text-primary',
-  ghost: 'text-on-surface hover:bg-surface-container-low',
+  primary: 'bg-primary text-on-primary hover:shadow-md hover:bg-primary-container hover:text-on-primary-container',
+  secondary: 'bg-secondary text-on-secondary hover:shadow-md hover:bg-secondary-container hover:text-on-secondary-container',
+  tertiary: 'bg-tertiary text-on-tertiary hover:shadow-md hover:bg-tertiary-container hover:text-on-tertiary-container',
+  outline: 'border-2 border-outline-variant text-on-surface hover:border-primary hover:text-primary hover:shadow-sm',
+  ghost: 'text-on-surface hover:bg-surface-container-low hover:shadow-sm',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'px-sm py-xs text-label-sm',
-  md: 'px-md py-sm text-label-md',
-  lg: 'px-lg py-md text-body-md',
+  sm: 'px-sm py-xs text-label-md rounded-md',
+  md: 'px-md py-sm text-label-lg rounded-lg',
+  lg: 'px-lg py-md text-body-md rounded-lg',
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -46,7 +46,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-fast active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-ring',
+          'inline-flex items-center justify-center gap-2 font-label-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-ring shadow-sm',
           variantClasses[variant],
           sizeClasses[size],
           fullWidth && 'w-full',

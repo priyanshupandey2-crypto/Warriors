@@ -45,6 +45,8 @@
 
   /* Spacing */
   --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-container-max: 1280px;
 
   /* Typography */
   --font-family-sans: 'Inter', system-ui, sans-serif;

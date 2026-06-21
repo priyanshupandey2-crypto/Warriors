@@ -100,7 +100,7 @@ export function CourseForm({ onSubmit, isLoading = false }: CourseFormProps) {
   return (
     <Card variant="elevated" className="space-y-lg">
       <div>
-        <h2 className="text-headline-lg text-on-background">Create Your Course</h2>
+        <h2 className="text-headline-md text-on-background font-bold">Create Your Course</h2>
         <p className="text-body-md text-on-surface-variant mt-sm">
           Tell us about your course idea and our AI will create the complete curriculum
         </p>

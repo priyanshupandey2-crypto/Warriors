@@ -38,14 +38,14 @@ export function RecentActivitySection({ activities }: RecentActivitySectionProps
     <section className="space-y-lg">
       <SectionHeader title="Recent Activity" />
 
-      <div className="space-y-sm">
-        {activities.map((activity, index) => (
+      <div className="space-y-xs">
+        {activities.map((activity) => (
           <Card key={activity.id} variant="outlined" className="p-md">
             <div className="flex items-start gap-md">
               {/* Icon */}
-              <div className="flex-shrink-0 text-primary">
+              <div className="flex-shrink-0 text-primary p-xs bg-primary-container/20 rounded-lg">
                 {typeof activity.icon === 'string' ? (
-                  <Icon name={activity.icon as any} size={24} />
+                  <Icon name={activity.icon as any} size={20} />
                 ) : (
                   activity.icon
                 )}
@@ -53,18 +53,13 @@ export function RecentActivitySection({ activities }: RecentActivitySectionProps
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <p className="text-body-md text-on-surface font-medium">
+                <p className="text-body-md text-on-surface font-body-md">
                   {activity.title}
                 </p>
-                <p className="text-label-sm text-on-surface-variant mt-xs">
+                <p className="text-label-md text-on-surface-variant mt-xs">
                   {formatTime(activity.timestamp)}
                 </p>
               </div>
-
-              {/* Divider between items (except last) */}
-              {index < activities.length - 1 && (
-                <div className="absolute left-0 right-0 bottom-0 h-px bg-surface-container" />
-              )}
             </div>
           </Card>
         ))}

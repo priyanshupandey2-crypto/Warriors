@@ -14,8 +14,8 @@ export function PageHeader({ title, subtitle, actions, badge }: PageHeaderProps)
     <div className="space-y-md">
       <div className="flex items-center justify-between gap-md flex-wrap">
         <div className="flex-1">
-          <h1 className="text-headline-lg text-on-background font-bold">{title}</h1>
-          {subtitle && <p className="text-body-md text-on-surface-variant mt-xs">{subtitle}</p>}
+          <h1 className="text-display-lg-mobile md:text-headline-lg text-on-background font-headline-md tracking-tight">{title}</h1>
+          {subtitle && <p className="text-body-lg text-on-surface-variant mt-sm">{subtitle}</p>}
         </div>
         {actions && <div>{actions}</div>}
       </div>

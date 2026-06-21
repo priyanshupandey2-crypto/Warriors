@@ -138,7 +138,7 @@ export default function CreateCoursePage() {
         <div className="max-w-7xl mx-auto space-y-lg w-full">
           {/* Page Header */}
           <div>
-            <h1 className="text-display-lg-mobile md:text-display-lg text-on-background">
+            <h1 className="text-headline-lg text-on-background">
               Create Your Course
             </h1>
             <p className="text-body-lg text-on-surface-variant mt-sm max-w-2xl">
@@ -172,7 +172,7 @@ export default function CreateCoursePage() {
                 <div className="inline-flex">
                   <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
                 </div>
-                <h3 className="text-headline-md text-on-background font-bold">
+                <h3 className="text-headline-sm text-on-background font-semibold">
                   Generating Your Course
                 </h3>
               </div>

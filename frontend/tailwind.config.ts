@@ -60,15 +60,37 @@ const config: Config = {
       },
 
       fontSize: {
+        // Page hero / very large title (48px per Stitch)
         'display-lg': ['48px', { lineHeight: '56px', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'display-lg-mobile': ['36px', { lineHeight: '44px', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-lg-mobile': ['32px', { lineHeight: '40px', fontWeight: '700' }],
+
+        // Page title / main page heading (32px per Stitch)
         'headline-lg': ['32px', { lineHeight: '40px', letterSpacing: '-0.01em', fontWeight: '600' }],
-        'headline-lg-mobile': ['24px', { lineHeight: '32px', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'headline-lg-mobile': ['24px', { lineHeight: '32px', fontWeight: '600' }],
+
+        // Section heading (24px per Stitch)
         'headline-md': ['24px', { lineHeight: '32px', fontWeight: '600' }],
+
+        // Card title / important card heading (18px per Stitch)
+        'headline-sm': ['18px', { lineHeight: '28px', fontWeight: '600' }],
+
+        // Body text / descriptions (18px per Stitch)
         'body-lg': ['18px', { lineHeight: '28px', fontWeight: '400' }],
+
+        // Primary body text (16px per Stitch)
         'body-md': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+
+        // Navigation / sidebar / tabs / buttons (14px per Stitch)
+        'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0.01em', fontWeight: '500' }],
+
+        // Navigation labels (14px per Stitch)
         'label-md': ['14px', { lineHeight: '20px', letterSpacing: '0.01em', fontWeight: '500' }],
+
+        // Secondary text / labels / metadata (12px per Stitch)
         'label-sm': ['12px', { lineHeight: '16px', fontWeight: '600' }],
+
+        // Tiny meta text (12px per Stitch)
+        'label-xs': ['12px', { lineHeight: '16px', fontWeight: '600' }],
       },
 
       fontFamily: {
@@ -83,6 +105,7 @@ const config: Config = {
         xl: '32px',
         xxl: '48px',
         gutter: 'var(--spacing-gutter)',
+        'margin-mobile': 'var(--spacing-margin-mobile)',
         'container-max': '1280px',
       },
 
@@ -90,9 +113,10 @@ const config: Config = {
         DEFAULT: '8px',
         sm: '4px',
         md: '8px',
-        lg: '12px',
-        xl: '16px',
+        lg: '8px',
+        xl: '12px',
         '2xl': '24px',
+        full: '9999px',
       },
 
       boxShadow: {

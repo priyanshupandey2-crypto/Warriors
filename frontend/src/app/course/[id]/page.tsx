@@ -90,7 +90,7 @@ export default function CourseDetailPage() {
       <AppShell>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center space-y-md">
-            <h1 className="text-headline-lg text-on-background">Course not found</h1>
+            <h1 className="text-headline-md text-on-background">Course not found</h1>
             <p className="text-body-lg text-on-surface-variant">
               We couldn't find the course you're looking for.
             </p>
