@@ -2,9 +2,9 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import time
 
-from app.tracing import trace_run, end_trace_run
-from app.telemetry import create_run_context
-from app.logger import get_logger
+from backend.app.tracing import trace_run, end_trace_run
+from backend.app.telemetry import create_run_context
+from backend.app.logger import get_logger
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/test-trace", tags=["testing"])

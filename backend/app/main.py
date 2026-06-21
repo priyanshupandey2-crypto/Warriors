@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.logger import configure_logging, get_logger
-from app.tracing import configure_langsmith
-from app.routes import health, test_trace
-from app.routers import auth, courses, classroom, analytics
+from backend.app.config import settings
+from backend.app.logger import configure_logging, get_logger
+from backend.app.routers import analytics, auth, classroom
+from backend.app.routes import health
+from backend.app.tracing import configure_langsmith
+from backend.app.routes import test_trace
+from backend.app.routers import courses
 
 logger = get_logger(__name__)
 

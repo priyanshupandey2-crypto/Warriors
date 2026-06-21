@@ -4,8 +4,8 @@ import os
 import time
 import uuid
 
-from app.config import settings
-from app.logger import get_logger
+from backend.app.config import settings
+from backend.app.logger import get_logger
 
 logger = get_logger(__name__)
 

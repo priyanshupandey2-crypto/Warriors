@@ -4,7 +4,7 @@ from datetime import datetime
 import time
 import uuid
 
-from app.logger import get_logger
+from backend.app.logger import get_logger
 
 logger = get_logger(__name__)
 
