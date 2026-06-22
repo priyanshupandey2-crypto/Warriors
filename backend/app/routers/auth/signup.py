@@ -54,8 +54,9 @@ async def signup(request: SignupRequest, db: AsyncSession = Depends(get_db)) -> 
         await db.commit()
         await db.refresh(new_user)
 
-        # Generate access token for immediate login
-        access_token = create_access_token(new_user.id, new_user.email)
+        # Generate access token for immediate login with role from database
+        # Role is always "learner" for new signups, never from user input
+        access_token = create_access_token(new_user.id, new_user.email, new_user.role)
 
         logger.info(f"User created successfully - ID: {new_user.id}, Email: {new_user.email}")
 

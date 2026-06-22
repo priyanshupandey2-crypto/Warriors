@@ -1567,6 +1567,7 @@ curl -X POST http://127.0.0.1:8000/api/auth/verify-token \
 {
   "sub": "1",           # user_id as string
   "email": "john@example.com",
+  "role": "learner",    # user role from database
   "iat": 1782108731,    # issued at timestamp
   "exp": 1782195131     # expiration timestamp
 }
@@ -1606,13 +1607,115 @@ app/routers/auth/
 ✅ Detailed error logging  
 ✅ Generic error messages (no info leakage)  
 
+---
+
+## Admin Route Protection
+
+### Status: ✅ Implemented & Working
+
+**Admin-Only Routes:** Protected endpoints accessible ONLY to users with `role="admin"`
+
+### Components Created
+
+**1. Admin Dependency** (`app/utils/dependencies.py`)
+- `get_admin_user(credentials)` - Protected dependency that:
+  - Verifies JWT token
+  - Checks if user role is "admin" (from JWT payload)
+  - Returns 403 Forbidden if not admin
+  - Uses JWT role (from database at login time)
+
+**2. Admin Router** (`app/routers/admin.py`)
+- Example admin-only routes
+- All protected with `Depends(get_admin_user)`
+
+### Security Features
+
+✅ Role comes from database (at login/signup time)  
+✅ Role stored in JWT payload for fast checks  
+✅ No user input used for role assignment  
+✅ Only database admins can promote users to admin  
+✅ JWT signature verification prevents tampering  
+✅ 403 Forbidden for non-admin access attempts  
+
+### Admin Routes
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/admin/dashboard` | GET | Admin dashboard |
+| `/api/admin/users-count` | GET | Get total users count |
+| `/api/admin/action` | POST | Perform admin actions |
+| `/api/admin/info` | GET | Get admin user info |
+| `/api/admin/test` | GET | Test admin protection |
+
+### Testing Admin Protection
+
+**Login as admin:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@test.com",
+    "password": "admin@123"
+  }'
+```
+
+**Test admin endpoint (200 OK):**
+```bash
+curl -X GET http://127.0.0.1:8000/api/admin/test \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Admin protection is working!",
+  "jwt_claims": {
+    "user_id": "2",
+    "email": "admin@test.com",
+    "role": "admin",
+    "issued_at": 1782108731,
+    "expires_at": 1782195131
+  }
+}
+```
+
+**Non-admin user tries to access (403 Forbidden):**
+```json
+{
+  "detail": "Admin access required. You do not have permission to access this resource."
+}
+```
+
+### Creating Admin Users
+
+To make a user admin, update the database directly:
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'user@example.com';
+```
+
+**Never expose admin creation via API endpoints** - only database admins should have this privilege.
+
+### Using Admin Dependency in Routes
+
+```python
+from fastapi import APIRouter, Depends
+from app.utils.dependencies import get_admin_user
+
+router = APIRouter()
+
+@router.delete("/admin/users/{user_id}")
+async def delete_user(user_id: int, admin: dict = Depends(get_admin_user)):
+    """Only admin users can access this route"""
+    return {"deleted_by": admin["email"]}
+```
+
 ### Next Steps
 
 - Create token refresh endpoint
 - Add email verification on signup
 - Create profile endpoints (get, update)
 - Add password reset functionality
-- Create protected routes using token dependency
 
 ---
 

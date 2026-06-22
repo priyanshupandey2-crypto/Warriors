@@ -22,13 +22,14 @@ class TokenInvalidError(TokenError):
     pass
 
 
-def create_access_token(user_id: int, email: str) -> str:
+def create_access_token(user_id: int, email: str, role: str) -> str:
     """
     Create JWT access token.
 
     Args:
         user_id: User ID to include in token
         email: User email to include in token
+        role: User role from database (NEVER from user input)
 
     Returns:
         JWT token string
@@ -37,6 +38,7 @@ def create_access_token(user_id: int, email: str) -> str:
     payload = {
         "sub": str(user_id),  # Convert to string - JWT spec requires sub to be string
         "email": email,
+        "role": role,  # Role from database for permission checks
         "iat": now,
         "exp": now + timedelta(hours=settings.JWT_EXPIRATION_HOURS)
     }
