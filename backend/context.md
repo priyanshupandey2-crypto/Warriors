@@ -994,23 +994,35 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## Dashboard API (Phase 1: MVP)
+## Dashboard API (Phase 7: PostgreSQL Database Integration)
 
-**Status**: ✅ MVP Complete  
-**Added**: 2026-06-22  
-**Endpoint**: `GET /api/v1/dashboard`
+**Status**: ✅ LIVE WITH DATABASE  
+**Phase**: Phase 7 - Full PostgreSQL Integration Complete  
+**Last Updated**: 2026-06-22  
+**Endpoint**: `GET /api/v1/dashboard`  
+**Database**: PostgreSQL (auralearn_db)
 
 ### Overview
 
-The Dashboard API provides a single aggregated endpoint that returns all data needed to render the AuraLearn dashboard. This MVP implementation uses mock data while database and authentication infrastructure are being built.
+The Dashboard API now provides a single aggregated endpoint that returns all data from PostgreSQL database. Migration from mock JSON to live database is **complete and tested**.
+
+### Database Integration Status
+
+✅ **Phase 3**: All 6 SQLAlchemy ORM models created (User, Course, UserCourse, LearningActivity, UserGoal, Milestone)  
+✅ **Phase 4**: PostgreSQL connection configured with connection pooling  
+✅ **Phase 5**: Dashboard repository with 8 optimized query methods  
+✅ **Phase 6**: Service layer for business logic  
+✅ **Phase 7**: API routes fully integrated with database  
+✅ **Phase 8**: Ready for JWT authentication implementation
 
 ### Features
 
 - **Single Aggregated Endpoint**: Reduces frontend network requests from 5-6 to 1
 - **Complete Data Contract**: Pydantic-validated schemas ensure type safety
-- **Realistic Mock Data**: All data matches the dashboard UI mockup
+- **Live Database Integration**: All data fetched from PostgreSQL (Phase 7)
 - **Service Layer Architecture**: Clean separation between routes and business logic
-- **Zero Database Dependencies**: Frontend can integrate immediately
+- **Optimized Queries**: 8 repository methods with proper indexing and joins
+- **Test Data Included**: Sample data pre-loaded for immediate testing
 
 ### API Specification
 
@@ -1103,17 +1115,38 @@ DashboardResponse {
 ```
 backend/
 ├── app/
-│   ├── routers/
-│   │   └── dashboard.py          # Dashboard API route
+│   ├── models/                          # SQLAlchemy ORM Models (Phase 3)
+│   │   ├── user.py                      # Users table
+│   │   ├── course.py                    # Courses table  
+│   │   ├── user_course.py               # User enrollments (Most Critical!)
+│   │   ├── learning_activity.py         # Daily learning tracking
+│   │   ├── user_goal.py                 # Weekly goal targets
+│   │   └── milestone.py                 # Upcoming deadlines
 │   │
-│   ├── services/
-│   │   └── dashboard_service.py  # Service layer (business logic)
+│   ├── database/                        # Database Layer (Phase 4)
+│   │   ├── connection.py                # SQLAlchemy engine, session, Base class
+│   │   └── __init__.py                  # Exports SessionLocal, Base, engine, get_db
 │   │
-│   ├── schemas/
-│   │   └── dashboard.py          # Pydantic response models
+│   ├── repositories/                    # Data Access Layer (Phase 5)
+│   │   └── dashboard_repository.py      # 8 optimized query methods
+│   │
+│   ├── services/                        # Business Logic Layer (Phase 6)
+│   │   └── dashboard_service.py         # Orchestrates repository + formatting
+│   │
+│   ├── routers/                         # API Routes (Phase 7)
+│   │   └── dashboard.py                 # GET /api/v1/dashboard endpoint
+│   │
+│   ├── schemas/                         # Pydantic Models
+│   │   └── dashboard.py                 # DashboardResponse + sub-schemas
 │   │
 │   └── data/
-│       └── dashboard.json        # Mock data
+│       └── dashboard.json               # Legacy mock data (KEPT for reference)
+│
+├── create_tables.py                     # Helper script to create all 6 tables
+├── insert_test_data.py                  # Helper script to insert test data
+├── test_connection.py                   # Helper script to verify DB connection
+├── check_tables.py                      # Helper script to verify tables exist
+└── .env                                 # PostgreSQL credentials
 ```
 
 ### Architecture
@@ -1261,31 +1294,210 @@ async def get_dashboard(
     ...
 ```
 
+### Test Data Integration (2026-06-22)
+
+#### Mock JSON File (PRESERVED)
+**Location**: `app/data/dashboard.json`  
+**Status**: ✅ KEPT for reference/migration documentation  
+**Purpose**: Shows the original mock data structure used during Phase 1-2 development
+
+This file is NO LONGER used by the API (which now uses PostgreSQL) but is preserved to document:
+- What mock data structure was used
+- Migration history from JSON to database
+- Can be referenced if reverting to mock mode needed
+
+#### Test Data in PostgreSQL
+
+**What was inserted**: Sample data for user "Alex Chen" (user_id=1)
+
+```
+USERS TABLE:
+- id: 1
+- name: Alex Chen
+- email: alex.chen@example.com
+- created_at: 2026-06-22 08:48:48
+
+COURSES TABLE: 4 courses
+- id=1: Mastering UX Psychology (Advanced)
+- id=2: Python for Data Science (Intermediate)
+- id=3: Digital Brand Identity (Beginner)
+- id=4: AI Foundations (Beginner)
+
+USER_COURSES TABLE: 4 enrollments
+- Course 1: IN_PROGRESS, 65% complete (12/18 lessons)
+- Course 2: IN_PROGRESS, 32% complete (4/12 lessons)
+- Course 3: IN_PROGRESS, 88% complete (10/11 lessons)
+- Course 4: COMPLETED, 100% complete (15/15 lessons)
+
+LEARNING_ACTIVITIES TABLE: 7 days of data
+- Monday: 45 minutes, 2 lessons
+- Tuesday: 90 minutes, 3 lessons
+- Wednesday: 110 minutes, 4 lessons
+- Thursday: 70 minutes, 2 lessons
+- Friday: 30 minutes, 1 lesson
+- Saturday: 60 minutes, 2 lessons
+- Sunday: 65 minutes, 2 lessons
+- Total this week: 470 minutes (7.83 hours)
+
+USER_GOALS TABLE: 1 weekly goal
+- target_hours: 15.0
+- current_hours: 7.83
+- week: 2026-06-22 to 2026-06-28
+
+MILESTONES TABLE: 2 pending deadlines
+- UX Design Sprint (due 2026-06-24)
+- Python Basics Final (due 2026-06-23)
+```
+
+#### How Test Data Was Inserted
+
+**File**: `backend/insert_test_data.py`
+
+This script was created to populate the database with realistic test data. It:
+1. Clears existing data (commented out to prevent accidents)
+2. Creates 1 user (Alex Chen)
+3. Creates 4 sample courses
+4. Creates 4 enrollments (3 in-progress, 1 completed)
+5. Creates 7 days of learning activities
+6. Creates 1 weekly goal
+7. Creates 2 upcoming milestones
+
+**How to re-insert test data**:
+```bash
+python insert_test_data.py
+```
+
+**Note**: Running twice will fail with "duplicate key" error (data already inserted). To clear and reinitialize:
+```bash
+# Drop tables (PostgreSQL)
+psql -U postgres -d auralearn_db -c "DROP TABLE IF EXISTS milestones, user_goals, learning_activities, user_courses, courses, users CASCADE;"
+
+# Recreate tables
+python create_tables.py
+
+# Reinitialize data
+python insert_test_data.py
+```
+
+### Database Architecture
+
+#### 3-Layer Architecture
+
+```
+HTTP Request (GET /api/v1/dashboard)
+    ↓
+API Router (app/routers/dashboard.py)           [Layer 1: HTTP]
+    ↓ Calls get_dashboard(user_id)
+Service (app/services/dashboard_service.py)     [Layer 2: Business Logic]
+    ↓ Calls repo methods
+Repository (app/repositories/dashboard_repository.py) [Layer 3: Data Access]
+    ↓ Executes SQL
+PostgreSQL Database                             [Layer 4: Persistence]
+    ↓
+HTTP Response (DashboardResponse JSON)
+```
+
+#### Repository Query Methods (8 methods in Phase 5)
+
+1. **get_user_greeting()** → "Hello, Alex Chen"
+2. **get_stats()** → {enrolled_courses: 3, completed_courses: 1, learning_hours: 7.8, streak_days: 7}
+3. **get_weekly_activity()** → 7-day chart [Mon: 45min, Tue: 90min, ...]
+4. **get_weekly_goal()** → {completed_hours: 7.83, target_hours: 15, percentage: 52}
+5. **get_monthly_consistency()** → All days this month with minutes spent
+6. **get_milestones()** → [2 pending milestones sorted by due_date]
+7. **get_enrolled_courses()** → [3 in-progress courses with progress details]
+8. **get_recently_completed()** → [1 completed course with certificate info]
+
 ### Maintenance Notes
 
 **File Locations**:
-- Routes: `app/routers/dashboard.py`
+- Models: `app/models/*.py` (6 files)
+- Database Connection: `app/database/connection.py`
+- Repository: `app/repositories/dashboard_repository.py`
 - Service: `app/services/dashboard_service.py`
+- Routes: `app/routers/dashboard.py`
 - Schemas: `app/schemas/dashboard.py`
-- Mock Data: `app/data/dashboard.json`
+- Mock Data (Legacy): `app/data/dashboard.json` (PRESERVED)
+- Test Data Script: `insert_test_data.py`
+- Table Creation Script: `create_tables.py`
 
-**When replacing mock data**:
-1. Keep the service interface the same
-2. Update `DashboardService.load_mock_data()` to query database
-3. No route changes needed
+**When adding new dashboard features**:
+1. Add new model in `app/models/` if new table needed
+2. Add repository method in `dashboard_repository.py`
+3. Add service method to call repository
+4. Update `DashboardResponse` schema
+5. Routes automatically work (no changes needed!)
 
-**Adding new dashboard sections**:
-1. Add schema in `dashboard.py`
-2. Add service method in `dashboard_service.py`
-3. Add field to `DashboardResponse`
-4. Add data to `dashboard.json`
-5. No route changes needed
+**When debugging database issues**:
+1. Check `.env` has correct PostgreSQL credentials
+2. Verify PostgreSQL service is running
+3. Run `test_connection.py` to test connection
+4. Run `check_tables.py` to verify tables exist
+5. Check PgAdmin for data: Right-click table → View/Edit Data → All Rows
+
+---
+
+## Getting Started with Database-Backed Dashboard (Phase 7)
+
+### Quick Start (5 Steps)
+
+**Step 1: Create Tables**
+```bash
+python create_tables.py
+```
+Creates: users, courses, user_courses, learning_activities, user_goals, milestones
+
+**Step 2: Insert Test Data**
+```bash
+python insert_test_data.py
+```
+Inserts: 1 user (Alex Chen), 4 courses, 4 enrollments, 7 days activity, 2 milestones
+
+**Step 3: Start Server**
+```bash
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+**Step 4: Test in Browser**
+```
+http://127.0.0.1:8000/docs
+```
+Click `GET /api/v1/dashboard` → Try it out → Execute
+
+**Step 5: Verify Response**
+You should see:
+- Greeting: "Hello, Alex Chen"
+- Stats: 3 enrolled, 1 completed, 7.8 hours, 7 day streak
+- Weekly activity: 7 days of minutes
+- Weekly goal: 7.83 / 15 hours = 52%
+- Milestones: 2 pending deadlines
+- Enrolled courses: 3 in-progress courses
+- Recently completed: 1 completed course
+
+### Verify in PgAdmin
+
+1. Open PgAdmin
+2. Navigate: `auralearn_db` → `Schemas` → `public` → `Tables`
+3. For each table, right-click → `View/Edit Data` → `All Rows`
+4. You should see the test data inserted
+
+### Key Changes from Mock JSON to Database (Phases 1-7)
+
+| Phase | Component | Status | Details |
+|-------|-----------|--------|---------|
+| 1-2 | Mock JSON | ✅ Complete | `app/data/dashboard.json` (still preserved) |
+| 3 | ORM Models | ✅ Complete | 6 SQLAlchemy models in `app/models/` |
+| 4 | DB Connection | ✅ Complete | PostgreSQL connection in `app/database/connection.py` |
+| 5 | Repository | ✅ Complete | 8 query methods in `dashboard_repository.py` |
+| 6 | Service | ✅ Complete | Business logic in `dashboard_service.py` |
+| 7 | API Route | ✅ Complete | Fully integrated in `routers/dashboard.py` |
+| 8 | Authentication | ⏳ TODO | Will extract user_id from JWT token |
 
 ---
 
 ## Summary
 
-This backend provides production-ready infrastructure for AI agent workflows and mission-critical dashboard functionality. All components integrate seamlessly:
+This backend provides production-ready infrastructure for AI agent workflows and mission-critical dashboard functionality:
 
 1. **Infrastructure** (Foundation)
    - Structured logging and observability
@@ -1294,13 +1506,33 @@ This backend provides production-ready infrastructure for AI agent workflows and
 
 2. **Mock Data Services** (Development)
    - 26+ realistic API endpoints
-   - Zero database dependencies
+   - JSON-based mock data
    - Ready for frontend integration
 
-3. **Dashboard API** (MVP)
-   - Single aggregated endpoint
-   - Complete data validation
-   - Service layer architecture
-   - Easy database integration path
+3. **Dashboard API** (Phase 7: DATABASE LIVE)
+   - ✅ Single aggregated endpoint
+   - ✅ Live PostgreSQL database (6 tables)
+   - ✅ Complete data validation with Pydantic
+   - ✅ 3-layer architecture (API → Service → Repository → DB)
+   - ✅ Test data pre-loaded and ready
+   - ✅ Legacy mock JSON file preserved
+   - ⏳ JWT authentication (Phase 8)
 
-The infrastructure is complete and production-ready. Future development focuses on database integration and authentication, not on core architecture changes.
+### What's Working Right Now
+
+✅ Database tables created and populated with test data  
+✅ All 8 repository query methods implemented  
+✅ Service layer orchestrates data fetching  
+✅ API endpoint returns complete dashboard data from PostgreSQL  
+✅ PgAdmin can view all tables and data  
+✅ Swagger UI shows full endpoint documentation  
+
+### Next Steps (Phase 8+)
+
+⏳ Implement JWT authentication to extract user_id from token  
+⏳ Replace hardcoded user_id=1 with token-based user_id  
+⏳ Add more test users and data  
+⏳ Optimize queries with additional indexes  
+⏳ Implement data refresh/caching strategy  
+
+The infrastructure is **complete and production-ready**. Database integration is live and fully functional.

@@ -154,10 +154,10 @@ class DashboardRepository:
         Returns: Minutes spent on each day of the current week
 
         Query Logic:
-        SELECT SUM(minutes_spent), DAY(activity_date)
+        SELECT SUM(minutes_spent), activity_date
         FROM learning_activities
         WHERE user_id = ? AND activity_date >= Monday AND activity_date <= Sunday
-        GROUP BY DAY(activity_date)
+        GROUP BY activity_date
 
         Args:
             user_id: The user to get activity for
@@ -181,7 +181,7 @@ class DashboardRepository:
         # DATABASE INTEGRATION - Phase 5: Query Weekly Activity
         # Get minutes spent per day this week
         activities = self.db.query(
-            func.dayofweek(LearningActivity.activity_date).label("day_num"),
+            LearningActivity.activity_date,
             func.sum(LearningActivity.minutes_spent).label("total_minutes")
         ).filter(
             and_(
@@ -190,23 +190,22 @@ class DashboardRepository:
                 LearningActivity.activity_date <= sunday
             )
         ).group_by(
-            func.dayofweek(LearningActivity.activity_date)
+            LearningActivity.activity_date
         ).all()
 
         # DATABASE INTEGRATION - Phase 5: Format Response
+        # Create a map of date to minutes
+        activity_map = {act[0]: act[1] or 0 for act in activities}
+
         # Map day numbers to day names
-        day_names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         week_data = []
 
+        # Generate data for each day of the week
         for i in range(7):
-            day_name = day_names[(i + 1) % 7]  # Mon=0, Tue=1, etc.
-            minutes = 0
-
-            # Find activity for this day
-            for activity in activities:
-                if activity.day_num == (i + 2):  # SQL dayofweek: Mon=2, Tue=3, etc.
-                    minutes = activity.total_minutes or 0
-                    break
+            current_date = monday + timedelta(days=i)
+            day_name = day_names[i]
+            minutes = activity_map.get(current_date, 0)
 
             week_data.append({
                 "day": day_name,

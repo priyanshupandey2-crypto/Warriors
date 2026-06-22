@@ -1,6 +1,6 @@
 # DATABASE INTEGRATION - Phase 4: Database Module
 # This package contains all database-related configuration and setup
 
-from .connection import engine, SessionLocal, Base
+from .connection import engine, SessionLocal, Base, get_db
 
-__all__ = ["engine", "SessionLocal", "Base"]
+__all__ = ["engine", "SessionLocal", "Base", "get_db"]
