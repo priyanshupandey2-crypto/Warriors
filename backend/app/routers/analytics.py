@@ -27,14 +27,14 @@ def load_json_file(filename: str):
 
 
 @router.get("/dashboard", response_model=Dict[str, Any])
-async def get_dashboard(user_id: str = "user-123") -> Dict[str, Any]:
+def get_dashboard(user_id: str = "user-123") -> Dict[str, Any]:
     """Get user dashboard with all analytics."""
     data = load_json_file("userDashboard.json")
     return data
 
 
 @router.get("/analytics/activity", response_model=Dict[str, Any])
-async def get_activity(user_id: str = "user-123") -> Dict[str, Any]:
+def get_activity(user_id: str = "user-123") -> Dict[str, Any]:
     """Get user activity for the week."""
     data = load_json_file("userDashboard.json")
     return {
@@ -45,7 +45,7 @@ async def get_activity(user_id: str = "user-123") -> Dict[str, Any]:
 
 
 @router.get("/analytics/consistency", response_model=Dict[str, Any])
-async def get_consistency(user_id: str = "user-123") -> Dict[str, Any]:
+def get_consistency(user_id: str = "user-123") -> Dict[str, Any]:
     """Get learning consistency metrics and heatmap."""
     data = load_json_file("userDashboard.json")
     return {
@@ -57,21 +57,21 @@ async def get_consistency(user_id: str = "user-123") -> Dict[str, Any]:
 
 
 @router.get("/milestones", response_model=List[Dict[str, Any]])
-async def get_milestones(user_id: str = "user-123") -> List[Dict[str, Any]]:
+def get_milestones(user_id: str = "user-123") -> List[Dict[str, Any]]:
     """Get upcoming milestones for user."""
     data = load_json_file("userDashboard.json")
     return data.get("upcoming_milestones", [])
 
 
 @router.get("/achievements", response_model=List[Dict[str, Any]])
-async def get_achievements(user_id: str = "user-123") -> List[Dict[str, Any]]:
+def get_achievements(user_id: str = "user-123") -> List[Dict[str, Any]]:
     """Get user achievements and badges."""
     data = load_json_file("userDashboard.json")
     return data.get("achievements", [])
 
 
 @router.get("/progress/overview", response_model=Dict[str, Any])
-async def get_progress_overview(user_id: str = "user-123") -> Dict[str, Any]:
+def get_progress_overview(user_id: str = "user-123") -> Dict[str, Any]:
     """Get overall progress overview."""
     data = load_json_file("userDashboard.json")
     stats = data.get("dashboard_stats", {})
@@ -89,7 +89,7 @@ async def get_progress_overview(user_id: str = "user-123") -> Dict[str, Any]:
 
 
 @router.get("/stats", response_model=Dict[str, Any])
-async def get_stats(user_id: str = "user-123") -> Dict[str, Any]:
+def get_stats(user_id: str = "user-123") -> Dict[str, Any]:
     """Get detailed user statistics."""
     data = load_json_file("userDashboard.json")
     stats = data.get("dashboard_stats", {})
@@ -107,7 +107,7 @@ async def get_stats(user_id: str = "user-123") -> Dict[str, Any]:
 
 
 @router.get("/completed-courses", response_model=List[Dict[str, Any]])
-async def get_completed_courses(user_id: str = "user-123") -> List[Dict[str, Any]]:
+def get_completed_courses(user_id: str = "user-123") -> List[Dict[str, Any]]:
     """Get list of completed courses."""
     data = load_json_file("userDashboard.json")
     return data.get("completed_courses", [])

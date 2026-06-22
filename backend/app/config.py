@@ -32,6 +32,17 @@ class Settings(BaseSettings):
     # Debug flag (optional, defaults to False)
     DEBUG: bool = False
 
+    # DATABASE INTEGRATION - Phase 4: PostgreSQL Configuration
+    # Connection string for PostgreSQL database
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/auralearn_db"
+
+    # Individual database credentials (for flexibility)
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = "password"
+    DB_NAME: str = "auralearn_db"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

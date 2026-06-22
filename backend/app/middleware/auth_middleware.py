@@ -10,6 +10,11 @@ logger = get_logger(__name__)
 PUBLIC_ENDPOINTS = [
     "/api/auth/signup",
     "/api/auth/login",
+    "/api/auth/verify-token",
+    "/api/v1/dashboard",
+    "/api/courses/featured",
+    "/api/courses/",
+    "/api/courses/generate",
     "/health",
     "/test-trace",
     "/docs",

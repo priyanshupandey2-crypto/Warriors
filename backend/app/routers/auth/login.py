@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user_schemas import LoginRequest, LoginResponse, UserResponse
@@ -14,7 +13,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
-async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)) -> LoginResponse:
+def login(request: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse:
     """
     User login endpoint.
     Validates credentials and returns JWT access token.
@@ -25,9 +24,7 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)) -> Lo
         logger.info(f"Login attempt for email: {validated_email}")
 
         # Find user by email
-        stmt = select(User).where(User.email == validated_email)
-        result = await db.execute(stmt)
-        user = result.scalar_one_or_none()
+        user = db.query(User).filter(User.email == validated_email).first()
 
         if not user:
             logger.warning(f"Login failed: User not found - {validated_email}")

@@ -34,14 +34,14 @@ def load_json_file(filename: str):
 
 
 @router.get("/{course_id}", response_model=ClassroomWorkspace)
-async def get_classroom_workspace(course_id: str) -> ClassroomWorkspace:
+def get_classroom_workspace(course_id: str) -> ClassroomWorkspace:
     """Get complete classroom workspace for a course."""
     data = load_json_file("classroomWorkspace.json")
     return ClassroomWorkspace(**data)
 
 
 @router.get("/{course_id}/lessons", response_model=List[LessonContent])
-async def get_course_lessons(course_id: str) -> List[LessonContent]:
+def get_course_lessons(course_id: str) -> List[LessonContent]:
     """Get all lessons in a course."""
     data = load_json_file("classroomWorkspace.json")
     lessons = data.get("lessons", [])
@@ -49,7 +49,7 @@ async def get_course_lessons(course_id: str) -> List[LessonContent]:
 
 
 @router.get("/{course_id}/lessons/{lesson_id}", response_model=LessonContent)
-async def get_lesson_content(course_id: str, lesson_id: str) -> LessonContent:
+def get_lesson_content(course_id: str, lesson_id: str) -> LessonContent:
     """Get specific lesson content with markdown."""
     data = load_json_file("classroomWorkspace.json")
     lessons = data.get("lessons", [])
@@ -65,7 +65,7 @@ async def get_lesson_content(course_id: str, lesson_id: str) -> LessonContent:
 
 
 @router.get("/{course_id}/quizzes", response_model=List[QuizStructure])
-async def get_course_quizzes(course_id: str) -> List[QuizStructure]:
+def get_course_quizzes(course_id: str) -> List[QuizStructure]:
     """Get all quizzes in a course."""
     data = load_json_file("classroomWorkspace.json")
     quizzes = data.get("quizzes", [])
@@ -73,7 +73,7 @@ async def get_course_quizzes(course_id: str) -> List[QuizStructure]:
 
 
 @router.get("/{course_id}/quizzes/{quiz_id}", response_model=QuizStructure)
-async def get_quiz(course_id: str, quiz_id: str) -> QuizStructure:
+def get_quiz(course_id: str, quiz_id: str) -> QuizStructure:
     """Get specific quiz with questions."""
     data = load_json_file("classroomWorkspace.json")
     quizzes = data.get("quizzes", [])
@@ -89,7 +89,7 @@ async def get_quiz(course_id: str, quiz_id: str) -> QuizStructure:
 
 
 @router.post("/{course_id}/quizzes/{quiz_id}/submit", response_model=dict)
-async def submit_quiz(course_id: str, quiz_id: str, answers: dict) -> dict:
+def submit_quiz(course_id: str, quiz_id: str, answers: dict) -> dict:
     """Submit quiz answers (mock evaluation)."""
     return {
         "status": "submitted",
@@ -102,7 +102,7 @@ async def submit_quiz(course_id: str, quiz_id: str, answers: dict) -> dict:
 
 
 @router.get("/{course_id}/capstone", response_model=CapstoneSpecs)
-async def get_capstone(course_id: str) -> CapstoneSpecs:
+def get_capstone(course_id: str) -> CapstoneSpecs:
     """Get capstone project specifications."""
     data = load_json_file("classroomWorkspace.json")
     capstone = data.get("capstone", {})
@@ -110,7 +110,7 @@ async def get_capstone(course_id: str) -> CapstoneSpecs:
 
 
 @router.post("/{course_id}/capstone/start", response_model=dict)
-async def start_capstone(course_id: str) -> dict:
+def start_capstone(course_id: str) -> dict:
     """Start working on capstone project."""
     return {
         "status": "started",
@@ -121,7 +121,7 @@ async def start_capstone(course_id: str) -> dict:
 
 
 @router.post("/{course_id}/capstone/submit", response_model=dict)
-async def submit_capstone(course_id: str, submission_data: dict) -> dict:
+def submit_capstone(course_id: str, submission_data: dict) -> dict:
     """Submit capstone project."""
     return {
         "status": "submitted",
@@ -132,7 +132,7 @@ async def submit_capstone(course_id: str, submission_data: dict) -> dict:
 
 
 @router.post("/progress/complete", response_model=dict)
-async def mark_lesson_complete(course_id: str, lesson_id: str) -> dict:
+def mark_lesson_complete(course_id: str, lesson_id: str) -> dict:
     """Mark a lesson as complete."""
     return {
         "status": "success",
@@ -145,7 +145,7 @@ async def mark_lesson_complete(course_id: str, lesson_id: str) -> dict:
 
 
 @router.post("/bookmarks/toggle", response_model=dict)
-async def toggle_bookmark(lesson_id: str, course_id: str, notes: str = "") -> dict:
+def toggle_bookmark(lesson_id: str, course_id: str, notes: str = "") -> dict:
     """Toggle bookmark for a lesson."""
     return {
         "status": "bookmarked",
@@ -157,7 +157,7 @@ async def toggle_bookmark(lesson_id: str, course_id: str, notes: str = "") -> di
 
 
 @router.get("/bookmarks/", response_model=List[BookmarkItem])
-async def get_bookmarks() -> List[BookmarkItem]:
+def get_bookmarks() -> List[BookmarkItem]:
     """Get all bookmarked lessons for user."""
     data = load_json_file("bookmarks.json")
     bookmarks = data.get("bookmarks", [])

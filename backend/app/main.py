@@ -1,9 +1,14 @@
+import asyncio
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from app.config import settings
 from app.logger import configure_logging, get_logger
-from app.routers import analytics, classroom, courses, admin
+from app.routers import analytics, classroom, courses, admin, dashboard
 from app.routers.auth import signup_router, login_router, verify_router
 from app.routes import health, test_trace
 from app.tracing import configure_langsmith
@@ -49,21 +54,22 @@ def create_app() -> FastAPI:
     app.include_router(verify_router)
     app.include_router(courses.router)
     app.include_router(classroom.router)
+    app.include_router(dashboard.router)
     app.include_router(analytics.router)
     app.include_router(admin.router)  # Admin routes (protected)
 
     @app.on_event("startup")
-    async def startup_event():
+    def startup_event():
         """Log application startup and initialize database."""
         logger.info(f"Application startup - Environment: {settings.APP_ENV}, Debug: {settings.DEBUG}")
         logger.info(f"LangSmith tracing enabled: {settings.is_tracing_enabled()}")
-        await init_db()
+        init_db()
         logger.info("Database initialized successfully")
 
     @app.on_event("shutdown")
-    async def shutdown_event():
+    def shutdown_event():
         """Log application shutdown and close database."""
-        await close_db()
+        close_db()
         logger.info("Application shutdown")
 
     return app

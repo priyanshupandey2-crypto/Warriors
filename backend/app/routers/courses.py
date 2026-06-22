@@ -28,7 +28,7 @@ def load_json_file(filename: str):
 
 
 @router.get("/featured", response_model=List[FeaturedCourse])
-async def get_featured_courses() -> List[FeaturedCourse]:
+def get_featured_courses() -> List[FeaturedCourse]:
     """Get featured courses for landing page."""
     data = load_json_file("featuredCourses.json")
     courses = data.get("courses", [])
@@ -36,7 +36,7 @@ async def get_featured_courses() -> List[FeaturedCourse]:
 
 
 @router.get("/", response_model=List[FeaturedCourse])
-async def browse_courses(skip: int = 0, limit: int = 10) -> List[FeaturedCourse]:
+def browse_courses(skip: int = 0, limit: int = 10) -> List[FeaturedCourse]:
     """Browse all courses with pagination."""
     data = load_json_file("featuredCourses.json")
     courses = data.get("courses", [])
@@ -45,7 +45,7 @@ async def browse_courses(skip: int = 0, limit: int = 10) -> List[FeaturedCourse]
 
 
 @router.post("/generate", response_model=dict)
-async def generate_course(request: CourseGenerateRequest) -> dict:
+def generate_course(request: CourseGenerateRequest) -> dict:
     """Generate a new course (mock - returns preview)."""
     if not request.topic or not request.difficulty_level:
         raise HTTPException(
@@ -62,14 +62,14 @@ async def generate_course(request: CourseGenerateRequest) -> dict:
 
 
 @router.get("/{course_id}/preview", response_model=CoursePreview)
-async def get_course_preview(course_id: str) -> CoursePreview:
+def get_course_preview(course_id: str) -> CoursePreview:
     """Get course preview with modules and lessons."""
     data = load_json_file("coursePreview.json")
     return CoursePreview(**data)
 
 
 @router.post("/{course_id}/enroll", response_model=dict)
-async def enroll_in_course(course_id: str) -> dict:
+def enroll_in_course(course_id: str) -> dict:
     """Enroll user in a course."""
     return {
         "status": "success",
