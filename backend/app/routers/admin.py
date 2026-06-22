@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from app.database import get_db
 from app.utils.dependencies import get_admin_user
 from app.logger import get_logger
@@ -15,7 +15,7 @@ class AdminAction(BaseModel):
 
 
 @router.get("/dashboard")
-async def admin_dashboard(admin: dict = Depends(get_admin_user)):
+def admin_dashboard(admin: dict = Depends(get_admin_user)):
     """
     Admin-only dashboard endpoint.
     Only accessible by users with admin role.
@@ -29,18 +29,15 @@ async def admin_dashboard(admin: dict = Depends(get_admin_user)):
 
 
 @router.get("/users-count")
-async def get_users_count(admin: dict = Depends(get_admin_user), db: AsyncSession = Depends(get_db)):
+def get_users_count(admin: dict = Depends(get_admin_user), db: Session = Depends(get_db)):
     """
     Admin-only endpoint to get total users count.
     Only accessible by users with admin role.
     """
-    from sqlalchemy import func
     from app.models.user import User
 
     try:
-        stmt = func.count(User.id)
-        result = await db.execute(stmt)
-        total_users = result.scalar()
+        total_users = db.query(User).count()
 
         logger.info(f"Admin {admin.get('email')} accessed users count")
         return {
@@ -53,7 +50,7 @@ async def get_users_count(admin: dict = Depends(get_admin_user), db: AsyncSessio
 
 
 @router.post("/action")
-async def admin_action(action: AdminAction, admin: dict = Depends(get_admin_user)):
+def admin_action(action: AdminAction, admin: dict = Depends(get_admin_user)):
     """
     Admin-only endpoint to perform admin actions.
     Only accessible by users with admin role.
@@ -68,7 +65,7 @@ async def admin_action(action: AdminAction, admin: dict = Depends(get_admin_user
 
 
 @router.get("/info")
-async def admin_info(admin: dict = Depends(get_admin_user)):
+def admin_info(admin: dict = Depends(get_admin_user)):
     """
     Get admin user information.
     Only accessible by users with admin role.
@@ -81,7 +78,7 @@ async def admin_info(admin: dict = Depends(get_admin_user)):
 
 
 @router.get("/test")
-async def admin_test(admin: dict = Depends(get_admin_user)):
+def admin_test(admin: dict = Depends(get_admin_user)):
     """
     Test endpoint to verify admin protection is working.
     Only accessible by users with admin role.

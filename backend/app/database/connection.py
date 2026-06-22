@@ -31,10 +31,15 @@ from app.logger import get_logger
 logger = get_logger(__name__)
 
 # DATABASE INTEGRATION - Phase 4: Create Synchronous SQLAlchemy Engine
-# Using synchronous driver (psycopg2) for Windows compatibility
+# Using synchronous psycopg2 driver (not psycopg3 async) for Windows compatibility
 # pool_size=20: Maximum 20 connections in the pool
 # max_overflow=0: Don't create additional connections beyond pool_size
-db_url = settings.DATABASE_URL.replace("postgresql+psycopg://", "postgresql://")
+db_url = settings.DATABASE_URL
+if db_url.startswith("postgresql+psycopg://"):
+    db_url = db_url.replace("postgresql+psycopg://", "postgresql+psycopg2://")
+elif not db_url.startswith("postgresql://") and not db_url.startswith("postgresql+psycopg2://"):
+    db_url = "postgresql+psycopg2://" + db_url.split("://", 1)[1] if "://" in db_url else "postgresql+psycopg2://" + db_url
+
 try:
     engine = create_engine(
         db_url,
@@ -43,6 +48,7 @@ try:
         echo=settings.DATABASE_ECHO,
         pool_pre_ping=True,
     )
+    logger.info(f"Database engine created with URL: {db_url.split('@')[0]}@...")
 except Exception as e:
     logger.warning(f"Failed to create database engine: {str(e)}")
     engine = None

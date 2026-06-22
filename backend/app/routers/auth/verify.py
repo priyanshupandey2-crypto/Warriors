@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.utils.jwt_handler import verify_token
@@ -27,7 +26,7 @@ class TokenVerifyFail(BaseModel):
 
 
 @router.post("/verify-token", response_model=TokenVerifySuccess | TokenVerifyFail)
-async def verify_token_endpoint(credentials = Depends(security), db: AsyncSession = Depends(get_db)):
+def verify_token_endpoint(credentials = Depends(security), db: Session = Depends(get_db)):
     """
     Verify JWT token and return user data if valid.
     Token must be sent in Authorization header as: Authorization: Bearer <token>
@@ -58,9 +57,7 @@ async def verify_token_endpoint(credentials = Depends(security), db: AsyncSessio
     # Get user from database
     user_id = int(payload.get("sub"))  # Convert string back to int
     try:
-        stmt = select(User).where(User.id == user_id)
-        result = await db.execute(stmt)
-        user = result.scalar_one_or_none()
+        user = db.query(User).filter(User.id == user_id).first()
 
         if not user:
             logger.warning(f"Token verification failed: user not found - {user_id}")
