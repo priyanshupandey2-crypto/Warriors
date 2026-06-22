@@ -35,24 +35,38 @@ Warriors/
 │   │   ├── logger.py                # Structured JSON logging utilities
 │   │   ├── telemetry.py             # Execution metrics recording
 │   │   ├── tracing.py               # LangSmith integration
+│   │   ├── models/                  # SQLAlchemy ORM models
+│   │   │   ├── __init__.py
+│   │   │   └── user.py              # User model (id, name, email, password_hash, role, courses_enrolled)
 │   │   │
 │   │   ├── routes/                  # Foundation infrastructure endpoints
 │   │   │   ├── __init__.py
 │   │   │   ├── health.py            # Health check endpoint
 │   │   │   └── test_trace.py        # Infrastructure verification endpoint
 │   │   │
-│   │   ├── routers/                 # Mock data API endpoints (26 endpoints)
+│   │   ├── routers/                 # API endpoints (auth + mock data)
 │   │   │   ├── __init__.py
-│   │   │   ├── auth.py              # Authentication (signup, login, profile)
+│   │   │   ├── auth/                # Authentication endpoints
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── signup.py        # POST /api/auth/signup
+│   │   │   │   ├── login.py         # POST /api/auth/login
+│   │   │   │   └── verify.py        # POST /api/auth/verify-token
 │   │   │   ├── courses.py           # Courses (featured, browse, generate, preview, enroll)
 │   │   │   ├── classroom.py         # Learning workspace (lessons, quizzes, capstone, bookmarks)
 │   │   │   └── analytics.py         # User analytics & dashboard
 │   │   │
 │   │   ├── schemas/                 # Pydantic validation models
 │   │   │   ├── __init__.py
-│   │   │   ├── auth_schemas.py      # Auth models (LoginRequest, TokenResponse, etc)
+│   │   │   ├── user_schemas.py      # User models (SignupRequest, LoginRequest, LoginResponse, etc)
 │   │   │   ├── course_schemas.py    # Course models (CoursePreview, FeaturedCourse, etc)
 │   │   │   └── classroom_schemas.py # Classroom models (LessonContent, QuizStructure, etc)
+│   │   │
+│   │   ├── utils/                   # Utility functions
+│   │   │   ├── __init__.py
+│   │   │   ├── password.py          # Password hashing (hash_password, verify_password)
+│   │   │   ├── validators.py        # Input validation (email, name, password)
+│   │   │   ├── jwt_handler.py       # JWT token creation & verification
+│   │   │   └── dependencies.py      # FastAPI dependencies for protected routes
 │   │   │
 │   │   └── data/                    # Mock JSON data files
 │   │       ├── __init__.py
@@ -1373,13 +1387,13 @@ class LoginResponse(BaseModel):
     message: str
 ```
 
-**3. Login Router** (`app/routers/login.py`)
+**3. Login Router** (`app/routers/auth/login.py`)
 - Route: `POST /api/auth/login`
 - Validates email format
 - Queries user by email from database
 - Verifies password with bcrypt
-- Generates JWT token with user ID and email
-- Returns user data + token + message
+- Generates JWT token with user ID (as string) and email
+- Returns user data + token in Bearer format
 
 **4. JWT Configuration** (`app/config.py`)
 ```
@@ -1404,8 +1418,7 @@ Content-Type: application/json
 **Success Response (200 OK):**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTY4Nzc2NzY0MCwiZXhwIjoxNjg3ODU0MDQwfQ...",
-  "token_type": "bearer",
+  "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMTA4NzMxLCJleHAiOjE3ODIxOTUxMzF9...",
   "user": {
     "id": 1,
     "name": "John Doe",
@@ -1459,13 +1472,141 @@ curl -H "Authorization: Bearer eyJhbGc..." \
      http://127.0.0.1:8000/api/protected-endpoint
 ```
 
+---
+
+## User Authentication - Token Verification Implementation
+
+### Status: ✅ Implemented & Working
+
+**Verify Token Endpoint:** `POST /api/auth/verify-token`
+- Verifies JWT token validity and expiration
+- Returns user data if token is valid
+- Returns error message if token is invalid/expired
+- Token sent via Authorization header (Bearer scheme)
+
+### Components Created
+
+**1. Enhanced JWT Handler** (`app/utils/jwt_handler.py`)
+
+**Functions:**
+- `create_access_token(user_id, email)` - Generate JWT token
+  - Converts user_id to string (JWT spec requirement)
+  - Sets expiration to 24 hours
+  - Uses HS256 algorithm
+- `verify_token(token)` - Full verification with detailed status
+  - Returns: `(is_valid: bool, payload: dict | None, message: str)`
+  - Handles: expired tokens, invalid signatures, decode errors
+  - Returns detailed error messages for debugging
+
+**2. Token Verification Router** (`app/routers/auth/verify.py`)
+- Route: `POST /api/auth/verify-token`
+- Accepts token via Authorization header as `Bearer <token>`
+- Verifies token signature and expiration
+- Queries user from database
+- Returns user data (id, name, email, role) if valid
+
+**3. Token Verification Schemas** (`app/schemas/user_schemas.py`)
+```python
+class TokenVerifySuccess(BaseModel):
+    success: bool = True
+    id: int
+    name: str
+    email: str
+    role: str
+
+class TokenVerifyFail(BaseModel):
+    success: bool = False
+    message: str
+```
+
+### Testing Token Verification
+
+**Request (using curl):**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/verify-token \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "learner"
+}
+```
+
+**Error Response (200 OK with success=false):**
+```json
+{
+  "success": false,
+  "message": "Token has expired"
+}
+```
+
+**Other Error Messages:**
+- `"Token is required"` - No token provided
+- `"Token has expired"` - Token expiration time passed
+- `"Invalid token signature"` - JWT_SECRET mismatch
+- `"Invalid token format"` - Malformed token
+- `"User not found"` - User deleted from database
+- `"Invalid token"` - General token error
+
+### Token Verification Details
+
+**Token Payload Structure:**
+```python
+{
+  "sub": "1",           # user_id as string
+  "email": "john@example.com",
+  "iat": 1782108731,    # issued at timestamp
+  "exp": 1782195131     # expiration timestamp
+}
+```
+
+**Token Location:**
+- ✅ Must be in `Authorization` header
+- ✅ Format: `Authorization: Bearer <token>`
+- ❌ NOT in request body
+- ❌ NOT as query parameter
+
+### Directory Structure
+
+```
+app/routers/auth/
+├── __init__.py          # Exports all auth routers
+├── signup.py            # POST /api/auth/signup
+├── login.py             # POST /api/auth/login
+└── verify.py            # POST /api/auth/verify-token
+```
+
+### Auth Routes Summary
+
+| Endpoint | Method | Input | Output |
+|----------|--------|-------|--------|
+| `/api/auth/signup` | POST | name, email, password | user data (201 Created) |
+| `/api/auth/login` | POST | email, password | access_token (Bearer format), user data |
+| `/api/auth/verify-token` | POST | Authorization: Bearer <token> | success + user data OR error message |
+
+### Security Features
+
+✅ JWT signature verification with secret key  
+✅ Token expiration checks  
+✅ Password hashing with bcrypt  
+✅ Email uniqueness validation  
+✅ User existence validation on verify  
+✅ Detailed error logging  
+✅ Generic error messages (no info leakage)  
+
 ### Next Steps
 
-- Create token verification middleware for protected routes
-- Implement refresh token endpoint
-- Add email verification
+- Create token refresh endpoint
+- Add email verification on signup
 - Create profile endpoints (get, update)
 - Add password reset functionality
+- Create protected routes using token dependency
 
 ---
 

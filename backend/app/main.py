@@ -3,11 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logger import configure_logging, get_logger
-from app.routers import analytics, auth, classroom, signup, login
-from app.routes import health
+from app.routers import analytics, classroom, courses
+from app.routers.auth import signup_router, login_router, verify_router
+from app.routes import health, test_trace
 from app.tracing import configure_langsmith
-from app.routes import test_trace
-from app.routers import courses
 from app.database import init_db, close_db
 
 logger = get_logger(__name__)
@@ -41,9 +40,9 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health.router)
     app.include_router(test_trace.router)
-    app.include_router(auth.router)
-    app.include_router(signup.router)
-    app.include_router(login.router)
+    app.include_router(signup_router)
+    app.include_router(login_router)
+    app.include_router(verify_router)
     app.include_router(courses.router)
     app.include_router(classroom.router)
     app.include_router(analytics.router)
