@@ -24,7 +24,7 @@ router = APIRouter(prefix="/api/v1", tags=["dashboard"])
 
 
 @router.get("/dashboard", response_model=DashboardResponse)
-async def get_dashboard(db: Session = Depends(get_db)) -> DashboardResponse:
+def get_dashboard(db: Session = Depends(get_db)) -> DashboardResponse:
     """
     DATABASE INTEGRATION - Phase 7: Get complete dashboard data for authenticated user
 
@@ -57,7 +57,7 @@ async def get_dashboard(db: Session = Depends(get_db)) -> DashboardResponse:
         Next: Extract user_id from JWT token
         Example:
             @router.get("/dashboard")
-            async def get_dashboard(
+            def get_dashboard(
                 current_user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)
             ) -> DashboardResponse:
