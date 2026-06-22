@@ -44,8 +44,9 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)) -> Lo
                 detail="Invalid email or password"
             )
 
-        # Create access token
-        access_token = create_access_token(user.id, user.email)
+        # Create access token with user role from database
+        # Role comes from database, never from user input
+        access_token = create_access_token(user.id, user.email, user.role)
 
         # Build user response
         user_response = UserResponse(
