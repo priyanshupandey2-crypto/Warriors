@@ -10,53 +10,53 @@ const config: Config = {
     extend: {
       colors: {
         // Primary & Semantic
-        primary: 'rgb(var(--color-primary) / <alpha-value>)',
-        'primary-container': 'rgb(var(--color-primary-container) / <alpha-value>)',
-        'on-primary': 'rgb(var(--color-on-primary) / <alpha-value>)',
-        'on-primary-container': 'rgb(var(--color-on-primary-container) / <alpha-value>)',
+        primary: '#0061a7',
+        'primary-container': '#0697ff',
+        'on-primary': '#ffffff',
+        'on-primary-container': '#0a2e5f',
 
         // Secondary
-        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
-        'secondary-container': 'rgb(var(--color-secondary-container) / <alpha-value>)',
-        'on-secondary': 'rgb(var(--color-on-secondary) / <alpha-value>)',
-        'on-secondary-container': 'rgb(var(--color-on-secondary-container) / <alpha-value>)',
+        secondary: '#772cd8',
+        'secondary-container': '#914cf2',
+        'on-secondary': '#ffffff',
+        'on-secondary-container': '#3d0d7a',
 
         // Tertiary
-        tertiary: 'rgb(var(--color-tertiary) / <alpha-value>)',
-        'tertiary-container': 'rgb(var(--color-tertiary-container) / <alpha-value>)',
-        'on-tertiary': 'rgb(var(--color-on-tertiary) / <alpha-value>)',
-        'on-tertiary-container': 'rgb(var(--color-on-tertiary-container) / <alpha-value>)',
+        tertiary: '#006a66',
+        'tertiary-container': '#00a59f',
+        'on-tertiary': '#ffffff',
+        'on-tertiary-container': '#002c2a',
 
         // Neutral surfaces
-        surface: 'rgb(var(--color-surface) / <alpha-value>)',
-        'surface-dim': 'rgb(var(--color-surface-dim) / <alpha-value>)',
-        'surface-bright': 'rgb(var(--color-surface-bright) / <alpha-value>)',
-        'surface-container-lowest': 'rgb(var(--color-surface-container-lowest) / <alpha-value>)',
-        'surface-container-low': 'rgb(var(--color-surface-container-low) / <alpha-value>)',
-        'surface-container': 'rgb(var(--color-surface-container) / <alpha-value>)',
-        'surface-container-high': 'rgb(var(--color-surface-container-high) / <alpha-value>)',
-        'surface-container-highest': 'rgb(var(--color-surface-container-highest) / <alpha-value>)',
-        'on-surface': 'rgb(var(--color-on-surface) / <alpha-value>)',
-        'on-surface-variant': 'rgb(var(--color-on-surface-variant) / <alpha-value>)',
+        surface: '#f8f9ff',
+        'surface-dim': '#e8eaf7',
+        'surface-bright': '#ffffff',
+        'surface-container-lowest': '#ffffff',
+        'surface-container-low': '#eff4ff',
+        'surface-container': '#e5eeff',
+        'surface-container-high': '#dce9ff',
+        'surface-container-highest': '#d1e1ff',
+        'on-surface': '#0b1c30',
+        'on-surface-variant': '#3f4753',
 
         // Background
-        background: 'rgb(var(--color-background) / <alpha-value>)',
-        'on-background': 'rgb(var(--color-on-background) / <alpha-value>)',
+        background: '#f8f9ff',
+        'on-background': '#0b1c30',
 
         // Inverse
-        'inverse-surface': 'rgb(var(--color-inverse-surface) / <alpha-value>)',
-        'inverse-on-surface': 'rgb(var(--color-inverse-on-surface) / <alpha-value>)',
-        'inverse-primary': 'rgb(var(--color-inverse-primary) / <alpha-value>)',
+        'inverse-surface': '#0f1c30',
+        'inverse-on-surface': '#f1f0ff',
+        'inverse-primary': '#0697ff',
 
         // Error
-        error: 'rgb(var(--color-error) / <alpha-value>)',
-        'on-error': 'rgb(var(--color-on-error) / <alpha-value>)',
-        'error-container': 'rgb(var(--color-error-container) / <alpha-value>)',
-        'on-error-container': 'rgb(var(--color-on-error-container) / <alpha-value>)',
+        error: '#d0453f',
+        'on-error': '#ffffff',
+        'error-container': '#f9dedb',
+        'on-error-container': '#410e0b',
 
         // Outline
-        outline: 'rgb(var(--color-outline) / <alpha-value>)',
-        'outline-variant': 'rgb(var(--color-outline-variant) / <alpha-value>)',
+        outline: '#707884',
+        'outline-variant': '#bfc7d5',
       },
 
       fontSize: {

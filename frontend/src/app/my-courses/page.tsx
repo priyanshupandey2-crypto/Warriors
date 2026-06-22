@@ -1,193 +1,84 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { AppShell } from '@/components/layout';
-import { Button, Badge, PageHeader, EmptyState } from '@/components/ui';
-import { useCourseStore } from '@/store/courseStore';
-import { mockDraftCourses, mockPublishedCourses } from '@/lib/mockData';
-import { Course } from '@/types/course';
-import { STATUS_COLORS } from '@/lib/utils/courseEnums';
-import { getMainNavigation } from '@/lib/utils/navigation';
-
-type TabFilter = 'all' | 'draft' | 'submitted' | 'published' | 'rejected';
-
-interface MyCourse extends Course {
-  isDraft?: boolean;
-}
+import Link from 'next/link';
 
 export default function MyCoursesPage() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState<TabFilter>('all');
-  const [allCourses, setAllCourses] = useState<MyCourse[]>([]);
-  const setMyCourses = useCourseStore((state) => state.setMyCourses);
-
-  useEffect(() => {
-    // Convert draft courses to Course-like objects with DRAFT status
-    const coursesWithDraftStatus: MyCourse[] = mockDraftCourses.map((draft) => ({
-      id: draft.id || `draft-${Math.random()}`,
-      title: draft.title || 'Untitled Course',
-      description: draft.description || '',
-      topic: draft.topic,
-      difficulty: draft.difficulty,
-      targetAudience: draft.targetAudience,
-      duration: draft.duration,
-      tags: draft.tags,
-      status: 'DRAFT' as const,
-      visibility: 'PRIVATE' as const,
-      modules: draft.modules || [],
-      createdAt: draft.savedAt || new Date(),
-      updatedAt: draft.savedAt || new Date(),
-      createdBy: 'current-user',
-      isDraft: true,
-    }));
-
-    // Combine with published courses
-    const combined: MyCourse[] = [...coursesWithDraftStatus, ...mockPublishedCourses].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-
-    setAllCourses(combined);
-    setMyCourses(combined);
-  }, [setMyCourses]);
-
-  const filteredCourses = useMemo(() => {
-    if (activeTab === 'all') return allCourses;
-    return allCourses.filter((course) => course.status.toLowerCase() === activeTab.toLowerCase());
-  }, [allCourses, activeTab]);
-
-  const stats = useMemo(() => {
-    return {
-      all: allCourses.length,
-      draft: allCourses.filter((c) => c.status === 'DRAFT').length,
-      submitted: allCourses.filter((c) => c.status === 'SUBMITTED').length,
-      published: allCourses.filter((c) => c.status === 'PUBLISHED').length,
-      rejected: allCourses.filter((c) => c.status === 'REJECTED').length,
-    };
-  }, [allCourses]);
+  const enrolledCourses = [
+    { id: '1', title: 'UX Design Fundamentals', progress: 65, duration: '4 weeks', difficulty: 'Intermediate' },
+    { id: '2', title: 'Python for Beginners', progress: 32, duration: '6 weeks', difficulty: 'Beginner' },
+    { id: '3', title: 'Web Design Essentials', progress: 88, duration: '5 weeks', difficulty: 'Beginner' },
+  ];
 
   return (
-    <AppShell
-      sidebarProps={{
-        items: getMainNavigation(pathname),
-      }}
-    >
-      <main className="w-full space-y-lg py-lg px-md">
-        <div className="max-w-6xl mx-auto space-y-lg w-full">
-        {/* Header */}
-        <PageHeader
-          title="My Courses"
-          subtitle="Manage and review your courses"
-          actions={
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => router.push('/create-course')}
-            >
-              Create New Course
-            </Button>
-          }
-        />
-
-        {/* Status Filter Tabs */}
-        <div className="flex gap-xs overflow-x-auto pb-sm">
-          {[
-            { label: 'All', value: 'all' as TabFilter, count: stats.all },
-            { label: 'Draft', value: 'draft' as TabFilter, count: stats.draft },
-            { label: 'Submitted', value: 'submitted' as TabFilter, count: stats.submitted },
-            { label: 'Published', value: 'published' as TabFilter, count: stats.published },
-            { label: 'Rejected', value: 'rejected' as TabFilter, count: stats.rejected },
-          ].map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setActiveTab(tab.value)}
-              className={`px-lg py-sm rounded-lg text-label-md whitespace-nowrap transition-colors ${
-                activeTab === tab.value
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
-              }`}
-            >
-              {tab.label}
-              <span className="ml-sm text-label-sm opacity-80">({tab.count})</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Courses Grid */}
-        {filteredCourses.length === 0 ? (
-          <EmptyState
-            icon="📚"
-            title="No courses yet"
-            message={
-              activeTab === 'all'
-                ? 'Create your first course to get started'
-                : `You don't have any ${activeTab} courses`
-            }
-            action={
-              <Button variant="primary" onClick={() => router.push('/create-course')}>
-                Create Course
-              </Button>
-            }
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-            {filteredCourses.map((course) => (
-              <div
-                key={course.id}
-                onClick={() => router.push(`/course/${course.id}`)}
-                className="h-full bg-surface-container rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-surface-container hover:border-primary">
-                  {/* Card Background */}
-                  <div className="h-32 bg-gradient-to-br from-primary/20 to-tertiary/20" />
-
-                  {/* Content */}
-                  <div className="p-lg space-y-md">
-                    {/* Title */}
-                    <h3 className="text-headline-sm text-on-surface font-semibold line-clamp-2">
-                      {course.title}
-                    </h3>
-
-                    {/* Metadata */}
-                    <div className="space-y-xs text-label-sm text-on-surface-variant">
-                      <div>{course.difficulty} Level</div>
-                      <div>{course.duration} hours</div>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="flex flex-wrap gap-xs pt-sm">
-                      <Badge variant={STATUS_COLORS[course.status]}>{course.status}</Badge>
-                      <Badge variant="secondary">{course.visibility}</Badge>
-                    </div>
-
-                    {/* Timestamp */}
-                    <p className="text-label-xs text-on-surface-variant border-t border-surface-container pt-md">
-                      {new Date(course.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </p>
-
-                    {/* Action - Show for draft only */}
-                    {course.status === 'DRAFT' && (
-                      <Button
-                        variant="tertiary"
-                        size="sm"
-                        className="w-full mt-md"
-                        onClick={(e) => {
-                          e.preventDefault();
-                        }}
-                      >
-                        Continue Editing
-                      </Button>
-                    )}
-                  </div>
-                </div>
-            ))}
+    <div className="min-h-screen bg-background text-on-background flex flex-col">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-40 bg-surface border-b border-outline-variant">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold text-primary">AuraLearn</Link>
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/dashboard" className="text-body-md text-on-surface-variant hover:text-primary transition-colors">Dashboard</Link>
+            <Link href="/courses" className="text-body-md text-on-surface-variant hover:text-primary transition-colors">Courses</Link>
+            <button className="text-body-md text-on-surface-variant hover:text-primary transition-colors">Sign Out</button>
           </div>
-        )}
+        </div>
+      </nav>
+
+      <main className="flex-grow py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-10">
+            <h1 className="text-3xl font-bold text-on-background mb-2">My Courses</h1>
+            <p className="text-body-md text-on-surface-variant">Manage your enrolled courses and track progress</p>
+          </div>
+
+          {/* Courses Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {enrolledCourses.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-body-md text-on-surface-variant mb-4">You haven't enrolled in any courses yet</p>
+                <Link href="/courses" className="inline-block bg-primary text-on-primary px-6 py-3 rounded-lg text-label-md font-medium hover:opacity-90 transition-all">
+                  Browse Courses
+                </Link>
+              </div>
+            ) : (
+              enrolledCourses.map((course) => (
+                <Link key={course.id} href={`/courses/${course.id}`} className="block">
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-lowest hover:border-primary transition-colors h-full flex flex-col overflow-hidden">
+                    <div className="h-32 bg-gradient-to-br from-primary-container/20 to-secondary-container/20"></div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-lg font-bold text-on-background mb-3">{course.title}</h3>
+
+                      <div className="space-y-3 mb-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-label-sm text-on-surface-variant">Progress</span>
+                            <span className="text-label-sm font-medium text-primary">{course.progress}%</span>
+                          </div>
+                          <div className="h-2 bg-surface-container rounded-full overflow-hidden">
+                            <div className="bg-primary h-full transition-all" style={{ width: `${course.progress}%` }}></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 mt-auto">
+                        <span className="px-2 py-1 bg-primary-container/15 text-primary rounded text-label-sm font-medium">{course.difficulty}</span>
+                        <span className="px-2 py-1 bg-surface-container rounded text-on-surface-variant text-label-sm">{course.duration}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
         </div>
       </main>
-    </AppShell>
+
+      {/* Footer */}
+      <footer className="bg-surface-container-lowest border-t border-outline-variant py-8 px-6">
+        <div className="max-w-6xl mx-auto text-center text-on-surface-variant text-label-md">
+          © 2024 AuraLearn
+        </div>
+      </footer>
+    </div>
   );
 }
