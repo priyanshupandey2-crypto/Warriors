@@ -33,6 +33,7 @@ class SignupRequest(BaseModel):
 
 
 class SignupResponse(BaseModel):
+    access_token: str  # JWT token in Bearer format for immediate login
     id: int
     name: str
     email: str

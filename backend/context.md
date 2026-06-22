@@ -1244,7 +1244,8 @@ Configuration for migrations is in `alembic.ini`.
 - Creates new user accounts with email and password
 - Validates duplicate emails
 - Hashes passwords with bcrypt
-- Returns user data on success (201 Created)
+- Generates JWT access token for immediate login
+- Returns user data + access token on success (201 Created)
 
 ### Components
 
@@ -1268,6 +1269,7 @@ class SignupRequest(BaseModel):
     password: str
 
 class SignupResponse(BaseModel):
+    access_token: str  # Bearer token for immediate login
     id: int
     name: str
     email: str
@@ -1279,9 +1281,10 @@ class SignupResponse(BaseModel):
 - `hash_password(password)` - Bcrypt hashing with salt
 - `verify_password(password, hash)` - Verify password against hash
 
-**4. Signup Router** (`app/routers/signup.py`)
+**4. Signup Router** (`app/routers/auth/signup.py`)
 - Creates user with hashed password
 - Checks for duplicate emails
+- Generates JWT access token for immediate login
 - Handles database errors gracefully
 - Returns 201 Created on success
 
@@ -1302,6 +1305,7 @@ Content-Type: application/json
 **Response (201 Created):**
 ```json
 {
+  "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMTA4NzMxLCJleHAiOjE3ODIxOTUxMzF9...",
   "id": 1,
   "name": "John Doe",
   "email": "john@example.com",
@@ -1309,6 +1313,8 @@ Content-Type: application/json
   "message": "User created successfully"
 }
 ```
+
+Users can immediately use the `access_token` for authenticated requests without logging in separately!
 
 **Error Cases:**
 - Duplicate email: `400 Bad Request - "Email already registered"`

@@ -6,6 +6,7 @@ from app.models.user import User
 from app.schemas.user_schemas import SignupRequest, SignupResponse
 from app.utils.password import hash_password
 from app.utils.validators import validate_signup_input
+from app.utils.jwt_handler import create_access_token
 from app.logger import get_logger
 from sqlalchemy import select
 
@@ -53,9 +54,13 @@ async def signup(request: SignupRequest, db: AsyncSession = Depends(get_db)) -> 
         await db.commit()
         await db.refresh(new_user)
 
+        # Generate access token for immediate login
+        access_token = create_access_token(new_user.id, new_user.email)
+
         logger.info(f"User created successfully - ID: {new_user.id}, Email: {new_user.email}")
 
         return SignupResponse(
+            access_token=f"Bearer {access_token}",
             id=new_user.id,
             name=new_user.name,
             email=new_user.email,
