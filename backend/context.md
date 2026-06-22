@@ -30,28 +30,43 @@ Warriors/
 │   ├── app/
 │   │   ├── __init__.py              # Package initialization
 │   │   ├── main.py                  # FastAPI application factory with all routers
-│   │   ├── config.py                # Environment configuration
+│   │   ├── config.py                # Environment configuration (includes database config)
+│   │   ├── database.py              # SQLAlchemy async engine and session management
 │   │   ├── logger.py                # Structured JSON logging utilities
 │   │   ├── telemetry.py             # Execution metrics recording
 │   │   ├── tracing.py               # LangSmith integration
+│   │   ├── models/                  # SQLAlchemy ORM models
+│   │   │   ├── __init__.py
+│   │   │   └── user.py              # User model (id, name, email, password_hash, role, courses_enrolled)
 │   │   │
 │   │   ├── routes/                  # Foundation infrastructure endpoints
 │   │   │   ├── __init__.py
 │   │   │   ├── health.py            # Health check endpoint
 │   │   │   └── test_trace.py        # Infrastructure verification endpoint
 │   │   │
-│   │   ├── routers/                 # Mock data API endpoints (26 endpoints)
+│   │   ├── routers/                 # API endpoints (auth + mock data)
 │   │   │   ├── __init__.py
-│   │   │   ├── auth.py              # Authentication (signup, login, profile)
+│   │   │   ├── auth/                # Authentication endpoints
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── signup.py        # POST /api/auth/signup
+│   │   │   │   ├── login.py         # POST /api/auth/login
+│   │   │   │   └── verify.py        # POST /api/auth/verify-token
 │   │   │   ├── courses.py           # Courses (featured, browse, generate, preview, enroll)
 │   │   │   ├── classroom.py         # Learning workspace (lessons, quizzes, capstone, bookmarks)
 │   │   │   └── analytics.py         # User analytics & dashboard
 │   │   │
 │   │   ├── schemas/                 # Pydantic validation models
 │   │   │   ├── __init__.py
-│   │   │   ├── auth_schemas.py      # Auth models (LoginRequest, TokenResponse, etc)
+│   │   │   ├── user_schemas.py      # User models (SignupRequest, LoginRequest, LoginResponse, etc)
 │   │   │   ├── course_schemas.py    # Course models (CoursePreview, FeaturedCourse, etc)
 │   │   │   └── classroom_schemas.py # Classroom models (LessonContent, QuizStructure, etc)
+│   │   │
+│   │   ├── utils/                   # Utility functions
+│   │   │   ├── __init__.py
+│   │   │   ├── password.py          # Password hashing (hash_password, verify_password)
+│   │   │   ├── validators.py        # Input validation (email, name, password)
+│   │   │   ├── jwt_handler.py       # JWT token creation & verification
+│   │   │   └── dependencies.py      # FastAPI dependencies for protected routes
 │   │   │
 │   │   └── data/                    # Mock JSON data files
 │   │       ├── __init__.py
@@ -63,6 +78,7 @@ Warriors/
 │   │
 │   ├── main.py                      # Server entry point
 │   ├── requirements.txt              # Python dependencies
+│   ├── alembic.ini                  # Database migration configuration
 │   ├── .env.example                 # Environment variables template
 │   ├── .env                         # Environment configuration (development)
 │   └── context.md                   # This file
@@ -76,15 +92,21 @@ Warriors/
 
 ### Prerequisites: Setup Virtual Environment
 
+**Requirements:**
+- Python 3.13+ (Python 3.14 not yet supported due to package compatibility)
+- PostgreSQL connection (Neon.tech cloud or local)
+
 ```bash
 # Navigate to backend folder
 cd Warriors/backend
 
-# Create virtual environment
-python -m venv venv
+# Create virtual environment with Python 3.13
+py -3.13 -m venv venv
 
 # Activate virtual environment
-# On Windows:
+# On Windows (PowerShell):
+venv\Scripts\Activate.ps1
+# On Windows (CMD):
 venv\Scripts\activate
 # On macOS/Linux:
 source venv/bin/activate
@@ -95,42 +117,66 @@ pip install -r requirements.txt
 
 ### Environment Variables (.env)
 
-**Current Configuration (Development):**
+**Required Configuration (must be set in .env):**
 ```
+# Application Environment
 APP_ENV=development
-DEBUG=true
+
+# Server Configuration
 HOST=127.0.0.1
 PORT=8000
 
-LANGSMITH_API_KEY=optional
-LANGSMITH_PROJECT=optional
-LANGSMITH_TRACING=false
+# PostgreSQL Database Configuration
+DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/warriors_db
 
-DATABASE_URL=postgresql://user:password@localhost:5432/lxp_db
-JWT_SECRET=your-secret-key-here-min-32-chars-for-jwt-encoding
-JWT_ALGORITHM=HS256
+# JWT Configuration
+JWT_SECRET=generate-a-random-secret-min-32-chars-using-secrets.token_urlsafe(32)
 JWT_EXPIRATION_HOURS=24
+
+# LangSmith Configuration
+LANGSMITH_API_KEY=your-langsmith-api-key-or-empty-string
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_PROJECT=your-project-name
 ```
 
-**For Future Developers - Integration Guide:**
+**Configuration Details:**
 
-| Variable | Current Value | Purpose | Team | Action Required |
-|----------|--------------|---------|------|-----------------|
-| `DATABASE_URL` | `postgresql://user:password@localhost:5432/lxp_db` | PostgreSQL connection | Database Team | Update with real connection string when DB is ready |
-| `JWT_SECRET` | `your-secret-key-here-min-32-chars...` | JWT token signing | Auth Team | Replace with real 32+ character secret when implementing auth |
-| `JWT_ALGORITHM` | `HS256` | Token encryption method | Auth Team | Keep as-is or update if needed |
-| `JWT_EXPIRATION_HOURS` | `24` | Token expiration time | Auth Team | Adjust based on security requirements |
+| Variable | Required | Hardcoded Default | Purpose |
+|----------|----------|-------------------|---------|
+| `APP_ENV` | ✅ Yes | None | Deployment environment (development/production) |
+| `HOST` | ✅ Yes | None | Server bind address |
+| `PORT` | ✅ Yes | None | Server listen port |
+| `DATABASE_URL` | ✅ Yes | None | PostgreSQL connection string |
+| `JWT_SECRET` | ✅ Yes | None | Secret key for JWT signing (min 32 chars) |
+| `JWT_EXPIRATION_HOURS` | ✅ Yes | None | JWT token expiration time in hours |
+| `LANGSMITH_API_KEY` | ✅ Yes | None | LangSmith API key |
+| `LANGSMITH_ENDPOINT` | ✅ Yes | None | LangSmith API endpoint URL |
+| `LANGSMITH_PROJECT` | ✅ Yes | None | LangSmith project name |
+| `DEBUG` | ❌ No | `False` | Enable debug mode (optional override) |
+| `DATABASE_ECHO` | ❌ No | `False` | Log SQL statements (optional override) |
+| `DATABASE_POOL_SIZE` | ❌ No | `20` | Connection pool size (optional override) |
+| `DATABASE_MAX_OVERFLOW` | ❌ No | `0` | Max overflow connections (optional override) |
+| `LANGSMITH_TRACING` | ❌ No | `False` | Enable LangSmith tracing (optional override) |
+| `JWT_ALGORITHM` | ❌ No | `HS256` | JWT algorithm (optional override) |
 
-**When Database Team Takes Over:**
-- Update `DATABASE_URL` to actual PostgreSQL instance
-- Database schema already exists: `users`, `courses`, `send_for_global_approval`
-- No code changes needed - just swap the connection string
+**Setup Instructions:**
+1. Copy `.env.example` to `.env`: `cp .env.example .env`
+2. Update all **Required** variables in `.env` with your actual values
+3. Keep `.env` in `.gitignore` (never commit secrets)
 
-**When Auth Team Takes Over:**
-- Update `JWT_SECRET` with real secret (use `secrets` module to generate)
-- Implement JWT validation in auth routers
-- Update mock auth endpoints to use real authentication
-- Add JWT middleware to protected endpoints
+**Generating JWT_SECRET:**
+```python
+import secrets
+print(secrets.token_urlsafe(32))
+```
+
+Copy the output and set it in `.env`
+
+**Status:** ✅ **Database Connected & Initialized**
+- Using **PostgreSQL** (Neon.tech or local)
+- Driver: **psycopg v3.2.13** (async-capable)
+- Tables auto-created on application startup via `init_db()`
+- Connection pooling enabled (20 persistent connections)
 
 ### Start Server
 
@@ -256,6 +302,58 @@ curl http://127.0.0.1:8000/api/user/dashboard
 
 ## Implemented Components
 
+### Database Connection
+
+**File:** `app/database.py`
+
+Manages PostgreSQL connection and SQLAlchemy ORM setup for async operations.
+
+**Components:**
+
+- `Base` - SQLAlchemy declarative base for all ORM models. All models inherit from this class.
+- `engine` - Async SQLAlchemy engine with connection pooling
+  - Uses `postgresql+asyncpg://` driver for async operations
+  - Pool size configurable via `DATABASE_POOL_SIZE` (default: 20)
+  - `pool_pre_ping=True` ensures stale connections are refreshed
+- `async_session` - Session factory for creating database sessions
+- `get_db()` - FastAPI dependency that provides database sessions to route handlers
+- `init_db()` - Initializes all database tables on application startup
+- `close_db()` - Gracefully closes database connections on shutdown
+
+**Usage in Route Handlers:**
+
+```python
+from fastapi import APIRouter, Depends
+from app.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+router = APIRouter()
+
+@router.get("/example")
+async def example_endpoint(db: AsyncSession = Depends(get_db)):
+    # Use db for queries
+    result = await db.execute(...)
+    return result
+```
+
+**Creating ORM Models:**
+
+```python
+from app.database import Base
+from sqlalchemy import Column, String, Integer
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    email = Column(String(100), unique=True)
+```
+
+Models are automatically registered when imported, and tables are created on `init_db()`.
+
+---
+
 ### Configuration
 
 **File:** `app/config.py`
@@ -268,12 +366,16 @@ The `Settings` class uses Pydantic to load and validate configuration from envir
 |----------|---------|---------|
 | `APP_ENV` | development | Deployment environment (development/production) |
 | `DEBUG` | True | Enable debug mode for development |
+| `HOST` | 127.0.0.1 | Server bind address |
+| `PORT` | 8000 | Server listen port |
+| `DATABASE_URL` | postgresql+psycopg://user:password@localhost:5432/warriors_db | PostgreSQL connection string (using psycopg driver) |
+| `DATABASE_ECHO` | False | Log SQL statements (True for debugging) |
+| `DATABASE_POOL_SIZE` | 20 | Connection pool size |
+| `DATABASE_MAX_OVERFLOW` | 0 | Max overflow connections |
 | `LANGSMITH_API_KEY` | None | API key for LangSmith authentication |
 | `LANGSMITH_PROJECT` | None | LangSmith project name for organizing runs |
 | `LANGSMITH_TRACING` | False | Enable/disable LangSmith tracing |
 | `LANGSMITH_ENDPOINT` | https://api.smith.langchain.com | LangSmith API endpoint URL |
-| `HOST` | 127.0.0.1 | Server bind address |
-| `PORT` | 8000 | Server listen port |
 
 **Helper Methods:**
 
@@ -282,6 +384,7 @@ The `Settings` class uses Pydantic to load and validate configuration from envir
 
 **Usage:**
 ```python
+# Note: Relative imports (from app.config, not from backend.app.config)
 # Note: Relative imports (from app.config, not from backend.app.config)
 from app.config import settings
 
@@ -322,6 +425,7 @@ Implements structured JSON logging for production-grade observability. Each log 
 
 **Usage:**
 ```python
+# Note: Relative import from app.logger
 # Note: Relative import from app.logger
 from app.logger import get_logger
 
@@ -369,6 +473,7 @@ Manages metrics for a single workflow execution.
 
 **Usage Example:**
 ```python
+# Note: Relative import from app.telemetry
 # Note: Relative import from app.telemetry
 from app.telemetry import create_run_context
 
@@ -466,6 +571,7 @@ def end_trace_run(
 **Usage Example:**
 ```python
 # Note: Relative imports from app.tracing
+# Note: Relative imports from app.tracing
 from app.tracing import trace_run, end_trace_run
 
 with trace_run(
@@ -493,6 +599,9 @@ with trace_run(
 For nested workflows, pass parent run_id to create child traces:
 
 ```python
+# Note: Relative imports from app.tracing
+from app.tracing import trace_run, end_trace_run
+
 # Note: Relative imports from app.tracing
 from app.tracing import trace_run, end_trace_run
 
@@ -592,6 +701,7 @@ curl http://127.0.0.1:8000/test-trace
 
 ```python
 # Note: All imports are relative (no backend.app prefix)
+# Note: All imports are relative (no backend.app prefix)
 from app.telemetry import create_run_context
 
 # Initialize
@@ -612,6 +722,7 @@ metrics = telemetry.complete("success")
 ### Creating a LangSmith Trace
 
 ```python
+# Note: All imports are relative (no backend.app prefix)
 # Note: All imports are relative (no backend.app prefix)
 from app.tracing import trace_run, end_trace_run
 
@@ -693,6 +804,7 @@ end_trace_run(
 
 ```python
 # Note: All imports are relative (no backend.app prefix)
+# Note: All imports are relative (no backend.app prefix)
 from app.tracing import trace_run, end_trace_run
 
 async def parent_agent():
@@ -722,6 +834,7 @@ async def parent_agent():
 
 ```python
 # Note: All imports are relative (no backend.app prefix)
+# Note: All imports are relative (no backend.app prefix)
 from app.logger import get_logger
 
 logger = get_logger(__name__)
@@ -740,10 +853,11 @@ except Exception as e:
 
 ## Current Status
 
-✅ **FastAPI Server Configured**
+✅ **FastAPI Server Running**
 - Application factory pattern in `app/main.py`
 - Automatic startup and shutdown event handlers
 - CORS middleware enabled for cross-origin requests
+- Server running on http://127.0.0.1:8000
 
 ✅ **Environment Management Configured**
 - Settings loaded from `.env` file via Pydantic
@@ -766,15 +880,18 @@ except Exception as e:
 - `end_trace_run()` function for attaching metrics
 - Support for parent/child run relationships
 
-✅ **Tracing Enabled**
-- Startup logs confirm LangSmith configuration
-- Traces appear in LangSmith dashboard with all metrics
-- Test endpoint (`GET /test-trace`) demonstrates integration
+✅ **Database Connection Initialized**
+- PostgreSQL connected via Neon.tech (cloud-hosted)
+- psycopg driver for async operations
+- Connection pooling enabled (20 concurrent connections)
+- Tables auto-created on startup via `init_db()`
+- Database module in `app/database.py` provides: `Base` (ORM base class), `get_db()` dependency, session management
 
-✅ **Infrastructure Ready for Future AI Agents**
+✅ **Infrastructure Ready for Future AI Agents & ORM Models**
 - All utilities are reusable by new agents
-- No changes to existing infrastructure required
-- Agents import and use utilities directly
+- Database session injection ready for API endpoints
+- `Base` class ready for ORM model definitions
+- Alembic migrations configured for schema management
 
 ---
 
@@ -799,6 +916,7 @@ app/agents/
 ```python
 # app/agents/research_agent.py
 
+# Note: All imports are relative (run from backend/ directory)
 # Note: All imports are relative (run from backend/ directory)
 from app.telemetry import create_run_context
 from app.tracing import trace_run, end_trace_run
@@ -865,6 +983,7 @@ async def research_agent(query: str, parent_run_id: str = None):
 # app/routes/research.py
 
 # Note: All imports are relative (run from backend/ directory)
+# Note: All imports are relative (run from backend/ directory)
 from fastapi import APIRouter
 from app.agents.research_agent import research_agent
 
@@ -880,6 +999,7 @@ async def query_research(query: str, parent_trace_id: str = None):
 Then register in `app/main.py`:
 ```python
 # All imports use relative paths
+# All imports use relative paths
 from app.routes import research
 
 app.include_router(research.router)
@@ -890,6 +1010,9 @@ app.include_router(research.router)
 For workflows involving multiple agents with parent/child relationships:
 
 ```python
+# Note: All imports are relative (run from backend/ directory)
+from app.tracing import trace_run, end_trace_run
+
 # Note: All imports are relative (run from backend/ directory)
 from app.tracing import trace_run, end_trace_run
 
@@ -962,13 +1085,26 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Install dependencies (one-time)
+# Navigate to backend folder
+cd Warriors/backend
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies (one-time)
 pip install -r requirements.txt
 
+# Start server (run from backend/ with venv activated)
 # Start server (run from backend/ with venv activated)
 python main.py
 
 # Server available at http://127.0.0.1:8000
 ```
+
+**Important:** Always run the app from the `Warriors/backend/` directory with the venv activated, since all imports use relative paths (e.g., `from app.config`)
 
 **Important:** Always run the app from the `Warriors/backend/` directory with the venv activated, since all imports use relative paths (e.g., `from app.config`)
 
@@ -992,547 +1128,709 @@ http://127.0.0.1:8000/docs
 
 ---
 
+## Database Setup Guide
+
+### Current Status
+✅ **Database is initialized and connected**
+- PostgreSQL hosted on Neon.tech (cloud-based)
+- Connection tested and working
+- Tables auto-created on startup
+
+### Technology Stack
+
+The following packages are configured in `requirements.txt`:
+- `sqlalchemy==2.0.36` - ORM and database toolkit
+- `psycopg[binary]==3.2.13` - PostgreSQL driver (async-capable, Python 3.13+ compatible)
+- `greenlet==3.1.1` - Required for SQLAlchemy async operations
+- `alembic==1.13.3` - Database migration tool
+
+### How the Database Works
+
+**1. Automatic Initialization**
+
+When the application starts, `init_db()` is called in `app/main.py` and:
+- Connects to PostgreSQL via the driver specified in `DATABASE_URL`
+- Creates all tables defined in ORM models (via `Base.metadata.create_all()`)
+- Logs: `"Database tables initialized successfully"`
+
+**2. Using the Database in API Endpoints**
+
+```python
+from fastapi import APIRouter, Depends
+from app.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+router = APIRouter()
+
+@router.post("/users")
+async def create_user(user_data: dict, db: AsyncSession = Depends(get_db)):
+    # db is automatically injected
+    # Use db for async queries: await db.execute(...), await db.query(...), etc.
+    return {"status": "created"}
+```
+
+**3. Database Dependency Injection**
+- FastAPI automatically injects database sessions via `Depends(get_db)`
+- Session is closed automatically after the endpoint completes
+- All queries use async/await: `await db.execute(...)`
+
+### Defining ORM Models
+
+When you're ready to add database models:
+
+```python
+from app.database import Base
+from sqlalchemy import Column, String, Integer
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    email = Column(String(100), unique=True)
+```
+
+**Important:** Models must:
+1. Inherit from `Base` imported from `app.database`
+2. Have `__tablename__` defined
+3. Be imported/registered before `init_db()` runs
+
+### Using Alembic for Schema Migrations
+
+When you need to modify the database schema without losing data:
+
+```bash
+# Create a migration from model changes
+alembic revision --autogenerate -m "add users table"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback migrations
+alembic downgrade -1
+```
+
+Configuration for migrations is in `alembic.ini`.
+
+### Troubleshooting
+
+**Connection Error: "could not connect to server"**
+- Verify `DATABASE_URL` in `.env` is correct
+- Check if Neon.tech instance is active
+- Ensure your IP is whitelisted (if applicable)
+
+**Connection Error: "sslmode not supported"**
+- Neon requires SSL: include `?sslmode=require` in DATABASE_URL (already configured)
+
+**"Database tables initialized successfully" not in logs**
+- Set `DATABASE_ECHO=true` in `.env` to see SQL statements
+- Check for ORM model import errors
+- Ensure models inherit from `Base`
+
+**Alembic Errors**
+- Run: `alembic current` to check current migration
+- Run: `alembic history` to see all migrations
+- Ensure migration files are in `alembic/versions/`
+
 ---
 
-## Dashboard API (Phase 7: PostgreSQL Database Integration)
+---
 
-**Status**: ✅ LIVE WITH DATABASE  
-**Phase**: Phase 7 - Full PostgreSQL Integration Complete  
-**Last Updated**: 2026-06-22  
-**Endpoint**: `GET /api/v1/dashboard`  
-**Database**: PostgreSQL (auralearn_db)
+## User Authentication - Signup Implementation
 
-### Overview
+### Status: ✅ Implemented & Working
 
-The Dashboard API now provides a single aggregated endpoint that returns all data from PostgreSQL database. Migration from mock JSON to live database is **complete and tested**.
+**Signup Endpoint:** `POST /api/auth/signup`
+- Creates new user accounts with email and password
+- Validates duplicate emails
+- Hashes passwords with bcrypt
+- Generates JWT access token for immediate login
+- Returns user data + access token on success (201 Created)
 
-### Database Integration Status
+### Components
 
-✅ **Phase 3**: All 6 SQLAlchemy ORM models created (User, Course, UserCourse, LearningActivity, UserGoal, Milestone)  
-✅ **Phase 4**: PostgreSQL connection configured with connection pooling  
-✅ **Phase 5**: Dashboard repository with 8 optimized query methods  
-✅ **Phase 6**: Service layer for business logic  
-✅ **Phase 7**: API routes fully integrated with database  
-✅ **Phase 8**: Ready for JWT authentication implementation
-
-### Features
-
-- **Single Aggregated Endpoint**: Reduces frontend network requests from 5-6 to 1
-- **Complete Data Contract**: Pydantic-validated schemas ensure type safety
-- **Live Database Integration**: All data fetched from PostgreSQL (Phase 7)
-- **Service Layer Architecture**: Clean separation between routes and business logic
-- **Optimized Queries**: 8 repository methods with proper indexing and joins
-- **Test Data Included**: Sample data pre-loaded for immediate testing
-
-### API Specification
-
-#### Endpoint
-```
-GET /api/v1/dashboard
-```
-
-#### Response Model
+**1. User ORM Model** (`app/models/user.py`)
 ```python
-DashboardResponse {
-  stats: Stats,
-  weekly_activity: WeeklyActivity,
-  weekly_goal: WeeklyGoal,
-  monthly_consistency: MonthlyConsistency,
-  milestones: Milestones,
-  enrolled_courses: EnrolledCourses,
-  recently_completed: RecentlyCompleted
+class User(Base):
+    __tablename__ = "users"
+    id: int (Primary Key)
+    name: str (100 chars)
+    email: str (unique, indexed)
+    password_hash: str (255 chars)
+    role: str (default: "learner")
+    courses_enrolled: int[] (array of course IDs)
+```
+
+**2. Signup Schemas** (`app/schemas/user_schemas.py`)
+```python
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class SignupResponse(BaseModel):
+    access_token: str  # Bearer token for immediate login
+    id: int
+    name: str
+    email: str
+    role: str
+    message: str
+```
+
+**3. Password Utility** (`app/utils/password.py`)
+- `hash_password(password)` - Bcrypt hashing with salt
+- `verify_password(password, hash)` - Verify password against hash
+
+**4. Signup Router** (`app/routers/auth/signup.py`)
+- Creates user with hashed password
+- Checks for duplicate emails
+- Generates JWT access token for immediate login
+- Handles database errors gracefully
+- Returns 201 Created on success
+
+### How It Works
+
+**Request:**
+```bash
+POST http://127.0.0.1:8000/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securepass123"
 }
 ```
 
-#### Example Response (Abbreviated)
+**Response (201 Created):**
 ```json
 {
-  "stats": {
-    "enrolled_courses": 12,
-    "completed_courses": 4,
-    "learning_hours": 84.5,
-    "streak_days": 7
+  "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMTA4NzMxLCJleHAiOjE3ODIxOTUxMzF9...",
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "learner",
+  "message": "User created successfully"
+}
+```
+
+Users can immediately use the `access_token` for authenticated requests without logging in separately!
+
+**Error Cases:**
+- Duplicate email: `400 Bad Request - "Email already registered"`
+- Missing fields: `422 Unprocessable Entity`
+- Server error: `500 Internal Server Error`
+
+### Database
+
+- Users table auto-created on startup
+- Email indexed for fast lookups
+- Password never returned in responses
+- Role defaults to "learner"
+- courses_enrolled array initialized empty
+
+### Testing
+
+**Using curl:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Alice Smith",
+    "email": "alice@example.com",
+    "password": "password456"
+  }'
+```
+
+**Using Swagger UI:**
+```
+http://127.0.0.1:8000/docs
+```
+Find `/api/auth/signup` and use the "Try it out" button.
+
+### Security Features
+
+- ✅ Password hashing with bcrypt (salted)
+- ✅ Duplicate email prevention
+- ✅ Password never exposed in responses
+- ✅ Input validation (min 6 char password)
+- ✅ Database constraints (unique email, indexed)
+
+---
+
+## User Authentication - Login Implementation
+
+### Status: ✅ Implemented & Working
+
+**Login Endpoint:** `POST /api/auth/login`
+- Validates user credentials
+- Generates JWT access token (24 hour expiration)
+- Returns user data with token
+- Uses bcrypt password verification
+
+### Components Created
+
+**1. JWT Handler** (`app/utils/jwt_handler.py`)
+- `create_access_token(user_id, email)` - Generate JWT token
+  - Includes user ID and email in payload
+  - Sets expiration to 24 hours (configurable)
+  - Uses HS256 algorithm
+- `decode_access_token(token)` - Validate and decode token
+  - Handles expired tokens
+  - Handles invalid tokens
+  - Returns payload dict or None
+
+**2. Login Schemas** (`app/schemas/user_schemas.py`)
+```python
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+    message: str
+```
+
+**3. Login Router** (`app/routers/auth/login.py`)
+- Route: `POST /api/auth/login`
+- Validates email format
+- Queries user by email from database
+- Verifies password with bcrypt
+- Generates JWT token with user ID (as string) and email
+- Returns user data + token in Bearer format
+
+**4. JWT Configuration** (`app/config.py`)
+```
+JWT_SECRET=your-secret-key-change-in-production-min-32-chars
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_HOURS=24
+```
+
+### Testing Login
+
+**Request:**
+```bash
+POST http://127.0.0.1:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "securepass123"
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMTA4NzMxLCJleHAiOjE3ODIxOTUxMzF9...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "learner",
+    "courses_enrolled": []
   },
-  "weekly_activity": {
-    "week_data": [
-      {"day": "Mon", "minutes": 45},
-      {"day": "Tue", "minutes": 60},
-      ...
-    ]
-  },
-  "weekly_goal": {
-    "completed_hours": 12.0,
-    "target_hours": 15.0,
-    "percentage": 80
-  },
-  "monthly_consistency": {
-    "consistency_data": [
-      {"date": "2026-06-01", "minutes": 0},
-      {"date": "2026-06-02", "minutes": 120},
-      ...
-    ]
-  },
-  "milestones": {
-    "milestones_list": [
-      {
-        "id": 1,
-        "title": "UX Design Sprint",
-        "due_date": "2026-06-25",
-        "status": "pending"
-      }
-    ]
-  },
-  "enrolled_courses": {
-    "courses_list": [
-      {
-        "id": 1,
-        "title": "Mastering UX Psychology",
-        "difficulty": "Advanced",
-        "thumbnail_url": "https://...",
-        "current_module": "Module 4: Cognitive Biases",
-        "progress_percentage": 65,
-        "completed_lessons": 12,
-        "total_lessons": 18,
-        "status": "in_progress"
-      }
-    ]
-  },
-  "recently_completed": {
-    "completed_list": [
-      {
-        "id": 1,
-        "course_name": "AI Foundations",
-        "certificate_earned": true,
-        "completion_date": "2026-06-20"
-      }
-    ]
+  "message": "Login successful"
+}
+```
+
+**Error Responses:**
+- Invalid email/password: `401 Unauthorized - "Invalid email or password"`
+- User not found: `401 Unauthorized - "Invalid email or password"`
+- Invalid email format: `400 Bad Request`
+- Missing fields: `422 Unprocessable Entity`
+- Server error: `500 Internal Server Error`
+
+### JWT Token Details
+
+**Token Payload:**
+```python
+{
+  "sub": 1,           # user_id (subject)
+  "email": "john@example.com",
+  "iat": 1687767640,  # issued at
+  "exp": 1687854040   # expires at (24 hours later)
+}
+```
+
+**Token Format:** `eyJhbGc...` (3 parts separated by dots)
+- Header: Algorithm and type
+- Payload: Claims (user data)
+- Signature: Verification hash
+
+### Security Features
+
+✅ Password verified with bcrypt  
+✅ JWT token generation with HS256  
+✅ 24-hour token expiration  
+✅ Email validation before lookup  
+✅ Generic error messages (don't reveal if user exists)  
+✅ Logging of all login attempts and failures  
+✅ Signature verification on decode  
+
+### Using the Token
+
+Include token in subsequent requests:
+```bash
+curl -H "Authorization: Bearer eyJhbGc..." \
+     http://127.0.0.1:8000/api/protected-endpoint
+```
+
+---
+
+## User Authentication - Token Verification Implementation
+
+### Status: ✅ Implemented & Working
+
+**Verify Token Endpoint:** `POST /api/auth/verify-token`
+- Verifies JWT token validity and expiration
+- Returns user data if token is valid
+- Returns error message if token is invalid/expired
+- Token sent via Authorization header (Bearer scheme)
+
+### Components Created
+
+**1. Enhanced JWT Handler** (`app/utils/jwt_handler.py`)
+
+**Functions:**
+- `create_access_token(user_id, email)` - Generate JWT token
+  - Converts user_id to string (JWT spec requirement)
+  - Sets expiration to 24 hours
+  - Uses HS256 algorithm
+- `verify_token(token)` - Full verification with detailed status
+  - Returns: `(is_valid: bool, payload: dict | None, message: str)`
+  - Handles: expired tokens, invalid signatures, decode errors
+  - Returns detailed error messages for debugging
+
+**2. Token Verification Router** (`app/routers/auth/verify.py`)
+- Route: `POST /api/auth/verify-token`
+- Accepts token via Authorization header as `Bearer <token>`
+- Verifies token signature and expiration
+- Queries user from database
+- Returns user data (id, name, email, role) if valid
+
+**3. Token Verification Schemas** (`app/schemas/user_schemas.py`)
+```python
+class TokenVerifySuccess(BaseModel):
+    success: bool = True
+    id: int
+    name: str
+    email: str
+    role: str
+
+class TokenVerifyFail(BaseModel):
+    success: bool = False
+    message: str
+```
+
+### Testing Token Verification
+
+**Request (using curl):**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/verify-token \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "learner"
+}
+```
+
+**Error Response (200 OK with success=false):**
+```json
+{
+  "success": false,
+  "message": "Token has expired"
+}
+```
+
+**Other Error Messages:**
+- `"Token is required"` - No token provided
+- `"Token has expired"` - Token expiration time passed
+- `"Invalid token signature"` - JWT_SECRET mismatch
+- `"Invalid token format"` - Malformed token
+- `"User not found"` - User deleted from database
+- `"Invalid token"` - General token error
+
+### Token Verification Details
+
+**Token Payload Structure:**
+```python
+{
+  "sub": "1",           # user_id as string
+  "email": "john@example.com",
+  "role": "learner",    # user role from database
+  "iat": 1782108731,    # issued at timestamp
+  "exp": 1782195131     # expiration timestamp
+}
+```
+
+**Token Location:**
+- ✅ Must be in `Authorization` header
+- ✅ Format: `Authorization: Bearer <token>`
+- ❌ NOT in request body
+- ❌ NOT as query parameter
+
+### Directory Structure
+
+```
+app/routers/auth/
+├── __init__.py          # Exports all auth routers
+├── signup.py            # POST /api/auth/signup
+├── login.py             # POST /api/auth/login
+└── verify.py            # POST /api/auth/verify-token
+```
+
+### Auth Routes Summary
+
+| Endpoint | Method | Input | Output |
+|----------|--------|-------|--------|
+| `/api/auth/signup` | POST | name, email, password | user data (201 Created) |
+| `/api/auth/login` | POST | email, password | access_token (Bearer format), user data |
+| `/api/auth/verify-token` | POST | Authorization: Bearer <token> | success + user data OR error message |
+
+### Security Features
+
+✅ JWT signature verification with secret key  
+✅ Token expiration checks  
+✅ Password hashing with bcrypt  
+✅ Email uniqueness validation  
+✅ User existence validation on verify  
+✅ Detailed error logging  
+✅ Generic error messages (no info leakage)  
+
+---
+
+## Global Authentication Middleware
+
+### Status: ✅ Implemented & Working
+
+**All routes EXCEPT public endpoints require authentication.**
+
+### How It Works
+
+1. **Middleware checks every request** to protected endpoints
+2. **Extracts JWT from Authorization header** (Bearer token format)
+3. **Verifies token validity** using JWT_SECRET
+4. **Stores user info in request state** for route handlers
+5. **Returns 401 Unauthorized** if token missing/invalid
+
+### Public Endpoints (No Auth Required)
+
+- `POST /api/auth/signup` - Create new user account
+- `POST /api/auth/login` - Login and get token
+- `GET /health` - Health check
+- `GET /test-trace` - Infrastructure test
+- `GET /docs` - API documentation
+- `GET /openapi.json` - OpenAPI schema
+- `GET /redoc` - ReDoc documentation
+
+### Protected Endpoints (Auth Required)
+
+ALL other endpoints require valid JWT token in `Authorization` header:
+- `/api/courses/*` - All course endpoints
+- `/api/classroom/*` - All classroom endpoints
+- `/api/analytics/*` - All analytics endpoints
+- `/api/admin/*` - Admin-only endpoints
+
+### Using Protected Routes
+
+**1. Get token via signup:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+**Response includes `access_token`:**
+```json
+{
+  "access_token": "Bearer eyJhbGc...",
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "learner"
+}
+```
+
+**2. Use token for protected route:**
+```bash
+curl -X GET http://127.0.0.1:8000/api/courses/featured \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+**3. Missing token returns 401:**
+```bash
+curl -X GET http://127.0.0.1:8000/api/courses/featured
+```
+
+**Response:**
+```json
+{
+  "detail": "Authentication required. Please provide a valid token."
+}
+```
+
+### Token Format
+
+**Must use Bearer scheme:**
+```
+Authorization: Bearer <token>
+```
+
+**NOT valid:**
+- `Authorization: <token>` (missing Bearer)
+- `Token: <token>` (wrong scheme)
+- Request body: `{"token": "..."}` (wrong location)
+
+### Implementation Details
+
+**Middleware file:** `app/middleware/auth_middleware.py`
+- Class: `AuthMiddleware(BaseHTTPMiddleware)`
+- Uses: `verify_token()` from `jwt_handler.py`
+- Returns: `JSONResponse` with proper HTTP status codes
+
+**Main app integration:** `app/main.py`
+- Added: `app.add_middleware(AuthMiddleware)` (before CORS)
+
+---
+
+## Admin Route Protection
+
+### Status: ✅ Implemented & Working
+
+**Admin-Only Routes:** Protected endpoints accessible ONLY to users with `role="admin"`
+
+### Components Created
+
+**1. Admin Dependency** (`app/utils/dependencies.py`)
+- `get_admin_user(credentials)` - Protected dependency that:
+  - Verifies JWT token
+  - Checks if user role is "admin" (from JWT payload)
+  - Returns 403 Forbidden if not admin
+  - Uses JWT role (from database at login time)
+
+**2. Admin Router** (`app/routers/admin.py`)
+- Example admin-only routes
+- All protected with `Depends(get_admin_user)`
+
+### Security Features
+
+✅ Role comes from database (at login/signup time)  
+✅ Role stored in JWT payload for fast checks  
+✅ No user input used for role assignment  
+✅ Only database admins can promote users to admin  
+✅ JWT signature verification prevents tampering  
+✅ 403 Forbidden for non-admin access attempts  
+
+### Admin Routes
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/admin/dashboard` | GET | Admin dashboard |
+| `/api/admin/users-count` | GET | Get total users count |
+| `/api/admin/action` | POST | Perform admin actions |
+| `/api/admin/info` | GET | Get admin user info |
+| `/api/admin/test` | GET | Test admin protection |
+
+### Testing Admin Protection
+
+**Login as admin:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@test.com",
+    "password": "admin@123"
+  }'
+```
+
+**Test admin endpoint (200 OK):**
+```bash
+curl -X GET http://127.0.0.1:8000/api/admin/test \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Admin protection is working!",
+  "jwt_claims": {
+    "user_id": "2",
+    "email": "admin@test.com",
+    "role": "admin",
+    "issued_at": 1782108731,
+    "expires_at": 1782195131
   }
 }
 ```
 
-### Project Structure
-
-```
-backend/
-├── app/
-│   ├── models/                          # SQLAlchemy ORM Models (Phase 3)
-│   │   ├── user.py                      # Users table
-│   │   ├── course.py                    # Courses table  
-│   │   ├── user_course.py               # User enrollments (Most Critical!)
-│   │   ├── learning_activity.py         # Daily learning tracking
-│   │   ├── user_goal.py                 # Weekly goal targets
-│   │   └── milestone.py                 # Upcoming deadlines
-│   │
-│   ├── database/                        # Database Layer (Phase 4)
-│   │   ├── connection.py                # SQLAlchemy engine, session, Base class
-│   │   └── __init__.py                  # Exports SessionLocal, Base, engine, get_db
-│   │
-│   ├── repositories/                    # Data Access Layer (Phase 5)
-│   │   └── dashboard_repository.py      # 8 optimized query methods
-│   │
-│   ├── services/                        # Business Logic Layer (Phase 6)
-│   │   └── dashboard_service.py         # Orchestrates repository + formatting
-│   │
-│   ├── routers/                         # API Routes (Phase 7)
-│   │   └── dashboard.py                 # GET /api/v1/dashboard endpoint
-│   │
-│   ├── schemas/                         # Pydantic Models
-│   │   └── dashboard.py                 # DashboardResponse + sub-schemas
-│   │
-│   └── data/
-│       └── dashboard.json               # Legacy mock data (KEPT for reference)
-│
-├── create_tables.py                     # Helper script to create all 6 tables
-├── insert_test_data.py                  # Helper script to insert test data
-├── test_connection.py                   # Helper script to verify DB connection
-├── check_tables.py                      # Helper script to verify tables exist
-└── .env                                 # PostgreSQL credentials
+**Non-admin user tries to access (403 Forbidden):**
+```json
+{
+  "detail": "Admin access required. You do not have permission to access this resource."
+}
 ```
 
-### Architecture
+### Creating Admin Users
 
-The dashboard API follows a clean 3-layer architecture:
-
-```
-HTTP Request
-    ↓
-Router (dashboard.py)           [API Layer]
-    ↓
-Service (dashboard_service.py)  [Business Logic Layer]
-    ↓
-Data Source (dashboard.json)    [Data Layer]
-    ↓
-HTTP Response (DashboardResponse)
+To make a user admin, update the database directly:
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'user@example.com';
 ```
 
-**Benefits**:
-- Easy to test each layer independently
-- Service layer can be reused across routes
-- Mock data can be replaced with DB queries without changing routes
-- Clear separation of concerns
+**Never expose admin creation via API endpoints** - only database admins should have this privilege.
 
-### Service Layer Methods
-
-The `DashboardService` class provides methods to fetch individual dashboard sections:
+### Using Admin Dependency in Routes
 
 ```python
-# Get complete dashboard
-DashboardService.get_dashboard() -> DashboardResponse
+from fastapi import APIRouter, Depends
+from app.utils.dependencies import get_admin_user
 
-# Get individual sections
-DashboardService.get_stats() -> dict
-DashboardService.get_weekly_activity() -> dict
-DashboardService.get_weekly_goal() -> dict
-DashboardService.get_monthly_consistency() -> dict
-DashboardService.get_milestones() -> dict
-DashboardService.get_enrolled_courses() -> dict
-DashboardService.get_recently_completed() -> dict
+router = APIRouter()
+
+@router.delete("/admin/users/{user_id}")
+async def delete_user(user_id: int, admin: dict = Depends(get_admin_user)):
+    """Only admin users can access this route"""
+    return {"deleted_by": admin["email"]}
 ```
 
-### Frontend Integration
+### Next Steps
 
-#### Using Fetch API
-```javascript
-// Fetch dashboard data
-const response = await fetch('http://localhost:8000/api/v1/dashboard');
-const dashboardData = await response.json();
-
-// Access sections
-const stats = dashboardData.stats;           // User statistics
-const activity = dashboardData.weekly_activity;  // Weekly chart
-const goal = dashboardData.weekly_goal;      // Goal progress
-const consistency = dashboardData.monthly_consistency;  // Heatmap
-const milestones = dashboardData.milestones; // Deadlines
-const courses = dashboardData.enrolled_courses;  // In-progress
-const completed = dashboardData.recently_completed;  // Completed
-```
-
-#### Using Axios
-```javascript
-import axios from 'axios';
-
-const dashboardData = await axios.get('http://localhost:8000/api/v1/dashboard');
-const data = dashboardData.data;
-```
-
-### Testing
-
-#### In Browser
-Visit: `http://localhost:8000/api/v1/dashboard`
-
-#### With cURL
-```bash
-curl http://localhost:8000/api/v1/dashboard
-```
-
-#### Interactive Swagger UI
-Visit: `http://localhost:8000/docs`
-
-### Data Specifications
-
-#### Stats
-- `enrolled_courses` (int, ≥0): Total enrolled courses
-- `completed_courses` (int, ≥0): Completed courses
-- `learning_hours` (float, ≥0): Total learning hours
-- `streak_days` (int, ≥0): Current streak in days
-
-#### Weekly Activity
-- Array of 7 days (Mon-Sun)
-- Each day: `{day: string, minutes: int}`
-
-#### Weekly Goal
-- `completed_hours` (float, ≥0): Hours learned this week
-- `target_hours` (float, >0): Weekly goal in hours
-- `percentage` (int, 0-100): Progress percentage
-
-#### Monthly Consistency
-- Array of dates in current month
-- Each day: `{date: "YYYY-MM-DD", minutes: int}`
-- Includes days with 0 minutes for consistency view
-
-#### Milestones
-- Array of upcoming deadlines
-- Fields: `id`, `title`, `due_date` (YYYY-MM-DD), `status` (pending/completed/overdue)
-- Sorted by due_date ascending
-
-#### Enrolled Courses
-- Array of in-progress courses
-- Fields: `id`, `title`, `difficulty` (Beginner/Intermediate/Advanced), `thumbnail_url`, `current_module`, `progress_percentage` (0-100), `completed_lessons`, `total_lessons`, `status`
-
-#### Recently Completed
-- Array of completed courses (most recent first)
-- Fields: `id`, `course_name`, `certificate_earned` (bool), `completion_date` (YYYY-MM-DD)
-
-### Future Enhancements (Phase 2+)
-
-#### Database Integration
-```python
-# Current (Mock)
-def get_dashboard():
-    return DashboardService.get_dashboard()
-
-# Future (Database)
-def get_dashboard(user_id: int):
-    return DashboardService.get_dashboard_from_db(user_id)
-```
-
-#### Authentication
-```python
-@router.get("/dashboard")
-async def get_dashboard(current_user: User = Depends(get_current_user)):
-    return DashboardService.get_dashboard(current_user.id)
-```
-
-#### Query Parameters
-```python
-@router.get("/dashboard")
-async def get_dashboard(
-    user_id: int,
-    month: str = Query("current"),  # current, previous, etc
-    include_sections: List[str] = Query(["stats", "courses"])
-):
-    ...
-```
-
-### Test Data Integration (2026-06-22)
-
-#### Mock JSON File (PRESERVED)
-**Location**: `app/data/dashboard.json`  
-**Status**: ✅ KEPT for reference/migration documentation  
-**Purpose**: Shows the original mock data structure used during Phase 1-2 development
-
-This file is NO LONGER used by the API (which now uses PostgreSQL) but is preserved to document:
-- What mock data structure was used
-- Migration history from JSON to database
-- Can be referenced if reverting to mock mode needed
-
-#### Test Data in PostgreSQL
-
-**What was inserted**: Sample data for user "Alex Chen" (user_id=1)
-
-```
-USERS TABLE:
-- id: 1
-- name: Alex Chen
-- email: alex.chen@example.com
-- created_at: 2026-06-22 08:48:48
-
-COURSES TABLE: 4 courses
-- id=1: Mastering UX Psychology (Advanced)
-- id=2: Python for Data Science (Intermediate)
-- id=3: Digital Brand Identity (Beginner)
-- id=4: AI Foundations (Beginner)
-
-USER_COURSES TABLE: 4 enrollments
-- Course 1: IN_PROGRESS, 65% complete (12/18 lessons)
-- Course 2: IN_PROGRESS, 32% complete (4/12 lessons)
-- Course 3: IN_PROGRESS, 88% complete (10/11 lessons)
-- Course 4: COMPLETED, 100% complete (15/15 lessons)
-
-LEARNING_ACTIVITIES TABLE: 7 days of data
-- Monday: 45 minutes, 2 lessons
-- Tuesday: 90 minutes, 3 lessons
-- Wednesday: 110 minutes, 4 lessons
-- Thursday: 70 minutes, 2 lessons
-- Friday: 30 minutes, 1 lesson
-- Saturday: 60 minutes, 2 lessons
-- Sunday: 65 minutes, 2 lessons
-- Total this week: 470 minutes (7.83 hours)
-
-USER_GOALS TABLE: 1 weekly goal
-- target_hours: 15.0
-- current_hours: 7.83
-- week: 2026-06-22 to 2026-06-28
-
-MILESTONES TABLE: 2 pending deadlines
-- UX Design Sprint (due 2026-06-24)
-- Python Basics Final (due 2026-06-23)
-```
-
-#### How Test Data Was Inserted
-
-**File**: `backend/insert_test_data.py`
-
-This script was created to populate the database with realistic test data. It:
-1. Clears existing data (commented out to prevent accidents)
-2. Creates 1 user (Alex Chen)
-3. Creates 4 sample courses
-4. Creates 4 enrollments (3 in-progress, 1 completed)
-5. Creates 7 days of learning activities
-6. Creates 1 weekly goal
-7. Creates 2 upcoming milestones
-
-**How to re-insert test data**:
-```bash
-python insert_test_data.py
-```
-
-**Note**: Running twice will fail with "duplicate key" error (data already inserted). To clear and reinitialize:
-```bash
-# Drop tables (PostgreSQL)
-psql -U postgres -d auralearn_db -c "DROP TABLE IF EXISTS milestones, user_goals, learning_activities, user_courses, courses, users CASCADE;"
-
-# Recreate tables
-python create_tables.py
-
-# Reinitialize data
-python insert_test_data.py
-```
-
-### Database Architecture
-
-#### 3-Layer Architecture
-
-```
-HTTP Request (GET /api/v1/dashboard)
-    ↓
-API Router (app/routers/dashboard.py)           [Layer 1: HTTP]
-    ↓ Calls get_dashboard(user_id)
-Service (app/services/dashboard_service.py)     [Layer 2: Business Logic]
-    ↓ Calls repo methods
-Repository (app/repositories/dashboard_repository.py) [Layer 3: Data Access]
-    ↓ Executes SQL
-PostgreSQL Database                             [Layer 4: Persistence]
-    ↓
-HTTP Response (DashboardResponse JSON)
-```
-
-#### Repository Query Methods (8 methods in Phase 5)
-
-1. **get_user_greeting()** → "Hello, Alex Chen"
-2. **get_stats()** → {enrolled_courses: 3, completed_courses: 1, learning_hours: 7.8, streak_days: 7}
-3. **get_weekly_activity()** → 7-day chart [Mon: 45min, Tue: 90min, ...]
-4. **get_weekly_goal()** → {completed_hours: 7.83, target_hours: 15, percentage: 52}
-5. **get_monthly_consistency()** → All days this month with minutes spent
-6. **get_milestones()** → [2 pending milestones sorted by due_date]
-7. **get_enrolled_courses()** → [3 in-progress courses with progress details]
-8. **get_recently_completed()** → [1 completed course with certificate info]
-
-### Maintenance Notes
-
-**File Locations**:
-- Models: `app/models/*.py` (6 files)
-- Database Connection: `app/database/connection.py`
-- Repository: `app/repositories/dashboard_repository.py`
-- Service: `app/services/dashboard_service.py`
-- Routes: `app/routers/dashboard.py`
-- Schemas: `app/schemas/dashboard.py`
-- Mock Data (Legacy): `app/data/dashboard.json` (PRESERVED)
-- Test Data Script: `insert_test_data.py`
-- Table Creation Script: `create_tables.py`
-
-**When adding new dashboard features**:
-1. Add new model in `app/models/` if new table needed
-2. Add repository method in `dashboard_repository.py`
-3. Add service method to call repository
-4. Update `DashboardResponse` schema
-5. Routes automatically work (no changes needed!)
-
-**When debugging database issues**:
-1. Check `.env` has correct PostgreSQL credentials
-2. Verify PostgreSQL service is running
-3. Run `test_connection.py` to test connection
-4. Run `check_tables.py` to verify tables exist
-5. Check PgAdmin for data: Right-click table → View/Edit Data → All Rows
-
----
-
-## Getting Started with Database-Backed Dashboard (Phase 7)
-
-### Quick Start (5 Steps)
-
-**Step 1: Create Tables**
-```bash
-python create_tables.py
-```
-Creates: users, courses, user_courses, learning_activities, user_goals, milestones
-
-**Step 2: Insert Test Data**
-```bash
-python insert_test_data.py
-```
-Inserts: 1 user (Alex Chen), 4 courses, 4 enrollments, 7 days activity, 2 milestones
-
-**Step 3: Start Server**
-```bash
-python -m uvicorn app.main:app --reload --port 8000
-```
-
-**Step 4: Test in Browser**
-```
-http://127.0.0.1:8000/docs
-```
-Click `GET /api/v1/dashboard` → Try it out → Execute
-
-**Step 5: Verify Response**
-You should see:
-- Greeting: "Hello, Alex Chen"
-- Stats: 3 enrolled, 1 completed, 7.8 hours, 7 day streak
-- Weekly activity: 7 days of minutes
-- Weekly goal: 7.83 / 15 hours = 52%
-- Milestones: 2 pending deadlines
-- Enrolled courses: 3 in-progress courses
-- Recently completed: 1 completed course
-
-### Verify in PgAdmin
-
-1. Open PgAdmin
-2. Navigate: `auralearn_db` → `Schemas` → `public` → `Tables`
-3. For each table, right-click → `View/Edit Data` → `All Rows`
-4. You should see the test data inserted
-
-### Key Changes from Mock JSON to Database (Phases 1-7)
-
-| Phase | Component | Status | Details |
-|-------|-----------|--------|---------|
-| 1-2 | Mock JSON | ✅ Complete | `app/data/dashboard.json` (still preserved) |
-| 3 | ORM Models | ✅ Complete | 6 SQLAlchemy models in `app/models/` |
-| 4 | DB Connection | ✅ Complete | PostgreSQL connection in `app/database/connection.py` |
-| 5 | Repository | ✅ Complete | 8 query methods in `dashboard_repository.py` |
-| 6 | Service | ✅ Complete | Business logic in `dashboard_service.py` |
-| 7 | API Route | ✅ Complete | Fully integrated in `routers/dashboard.py` |
-| 8 | Authentication | ⏳ TODO | Will extract user_id from JWT token |
+- Create token refresh endpoint
+- Add email verification on signup
+- Create profile endpoints (get, update)
+- Add password reset functionality
 
 ---
 
 ## Summary
 
-This backend provides production-ready infrastructure for AI agent workflows and mission-critical dashboard functionality:
+This backend provides production-ready infrastructure for AI agent workflows and user authentication. All agents integrate seamlessly by:
 
-1. **Infrastructure** (Foundation)
-   - Structured logging and observability
-   - Telemetry tracking
-   - Health monitoring
+1. Importing telemetry and tracing utilities
+2. Creating contexts at workflow start
+3. Recording metrics as work progresses
+4. Finalizing before returning results
 
-2. **Mock Data Services** (Development)
-   - 26+ realistic API endpoints
-   - JSON-based mock data
-   - Ready for frontend integration
+**Current Features:**
+- ✅ Database initialized with PostgreSQL
+- ✅ User model and signup endpoint
+- ✅ Password hashing and security
+- ✅ Mock data services (26 endpoints)
+- ✅ Observability (logging, telemetry, tracing)
 
-3. **Dashboard API** (Phase 7: DATABASE LIVE)
-   - ✅ Single aggregated endpoint
-   - ✅ Live PostgreSQL database (6 tables)
-   - ✅ Complete data validation with Pydantic
-   - ✅ 3-layer architecture (API → Service → Repository → DB)
-   - ✅ Test data pre-loaded and ready
-   - ✅ Legacy mock JSON file preserved
-   - ⏳ JWT authentication (Phase 8)
-
-### What's Working Right Now
-
-✅ Database tables created and populated with test data  
-✅ All 8 repository query methods implemented  
-✅ Service layer orchestrates data fetching  
-✅ API endpoint returns complete dashboard data from PostgreSQL  
-✅ PgAdmin can view all tables and data  
-✅ Swagger UI shows full endpoint documentation  
-
-### Next Steps (Phase 8+)
-
-⏳ Implement JWT authentication to extract user_id from token  
-⏳ Replace hardcoded user_id=1 with token-based user_id  
-⏳ Add more test users and data  
-⏳ Optimize queries with additional indexes  
-⏳ Implement data refresh/caching strategy  
-
-The infrastructure is **complete and production-ready**. Database integration is live and fully functional.
+The infrastructure is complete and ready. Future development focuses on additional auth endpoints and implementing agents.

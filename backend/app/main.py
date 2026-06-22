@@ -3,13 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logger import configure_logging, get_logger
-from app.routers import analytics, auth, classroom, dashboard
-from app.routes import health
+from app.routers import analytics, classroom, courses, admin
+from app.routers.auth import signup_router, login_router, verify_router
+from app.routes import health, test_trace
 from app.tracing import configure_langsmith
-from app.routes import test_trace
-from app.routers import courses
-# DATABASE INTEGRATION - Phase 4: Import database initialization
-from app.database import engine, Base
+from app.database import init_db, close_db
+from app.middleware.auth_middleware import AuthMiddleware
 
 logger = get_logger(__name__)
 
@@ -30,6 +29,9 @@ def create_app() -> FastAPI:
     # Configure LangSmith tracing
     configure_langsmith()
 
+    # Add authentication middleware (must be before CORS)
+    app.add_middleware(AuthMiddleware)
+
     # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
@@ -42,30 +44,26 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health.router)
     app.include_router(test_trace.router)
-    app.include_router(auth.router)
+    app.include_router(signup_router)
+    app.include_router(login_router)
+    app.include_router(verify_router)
     app.include_router(courses.router)
     app.include_router(classroom.router)
     app.include_router(analytics.router)
-    app.include_router(dashboard.router)
+    app.include_router(admin.router)  # Admin routes (protected)
 
     @app.on_event("startup")
     async def startup_event():
-        """Log application startup."""
+        """Log application startup and initialize database."""
         logger.info(f"Application startup - Environment: {settings.APP_ENV}, Debug: {settings.DEBUG}")
         logger.info(f"LangSmith tracing enabled: {settings.is_tracing_enabled()}")
-
-        # DATABASE INTEGRATION - Phase 4: Create all tables on startup
-        # This creates all SQLAlchemy models (users, courses, user_courses, etc.)
-        # in PostgreSQL if they don't already exist
-        try:
-            Base.metadata.create_all(bind=engine)
-            logger.info("Database tables initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize database tables: {str(e)}")
+        await init_db()
+        logger.info("Database initialized successfully")
 
     @app.on_event("shutdown")
     async def shutdown_event():
-        """Log application shutdown."""
+        """Log application shutdown and close database."""
+        await close_db()
         logger.info("Application shutdown")
 
     return app
