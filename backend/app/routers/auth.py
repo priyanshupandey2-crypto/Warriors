@@ -1,30 +1,12 @@
 from fastapi import APIRouter, HTTPException, status
-from app.schemas.auth_schemas import LoginRequest, TokenResponse, UserProfile
+from app.schemas.auth_schemas import UserProfile
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest) -> TokenResponse:
-    """User login endpoint. Returns mock token."""
-    if not request.email or not request.password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email and password are required"
-        )
-
-    mock_user_id = f"user-{hash(request.email) % 10000}"
-
-    return TokenResponse(
-        access_token="mock-jwt-token-" + mock_user_id,
-        token_type="bearer",
-        user_id=mock_user_id
-    )
-
-
 @router.get("/me", response_model=UserProfile)
 async def get_current_user(user_id: str = "user-123") -> UserProfile:
-    """Get current user profile."""
+    """Get current user profile (mock endpoint)."""
     return UserProfile(
         id=user_id,
         email="alice@example.com",

@@ -5,25 +5,32 @@ from typing import Optional
 class Settings(BaseSettings):
     """Central configuration module for the application."""
 
-    # Application environment
-    APP_ENV: str = "development"
-    DEBUG: bool = True
+    # Application environment (required from .env)
+    APP_ENV: str
 
-    # LangSmith observability
-    LANGSMITH_API_KEY: Optional[str] = None
-    LANGSMITH_PROJECT: Optional[str] = None
-    LANGSMITH_TRACING: bool = False
-    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
+    # Server configuration (required from .env)
+    HOST: str
+    PORT: int
 
-    # Server configuration
-    HOST: str = "127.0.0.1"
-    PORT: int = 8000
-
-    # PostgreSQL database configuration
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/warriors_db"
+    # PostgreSQL database configuration (required from .env)
+    DATABASE_URL: str
     DATABASE_ECHO: bool = False
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 0
+
+    # LangSmith observability (required from .env)
+    LANGSMITH_API_KEY: str
+    LANGSMITH_ENDPOINT: str
+    LANGSMITH_PROJECT: str
+    LANGSMITH_TRACING: bool = False
+
+    # JWT configuration (required from .env)
+    JWT_SECRET: str
+    JWT_EXPIRATION_HOURS: int
+    JWT_ALGORITHM: str = "HS256"
+
+    # Debug flag (optional, defaults to False)
+    DEBUG: bool = False
 
     class Config:
         env_file = ".env"
@@ -41,7 +48,7 @@ class Settings(BaseSettings):
     @property
     def sync_database_url(self) -> str:
         """Get synchronous database URL for migrations."""
-        return self.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+        return self.DATABASE_URL.replace("postgresql+psycopg://", "postgresql://")
 
 
 settings = Settings()

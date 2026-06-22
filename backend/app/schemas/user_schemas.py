@@ -41,3 +41,15 @@ class SignupResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., max_length=100)
+    password: str = Field(..., min_length=6)
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+    message: str = "Login successful"

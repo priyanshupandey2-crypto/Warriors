@@ -101,45 +101,62 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Environment Variables (.env.example)
+### Environment Variables (.env)
 
-**Template Configuration:**
+**Required Configuration (must be set in .env):**
 ```
+# Application Environment
 APP_ENV=development
-DEBUG=true
+
+# Server Configuration
 HOST=127.0.0.1
 PORT=8000
 
-LANGSMITH_API_KEY=
-LANGSMITH_PROJECT=
-LANGSMITH_TRACING=false
-
+# PostgreSQL Database Configuration
 DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/warriors_db
-DATABASE_ECHO=false
-DATABASE_POOL_SIZE=20
-DATABASE_MAX_OVERFLOW=0
+
+# JWT Configuration
+JWT_SECRET=generate-a-random-secret-min-32-chars-using-secrets.token_urlsafe(32)
+JWT_EXPIRATION_HOURS=24
+
+# LangSmith Configuration
+LANGSMITH_API_KEY=your-langsmith-api-key-or-empty-string
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_PROJECT=your-project-name
 ```
 
-**Environment Variables:**
+**Configuration Details:**
 
-| Variable | Default Value | Purpose |
-|----------|--------------|---------|
-| `APP_ENV` | `development` | Deployment environment (development/production) |
-| `DEBUG` | `true` | Enable debug mode for development |
-| `HOST` | `127.0.0.1` | Server bind address |
-| `PORT` | `8000` | Server listen port |
-| `DATABASE_URL` | `postgresql+psycopg://...` | PostgreSQL connection string (update with your credentials) |
-| `DATABASE_ECHO` | `false` | Log SQL statements (set to `true` for debugging) |
-| `DATABASE_POOL_SIZE` | `20` | Connection pool size for concurrent requests |
-| `DATABASE_MAX_OVERFLOW` | `0` | Max temporary overflow connections beyond pool size |
-| `LANGSMITH_API_KEY` | `` | LangSmith API key (optional) |
-| `LANGSMITH_PROJECT` | `` | LangSmith project name (optional) |
-| `LANGSMITH_TRACING` | `false` | Enable/disable LangSmith tracing |
+| Variable | Required | Hardcoded Default | Purpose |
+|----------|----------|-------------------|---------|
+| `APP_ENV` | ✅ Yes | None | Deployment environment (development/production) |
+| `HOST` | ✅ Yes | None | Server bind address |
+| `PORT` | ✅ Yes | None | Server listen port |
+| `DATABASE_URL` | ✅ Yes | None | PostgreSQL connection string |
+| `JWT_SECRET` | ✅ Yes | None | Secret key for JWT signing (min 32 chars) |
+| `JWT_EXPIRATION_HOURS` | ✅ Yes | None | JWT token expiration time in hours |
+| `LANGSMITH_API_KEY` | ✅ Yes | None | LangSmith API key |
+| `LANGSMITH_ENDPOINT` | ✅ Yes | None | LangSmith API endpoint URL |
+| `LANGSMITH_PROJECT` | ✅ Yes | None | LangSmith project name |
+| `DEBUG` | ❌ No | `False` | Enable debug mode (optional override) |
+| `DATABASE_ECHO` | ❌ No | `False` | Log SQL statements (optional override) |
+| `DATABASE_POOL_SIZE` | ❌ No | `20` | Connection pool size (optional override) |
+| `DATABASE_MAX_OVERFLOW` | ❌ No | `0` | Max overflow connections (optional override) |
+| `LANGSMITH_TRACING` | ❌ No | `False` | Enable LangSmith tracing (optional override) |
+| `JWT_ALGORITHM` | ❌ No | `HS256` | JWT algorithm (optional override) |
 
 **Setup Instructions:**
 1. Copy `.env.example` to `.env`: `cp .env.example .env`
-2. Update `DATABASE_URL` with your PostgreSQL credentials
+2. Update all **Required** variables in `.env` with your actual values
 3. Keep `.env` in `.gitignore` (never commit secrets)
+
+**Generating JWT_SECRET:**
+```python
+import secrets
+print(secrets.token_urlsafe(32))
+```
+
+Copy the output and set it in `.env`
 
 **Status:** ✅ **Database Connected & Initialized**
 - Using **PostgreSQL** (Neon.tech or local)
@@ -155,8 +172,6 @@ python main.py
 ```
 
 Server runs on: `http://127.0.0.1:8000`
-
-**Note:** All imports use relative paths (e.g., `from app.config import settings`), so run from the `backend/` directory.
 
 **Note:** All imports use relative paths (e.g., `from app.config import settings`), so run from the `backend/` directory.
 
@@ -1321,9 +1336,133 @@ Find `/api/auth/signup` and use the "Try it out" button.
 - ✅ Input validation (min 6 char password)
 - ✅ Database constraints (unique email, indexed)
 
+---
+
+## User Authentication - Login Implementation
+
+### Status: ✅ Implemented & Working
+
+**Login Endpoint:** `POST /api/auth/login`
+- Validates user credentials
+- Generates JWT access token (24 hour expiration)
+- Returns user data with token
+- Uses bcrypt password verification
+
+### Components Created
+
+**1. JWT Handler** (`app/utils/jwt_handler.py`)
+- `create_access_token(user_id, email)` - Generate JWT token
+  - Includes user ID and email in payload
+  - Sets expiration to 24 hours (configurable)
+  - Uses HS256 algorithm
+- `decode_access_token(token)` - Validate and decode token
+  - Handles expired tokens
+  - Handles invalid tokens
+  - Returns payload dict or None
+
+**2. Login Schemas** (`app/schemas/user_schemas.py`)
+```python
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+    message: str
+```
+
+**3. Login Router** (`app/routers/login.py`)
+- Route: `POST /api/auth/login`
+- Validates email format
+- Queries user by email from database
+- Verifies password with bcrypt
+- Generates JWT token with user ID and email
+- Returns user data + token + message
+
+**4. JWT Configuration** (`app/config.py`)
+```
+JWT_SECRET=your-secret-key-change-in-production-min-32-chars
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_HOURS=24
+```
+
+### Testing Login
+
+**Request:**
+```bash
+POST http://127.0.0.1:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "securepass123"
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTY4Nzc2NzY0MCwiZXhwIjoxNjg3ODU0MDQwfQ...",
+  "token_type": "bearer",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "learner",
+    "courses_enrolled": []
+  },
+  "message": "Login successful"
+}
+```
+
+**Error Responses:**
+- Invalid email/password: `401 Unauthorized - "Invalid email or password"`
+- User not found: `401 Unauthorized - "Invalid email or password"`
+- Invalid email format: `400 Bad Request`
+- Missing fields: `422 Unprocessable Entity`
+- Server error: `500 Internal Server Error`
+
+### JWT Token Details
+
+**Token Payload:**
+```python
+{
+  "sub": 1,           # user_id (subject)
+  "email": "john@example.com",
+  "iat": 1687767640,  # issued at
+  "exp": 1687854040   # expires at (24 hours later)
+}
+```
+
+**Token Format:** `eyJhbGc...` (3 parts separated by dots)
+- Header: Algorithm and type
+- Payload: Claims (user data)
+- Signature: Verification hash
+
+### Security Features
+
+✅ Password verified with bcrypt  
+✅ JWT token generation with HS256  
+✅ 24-hour token expiration  
+✅ Email validation before lookup  
+✅ Generic error messages (don't reveal if user exists)  
+✅ Logging of all login attempts and failures  
+✅ Signature verification on decode  
+
+### Using the Token
+
+Include token in subsequent requests:
+```bash
+curl -H "Authorization: Bearer eyJhbGc..." \
+     http://127.0.0.1:8000/api/protected-endpoint
+```
+
 ### Next Steps
 
-- Implement login endpoint with JWT tokens
+- Create token verification middleware for protected routes
+- Implement refresh token endpoint
 - Add email verification
 - Create profile endpoints (get, update)
 - Add password reset functionality
