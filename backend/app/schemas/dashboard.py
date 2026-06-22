@@ -281,6 +281,23 @@ class RecentlyCompleted(BaseModel):
 
 
 # ============================================================================
+# USER GREETING
+# ============================================================================
+
+class UserGreeting(BaseModel):
+    """User greeting with name for dashboard header"""
+
+    greeting: str = Field(..., min_length=1, max_length=255, description="Greeting message with user name (e.g., 'Hello, Alex Chen')")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "greeting": "Hello, Alex Chen"
+            }
+        }
+
+
+# ============================================================================
 # COMPLETE DASHBOARD RESPONSE
 # ============================================================================
 
@@ -290,6 +307,11 @@ class DashboardResponse(BaseModel):
 
     This is the main API contract for GET /api/v1/dashboard
     """
+
+    # DATABASE INTEGRATION - Phase 6: User Greeting Section
+    # Added to match dashboard widget: "Hello, Alex Chen"
+    # Retrieved from: users.name column
+    greeting: str = Field(..., description="User greeting with name (e.g., 'Hello, Alex Chen')")
 
     stats: Stats = Field(..., description="User summary statistics")
     weekly_activity: WeeklyActivity = Field(..., description="Weekly activity chart data")
@@ -302,6 +324,7 @@ class DashboardResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "greeting": "Hello, Alex Chen",
                 "stats": {
                     "enrolled_courses": 12,
                     "completed_courses": 4,

@@ -8,6 +8,8 @@ from app.routes import health
 from app.tracing import configure_langsmith
 from app.routes import test_trace
 from app.routers import courses
+# DATABASE INTEGRATION - Phase 4: Import database initialization
+from app.database import engine, Base
 
 logger = get_logger(__name__)
 
@@ -51,6 +53,15 @@ def create_app() -> FastAPI:
         """Log application startup."""
         logger.info(f"Application startup - Environment: {settings.APP_ENV}, Debug: {settings.DEBUG}")
         logger.info(f"LangSmith tracing enabled: {settings.is_tracing_enabled()}")
+
+        # DATABASE INTEGRATION - Phase 4: Create all tables on startup
+        # This creates all SQLAlchemy models (users, courses, user_courses, etc.)
+        # in PostgreSQL if they don't already exist
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Database tables initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database tables: {str(e)}")
 
     @app.on_event("shutdown")
     async def shutdown_event():
