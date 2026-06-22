@@ -1,0 +1,590 @@
+Dashboard phases
+
+
+# Phase 1: Don't Code Yet — Reverse Engineer the UI
+
+The frontend image is your requirements document.
+
+Your first task is to identify:
+
+### What data is displayed?
+
+### Where does it come from?
+
+### How should the frontend consume it?
+
+---
+
+# Dashboard Breakdown
+
+Looking at the UI:
+
+## Section 1: User Summary Cards
+
+```text
+Enrolled Courses: 12
+Completed Courses: 4
+Learning Hours: 84.5
+Streak: 7 Days
+```
+
+Backend needs:
+
+```json
+{
+  "enrolled_courses": 12,
+  "completed_courses": 4,
+  "learning_hours": 84.5,
+  "streak_days": 7
+}
+```
+
+---
+
+## Section 2: Weekly Activity
+
+Graph showing learning minutes per day.
+
+```json
+[
+  {
+    "day": "Mon",
+    "minutes": 45
+  },
+  {
+    "day": "Tue",
+    "minutes": 90
+  }
+]
+```
+
+---
+
+## Section 3: Weekly Goal
+
+```text
+12 / 15 Hours
+```
+
+Backend:
+
+```json
+{
+  "completed_hours": 12,
+  "target_hours": 15,
+  "percentage": 80
+}
+```
+
+---
+
+## Section 4: Monthly Consistency
+
+Heatmap.
+
+Backend should provide:
+
+```json
+[
+  {
+    "date": "2026-06-01",
+    "minutes": 50
+  },
+  {
+    "date": "2026-06-02",
+    "minutes": 120
+  }
+]
+```
+
+Frontend decides the color intensity.
+
+---
+
+## Section 5: Upcoming Milestones
+
+```json
+[
+  {
+    "title": "UX Design Sprint",
+    "due_date": "2026-06-25"
+  }
+]
+```
+
+---
+
+## Section 6: Enrolled Courses
+
+```json
+[
+  {
+    "id": 1,
+    "title": "Python for Data Science",
+    "module": "Pandas & NumPy",
+    "progress": 32,
+    "difficulty": "Intermediate",
+    "completed_lessons": 4,
+    "total_lessons": 12,
+    "thumbnail": "..."
+  }
+]
+```
+
+---
+
+## Section 7: Recently Completed
+
+```json
+[
+  {
+    "course_name": "AI Foundations",
+    "certificate": true
+  }
+]
+```
+
+---
+
+# Phase 2: Create an API Contract
+
+Before writing code, define what frontend will call.
+
+For dashboards, I recommend:
+
+```http
+GET /api/v1/dashboard
+```
+
+Single API.
+
+Response:
+
+```json
+{
+  "stats": {},
+  "weekly_activity": [],
+  "weekly_goal": {},
+  "monthly_consistency": [],
+  "milestones": [],
+  "enrolled_courses": [],
+  "recently_completed": []
+}
+```
+
+---
+
+# Why One API?
+
+Without it:
+
+```text
+GET /stats
+GET /courses
+GET /milestones
+GET /goal
+GET /activity
+```
+
+Frontend makes:
+
+```text
+5-6 network requests
+```
+
+Instead:
+
+```text
+1 request
+```
+
+Dashboard loads faster.
+
+Most modern dashboards use an aggregate endpoint.
+
+---
+
+# Phase 3: Design Database
+
+You may not even have a database yet.
+
+Create a proposal.
+
+---
+
+## users
+
+```sql
+users
+-----
+id
+name
+email
+created_at
+```
+
+---
+
+## courses
+
+```sql
+courses
+-------
+id
+title
+difficulty
+thumbnail_url
+```
+
+---
+
+## user_courses
+
+Tracks enrollment.
+
+```sql
+user_courses
+------------
+id
+user_id
+course_id
+progress_percentage
+completed_lessons
+total_lessons
+status
+```
+
+---
+
+## learning_activity
+
+Tracks study time.
+
+```sql
+learning_activity
+-----------------
+id
+user_id
+date
+minutes_spent
+```
+
+---
+
+## goals
+
+```sql
+goals
+-----
+id
+user_id
+weekly_target_hours
+```
+
+---
+
+## milestones
+
+```sql
+milestones
+----------
+id
+user_id
+title
+due_date
+status
+```
+
+---
+
+# Phase 4: Design FastAPI Structure
+
+A clean structure:
+
+```text
+backend/
+
+├── app/
+│
+├── api/
+│   └── dashboard.py
+│
+├── services/
+│   └── dashboard_service.py
+│
+├── repositories/
+│   └── dashboard_repository.py
+│
+├── models/
+│   ├── user.py
+│   ├── course.py
+│   └── activity.py
+│
+├── schemas/
+│   └── dashboard.py
+│
+├── database/
+│   └── connection.py
+│
+└── main.py
+```
+
+---
+
+# Phase 5: Create Response Schemas
+
+In FastAPI:
+
+```python
+from pydantic import BaseModel
+
+class Stats(BaseModel):
+    enrolled_courses: int
+    completed_courses: int
+    learning_hours: float
+    streak_days: int
+```
+
+---
+
+Dashboard response:
+
+```python
+class DashboardResponse(BaseModel):
+    stats: Stats
+    weekly_activity: list
+    weekly_goal: dict
+    monthly_consistency: list
+    milestones: list
+    enrolled_courses: list
+    recently_completed: list
+```
+
+---
+
+# Phase 6: Build With Mock Data First
+
+Do NOT wait for database completion.
+
+Create:
+
+```python
+@router.get("/dashboard")
+def get_dashboard():
+    return {
+        "stats": {
+            "enrolled_courses": 12,
+            "completed_courses": 4,
+            "learning_hours": 84.5,
+            "streak_days": 7
+        }
+    }
+```
+
+Frontend team can start immediately.
+
+---
+
+# Phase 7: Introduce Service Layer
+
+Bad:
+
+```python
+@router.get("/dashboard")
+def get_dashboard():
+    # database logic here
+```
+
+Good:
+
+```python
+@router.get("/dashboard")
+def get_dashboard():
+    return dashboard_service.get_dashboard()
+```
+
+---
+
+Service:
+
+```python
+def get_dashboard():
+    stats = repo.get_stats()
+    courses = repo.get_courses()
+
+    return {
+        "stats": stats,
+        "courses": courses
+    }
+```
+
+---
+
+# Phase 8: Repository Layer
+
+Repository only talks to DB.
+
+```python
+class DashboardRepository:
+
+    def get_stats(self, user_id):
+        pass
+
+    def get_courses(self, user_id):
+        pass
+
+    def get_weekly_activity(self, user_id):
+        pass
+```
+
+---
+
+Flow becomes:
+
+```text
+Frontend
+
+   ↓
+
+API Route
+
+   ↓
+
+Service Layer
+
+   ↓
+
+Repository Layer
+
+   ↓
+
+PostgreSQL
+```
+
+---
+
+# Phase 9: Think About Authentication Early
+
+Dashboard is user-specific.
+
+Never expose:
+
+```http
+GET /dashboard
+```
+
+without knowing the user.
+
+Instead:
+
+```http
+GET /dashboard
+Authorization: Bearer <JWT>
+```
+
+Flow:
+
+```text
+JWT
+
+ ↓
+
+Extract User ID
+
+ ↓
+
+Fetch Dashboard Data
+
+ ↓
+
+Return User Dashboard
+```
+
+---
+
+# Phase 10: Questions You Must Ask Before Development
+
+If no workflow exists, create one.
+
+### Product Questions
+
+1. How is streak calculated?
+2. What makes a course "completed"?
+3. Can users have multiple goals?
+4. How many upcoming milestones should be shown?
+5. Should completed milestones be hidden?
+
+---
+
+### Frontend Questions
+
+1. Single API or multiple APIs?
+2. Should data refresh automatically?
+3. Pagination for courses?
+4. Any sorting requirements?
+
+---
+
+### Database Questions
+
+1. PostgreSQL or MySQL?
+2. Existing tables?
+3. Existing user authentication?
+
+---
+
+# What I Would Actually Do If Assigned This GitHub Issue
+
+### Day 1
+
+* Analyze dashboard UI
+* Create API contract
+* Create database proposal
+* Create FastAPI project structure
+* Discuss contract with frontend developer
+
+### Day 2
+
+* Implement:
+
+```http
+GET /api/v1/dashboard
+```
+
+using mock data
+
+### Day 3
+
+* Create SQLAlchemy models
+* Create migrations using Alembic
+* Connect PostgreSQL
+
+### Day 4
+
+* Replace mock data with DB queries
+* Add authentication
+
+### Day 5
+
+* Write tests
+* Add Swagger documentation
+* Open Pull Request
+
+---
+
+A good GitHub issue workflow for this task would be:
+
+```text
+1. Analyze UI
+2. Extract data requirements
+3. Design API contract
+4. Design DB schema
+5. Create FastAPI project structure
+6. Implement mock endpoint
+7. Connect DB
+8. Add JWT auth
+9. Add tests
+10. Create PR
+```
+
+This approach prevents you from jumping straight into coding and later discovering that the frontend expected a completely different API structure.

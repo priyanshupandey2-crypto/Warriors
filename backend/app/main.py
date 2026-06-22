@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logger import configure_logging, get_logger
-from app.routers import analytics, auth, classroom
+from app.routers import analytics, auth, classroom, dashboard
 from app.routes import health
 from app.tracing import configure_langsmith
 from app.routes import test_trace
@@ -44,6 +44,7 @@ def create_app() -> FastAPI:
     app.include_router(courses.router)
     app.include_router(classroom.router)
     app.include_router(analytics.router)
+    app.include_router(dashboard.router)
 
     @app.on_event("startup")
     async def startup_event():
