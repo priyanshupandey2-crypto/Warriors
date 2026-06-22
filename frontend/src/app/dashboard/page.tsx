@@ -157,11 +157,11 @@ export default function Dashboard() {
                   <span className="font-label-sm text-outline">More</span>
                 </div>
               </div>
-              <div className="grid grid-cols-7 md:grid-cols-[repeat(14,minmax(0,1fr))] gap-sm">
+              <div className="grid grid-cols-7 gap-xs">
                 {Array.from({ length: 28 }).map((_, i) => {
                   const colors = ['bg-surface-container', 'bg-primary-container/30', 'bg-primary-container/60', 'bg-primary'];
                   return (
-                    <div key={i} className={`${colors[Math.floor(Math.random() * 4)]} w-3 h-3 rounded-sm hover:ring-2 hover:ring-primary transition-all cursor-pointer`}></div>
+                    <div key={i} className={`${colors[i % 4]} w-4 h-4 rounded-sm hover:ring-2 hover:ring-primary transition-all cursor-pointer`}></div>
                   );
                 })}
               </div>
@@ -193,21 +193,21 @@ export default function Dashboard() {
             <div className="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-container">
               <h2 className="font-headline-md text-headline-md text-on-surface mb-md">Upcoming Milestones</h2>
               <div className="space-y-md">
-                <div className="flex gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors border-l-4 border-secondary">
+                <div className="flex gap-md p-md hover:bg-surface-container-low rounded-lg transition-colors border-l-4 border-secondary">
                   <div className="flex-shrink-0 p-sm rounded bg-secondary/10 text-secondary">
-                    <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    <span className="material-symbols-outlined text-[18px]"></span>
                   </div>
-                  <div>
-                    <p className="font-label-md font-bold text-on-surface">UX Design Sprint</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-label-md font-bold text-on-surface truncate">UX Design Sprint</p>
                     <p className="font-label-sm text-outline">Due in 2 days</p>
                   </div>
                 </div>
-                <div className="flex gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors border-l-4 border-tertiary">
+                <div className="flex gap-md p-md hover:bg-surface-container-low rounded-lg transition-colors border-l-4 border-tertiary">
                   <div className="flex-shrink-0 p-sm rounded bg-tertiary/10 text-tertiary">
                     <span className="material-symbols-outlined text-[18px]">quiz</span>
                   </div>
-                  <div>
-                    <p className="font-label-md font-bold text-on-surface">Python Basics Final</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-label-md font-bold text-on-surface truncate">Python Basics Final</p>
                     <p className="font-label-sm text-outline">Due tomorrow</p>
                   </div>
                 </div>
@@ -264,13 +264,13 @@ export default function Dashboard() {
           <h2 className="font-headline-lg text-headline-lg text-on-background mb-lg">Recently Completed</h2>
           <div className="flex gap-md overflow-x-auto pb-md">
             {[{ title: 'AI Foundations' }, { title: 'Modern Typography' }, { title: 'Public Speaking 101' }].map((course, i) => (
-              <div key={i} className="flex-shrink-0 w-64 bg-surface-container-low p-md rounded-xl border border-surface-container flex items-center gap-md">
+              <div key={i} className="flex-shrink-0 w-80 bg-surface-container-low p-md rounded-xl border border-surface-container flex items-center gap-md">
                 <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-primary border border-outline-variant flex-shrink-0">
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    workspace_premium
+                    
                   </span>
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-label-md font-bold text-on-surface truncate">{course.title}</p>
                   <span className="text-[10px] text-primary font-bold bg-primary-container/10 px-sm py-[2px] rounded inline-block mt-1">
                     CERTIFIED

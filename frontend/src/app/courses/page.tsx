@@ -7,8 +7,13 @@ import { DEMO_COURSES } from '@/lib/demo-data';
 
 export default function CoursesPage() {
   const [difficulty, setDifficulty] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
 
-  const filtered = difficulty ? DEMO_COURSES.filter((c) => c.level === difficulty) : DEMO_COURSES;
+  const filtered = DEMO_COURSES.filter((c) => {
+    const levelMatch = !difficulty || c.level === difficulty;
+    const categoryMatch = !category || c.category === category;
+    return levelMatch && categoryMatch;
+  });
 
   return (
     <div className="min-h-screen bg-background text-on-background flex flex-col">
@@ -23,7 +28,7 @@ export default function CoursesPage() {
               <p className="font-label-sm font-bold text-primary uppercase tracking-wide">Live Catalog</p>
             </div>
             <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-sm">
-              Browse {filtered.length} Courses
+              Browse Courses
             </h1>
             <p className="font-body-md text-body-md text-on-surface-variant">
               Join {(DEMO_COURSES.reduce((sum, c) => sum + parseInt(c.students || '0'), 0) / 1000).toFixed(1)}k+ students learning right now
@@ -56,14 +61,6 @@ export default function CoursesPage() {
                       </label>
                     ))}
                   </div>
-                  {difficulty && (
-                    <button
-                      onClick={() => setDifficulty('')}
-                      className="font-label-sm font-bold text-primary hover:underline pt-md w-full text-left"
-                    >
-                      Clear Filter
-                    </button>
-                  )}
                 </div>
 
                 {/* Categories */}
@@ -71,12 +68,36 @@ export default function CoursesPage() {
                   <h3 className="font-label-lg font-bold text-on-background mb-md">Categories</h3>
                   <div className="space-y-sm">
                     {Array.from(new Set(DEMO_COURSES.map((c) => c.category))).map((cat) => (
-                      <div key={cat} className="font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        {cat}
-                      </div>
+                      <label key={cat} className="flex items-center gap-sm cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={category === cat}
+                          onChange={(e) => setCategory(e.target.checked ? cat : '')}
+                          className="w-4 h-4 cursor-pointer accent-primary rounded"
+                        />
+                        <span className="font-body-md text-on-surface-variant group-hover:text-primary transition-colors">
+                          {cat}
+                        </span>
+                        <span className="font-label-sm text-on-surface-variant ml-auto">
+                          {DEMO_COURSES.filter((c) => c.category === cat).length}
+                        </span>
+                      </label>
                     ))}
                   </div>
                 </div>
+
+                {/* Clear Filters */}
+                {(difficulty || category) && (
+                  <button
+                    onClick={() => {
+                      setDifficulty('');
+                      setCategory('');
+                    }}
+                    className="w-full font-label-sm font-bold text-primary hover:underline pt-md text-left"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
               </div>
             </aside>
 

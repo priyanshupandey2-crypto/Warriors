@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Play, Clock, Users, Star, Sparkles } from 'lucide-react';
+import { ArrowLeft, Play, Clock, Users, Star, Sparkles, CheckCircle } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import { DEMO_COURSES } from '@/lib/demo-data';
 
@@ -136,6 +136,18 @@ export default function CourseDetailPage({ params }: PageProps) {
                       <p className="text-on-surface-variant font-label-sm mb-xs">Students</p>
                       <p className="font-bold text-on-surface">{course.students}</p>
                     </div>
+                    {course.instructor && (
+                      <div>
+                        <p className="text-on-surface-variant font-label-sm mb-xs">Instructor</p>
+                        <p className="font-bold text-on-surface">{course.instructor}</p>
+                      </div>
+                    )}
+                    {course.createdDate && (
+                      <div>
+                        <p className="text-on-surface-variant font-label-sm mb-xs">Created</p>
+                        <p className="font-bold text-on-surface">{new Date(course.createdDate).toLocaleDateString()}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -156,6 +168,91 @@ export default function CourseDetailPage({ params }: PageProps) {
             </div>
           </div>
         </section>
+
+        {/* Course Outline Section */}
+        {course.outline && (
+          <section className="py-xxl px-md md:px-lg bg-surface-container-low">
+            <div className="max-w-container-max mx-auto">
+              <h2 className="font-headline-lg text-headline-lg text-on-surface mb-lg">Course Overview</h2>
+              <div className="bg-surface-container-lowest rounded-xl p-lg md:p-xl border border-outline-variant/20">
+                <div className="prose prose-invert max-w-none text-on-surface">
+                  {course.outline.split('\n').map((line, idx) => {
+                    if (line.startsWith('# ')) {
+                      return <h1 key={idx} className="text-2xl font-bold mb-md">{line.replace('# ', '')}</h1>;
+                    } else if (line.startsWith('## ')) {
+                      return <h2 key={idx} className="text-xl font-bold mb-md mt-lg">{line.replace('## ', '')}</h2>;
+                    } else if (line.startsWith('- ')) {
+                      return <li key={idx} className="ml-md mb-sm text-on-surface-variant">{line.replace('- ', '')}</li>;
+                    } else if (line.trim()) {
+                      return <p key={idx} className="text-body-md text-on-surface-variant mb-md">{line}</p>;
+                    }
+                    return null;
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Lessons Section */}
+        {course.lessons && course.lessons.length > 0 && (
+          <section className="py-xxl px-md md:px-lg bg-surface">
+            <div className="max-w-container-max mx-auto">
+              <h2 className="font-headline-lg text-headline-lg text-on-surface mb-lg">Course Lessons</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+                <div className="lg:col-span-2 space-y-md">
+                  {course.lessons.map((lesson, idx) => (
+                    <div key={lesson.id} className="bg-surface-container-lowest border border-surface-container-high rounded-lg p-lg hover:border-primary/30 transition-colors cursor-pointer group">
+                      <div className="flex items-start gap-md">
+                        <div className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center flex-shrink-0 font-bold text-label-md">
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-headline-sm text-on-surface mb-xs group-hover:text-primary transition-colors">{lesson.title}</h3>
+                          <p className="font-body-md text-on-surface-variant mb-md">{lesson.content}</p>
+                          <div className="flex flex-wrap gap-xs">
+                            {lesson.topics.map((topic, i) => (
+                              <span key={i} className="text-label-sm bg-tertiary-container/20 text-tertiary px-sm py-xs rounded">
+                                {topic}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-sm flex-shrink-0">
+                          <Clock className="w-4 h-4 text-on-surface-variant" />
+                          <span className="font-label-sm text-on-surface-variant">{lesson.duration}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Lessons Sidebar */}
+                <div className="bg-surface-container-lowest border border-surface-container-high rounded-lg p-lg">
+                  <h3 className="font-headline-sm text-on-surface mb-md">Lessons Summary</h3>
+                  <div className="space-y-md">
+                    <div>
+                      <p className="text-on-surface-variant font-label-sm mb-xs">Total Lessons</p>
+                      <p className="font-bold text-2xl text-on-surface">{course.lessons.length}</p>
+                    </div>
+                    <div className="border-t border-outline-variant/20 pt-md">
+                      <p className="text-on-surface-variant font-label-sm mb-xs">Total Duration</p>
+                      <p className="font-bold text-on-surface">
+                        {Math.round(course.lessons.reduce((sum, l) => sum + parseInt(l.duration.split(' ')[0]), 0) / 60)} hours
+                      </p>
+                    </div>
+                    <div className="border-t border-outline-variant/20 pt-md">
+                      <p className="text-on-surface-variant font-label-sm mb-xs">Topics Covered</p>
+                      <p className="font-bold text-on-surface">
+                        {new Set(course.lessons.flatMap(l => l.topics)).size} topics
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       {/* Footer */}
