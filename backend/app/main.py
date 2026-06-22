@@ -1,3 +1,5 @@
+import asyncio
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,6 +11,9 @@ from app.routes import health, test_trace
 from app.tracing import configure_langsmith
 from app.database import init_db, close_db
 from app.middleware.auth_middleware import AuthMiddleware
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 logger = get_logger(__name__)
 

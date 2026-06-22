@@ -23,28 +23,32 @@ Usage:
     db.close()
 """
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
 from app.config import settings
+from app.logger import get_logger
 
-# DATABASE INTEGRATION - Phase 4: Create SQLAlchemy Engine
-# This engine manages the connection to PostgreSQL
+logger = get_logger(__name__)
+
+# DATABASE INTEGRATION - Phase 4: Create Async SQLAlchemy Engine
+# This engine manages the connection to PostgreSQL with async support
 # pool_size=20: Maximum 20 connections in the pool
 # max_overflow=0: Don't create additional connections beyond pool_size
-engine = create_engine(
+engine = create_async_engine(
     settings.DATABASE_URL,
-    pool_size=20,
-    max_overflow=0,
-    echo=settings.DEBUG,  # Log all SQL queries in development
+    pool_size=settings.DATABASE_POOL_SIZE,
+    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+    echo=settings.DATABASE_ECHO,
+    pool_pre_ping=True,
 )
 
-# DATABASE INTEGRATION - Phase 4: Session Factory
-# Creates a new database session for each request
-# This session is what we use in our repository methods
-SessionLocal = sessionmaker(
-    autocommit=False,
+# DATABASE INTEGRATION - Phase 4: Async Session Factory
+# Creates a new async database session for each request
+SessionLocal = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
     autoflush=False,
-    bind=engine
 )
 
 # DATABASE INTEGRATION - Phase 4: Declarative Base
@@ -53,19 +57,35 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 
-# DATABASE INTEGRATION - Phase 4: Dependency Injection Function
+# DATABASE INTEGRATION - Phase 4: Async Dependency Injection Function
 # Use this in FastAPI route dependencies to get a database session
-def get_db():
+async def get_db():
     """
-    Generator function that provides a database session to routes.
+    Async generator function that provides a database session to routes.
 
     Usage in routes:
         @router.get("/endpoint")
-        async def my_endpoint(db: Session = Depends(get_db)):
-            # Use db to query database
+        async def my_endpoint(db: AsyncSession = Depends(get_db)):
+            # Use db to query database with await
     """
-    db = SessionLocal()
+    async with SessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+
+
+async def init_db():
+    """Initialize database tables."""
     try:
-        yield db
-    finally:
-        db.close()
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables initialized successfully")
+    except Exception as e:
+        logger.warning(f"Database initialization skipped (not available): {str(e)}")
+
+
+async def close_db():
+    """Close database engine."""
+    await engine.dispose()
+    logger.info("Database engine closed")
