@@ -24,3 +24,20 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class SignupRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., max_length=100)
+    password: str = Field(..., min_length=6)
+
+
+class SignupResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: str
+    message: str = "User created successfully"
+
+    class Config:
+        from_attributes = True

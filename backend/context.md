@@ -101,36 +101,48 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Environment Variables (.env)
+### Environment Variables (.env.example)
 
-**Current Configuration (Development):**
+**Template Configuration:**
 ```
 APP_ENV=development
 DEBUG=true
 HOST=127.0.0.1
 PORT=8000
 
-LANGSMITH_API_KEY=optional
-LANGSMITH_PROJECT=optional
+LANGSMITH_API_KEY=
+LANGSMITH_PROJECT=
 LANGSMITH_TRACING=false
 
-DATABASE_URL=postgresql+psycopg://neondb_owner:npg_KTayGdMrR38W@ep-nameless-mode-aql1jeqa-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/warriors_db
 DATABASE_ECHO=false
 DATABASE_POOL_SIZE=20
 DATABASE_MAX_OVERFLOW=0
 ```
 
-**Database Configuration:**
+**Environment Variables:**
 
-| Variable | Current Value | Purpose |
+| Variable | Default Value | Purpose |
 |----------|--------------|---------|
-| `DATABASE_URL` | `postgresql+psycopg://...` | PostgreSQL connection via psycopg driver (Neon cloud hosted) |
+| `APP_ENV` | `development` | Deployment environment (development/production) |
+| `DEBUG` | `true` | Enable debug mode for development |
+| `HOST` | `127.0.0.1` | Server bind address |
+| `PORT` | `8000` | Server listen port |
+| `DATABASE_URL` | `postgresql+psycopg://...` | PostgreSQL connection string (update with your credentials) |
 | `DATABASE_ECHO` | `false` | Log SQL statements (set to `true` for debugging) |
 | `DATABASE_POOL_SIZE` | `20` | Connection pool size for concurrent requests |
 | `DATABASE_MAX_OVERFLOW` | `0` | Max temporary overflow connections beyond pool size |
+| `LANGSMITH_API_KEY` | `` | LangSmith API key (optional) |
+| `LANGSMITH_PROJECT` | `` | LangSmith project name (optional) |
+| `LANGSMITH_TRACING` | `false` | Enable/disable LangSmith tracing |
+
+**Setup Instructions:**
+1. Copy `.env.example` to `.env`: `cp .env.example .env`
+2. Update `DATABASE_URL` with your PostgreSQL credentials
+3. Keep `.env` in `.gitignore` (never commit secrets)
 
 **Status:** ✅ **Database Connected & Initialized**
-- Using **Neon.tech** PostgreSQL (cloud-hosted)
+- Using **PostgreSQL** (Neon.tech or local)
 - Driver: **psycopg v3.2.13** (async-capable)
 - Tables auto-created on application startup via `init_db()`
 - Connection pooling enabled (20 persistent connections)
@@ -1193,13 +1205,145 @@ Configuration for migrations is in `alembic.ini`.
 
 ---
 
+---
+
+## User Authentication - Signup Implementation
+
+### Status: ✅ Implemented & Working
+
+**Signup Endpoint:** `POST /api/auth/signup`
+- Creates new user accounts with email and password
+- Validates duplicate emails
+- Hashes passwords with bcrypt
+- Returns user data on success (201 Created)
+
+### Components
+
+**1. User ORM Model** (`app/models/user.py`)
+```python
+class User(Base):
+    __tablename__ = "users"
+    id: int (Primary Key)
+    name: str (100 chars)
+    email: str (unique, indexed)
+    password_hash: str (255 chars)
+    role: str (default: "learner")
+    courses_enrolled: int[] (array of course IDs)
+```
+
+**2. Signup Schemas** (`app/schemas/user_schemas.py`)
+```python
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class SignupResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: str
+    message: str
+```
+
+**3. Password Utility** (`app/utils/password.py`)
+- `hash_password(password)` - Bcrypt hashing with salt
+- `verify_password(password, hash)` - Verify password against hash
+
+**4. Signup Router** (`app/routers/signup.py`)
+- Creates user with hashed password
+- Checks for duplicate emails
+- Handles database errors gracefully
+- Returns 201 Created on success
+
+### How It Works
+
+**Request:**
+```bash
+POST http://127.0.0.1:8000/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securepass123"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "learner",
+  "message": "User created successfully"
+}
+```
+
+**Error Cases:**
+- Duplicate email: `400 Bad Request - "Email already registered"`
+- Missing fields: `422 Unprocessable Entity`
+- Server error: `500 Internal Server Error`
+
+### Database
+
+- Users table auto-created on startup
+- Email indexed for fast lookups
+- Password never returned in responses
+- Role defaults to "learner"
+- courses_enrolled array initialized empty
+
+### Testing
+
+**Using curl:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Alice Smith",
+    "email": "alice@example.com",
+    "password": "password456"
+  }'
+```
+
+**Using Swagger UI:**
+```
+http://127.0.0.1:8000/docs
+```
+Find `/api/auth/signup` and use the "Try it out" button.
+
+### Security Features
+
+- ✅ Password hashing with bcrypt (salted)
+- ✅ Duplicate email prevention
+- ✅ Password never exposed in responses
+- ✅ Input validation (min 6 char password)
+- ✅ Database constraints (unique email, indexed)
+
+### Next Steps
+
+- Implement login endpoint with JWT tokens
+- Add email verification
+- Create profile endpoints (get, update)
+- Add password reset functionality
+
+---
+
 ## Summary
 
-This backend provides production-ready infrastructure for AI agent workflows. All agents integrate seamlessly by:
+This backend provides production-ready infrastructure for AI agent workflows and user authentication. All agents integrate seamlessly by:
 
 1. Importing telemetry and tracing utilities
 2. Creating contexts at workflow start
 3. Recording metrics as work progresses
 4. Finalizing before returning results
 
-The infrastructure is complete and ready. Future development focuses on implementing agents, not on infrastructure changes.
+**Current Features:**
+- ✅ Database initialized with PostgreSQL
+- ✅ User model and signup endpoint
+- ✅ Password hashing and security
+- ✅ Mock data services (26 endpoints)
+- ✅ Observability (logging, telemetry, tracing)
+
+The infrastructure is complete and ready. Future development focuses on additional auth endpoints and implementing agents.
