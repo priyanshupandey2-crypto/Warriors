@@ -49,7 +49,6 @@ class LoginRequest(BaseModel):
 
 
 class LoginResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    access_token: str  # Full "Bearer <token>" ready to use in Authorization header
     user: UserResponse
     message: str = "Login successful"

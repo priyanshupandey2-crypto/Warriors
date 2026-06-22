@@ -59,8 +59,7 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)) -> Lo
         logger.info(f"User logged in successfully - ID: {user.id}, Email: {user.email}")
 
         return LoginResponse(
-            access_token=access_token,
-            token_type="bearer",
+            access_token=f"Bearer {access_token}",
             user=user_response,
             message="Login successful"
         )
