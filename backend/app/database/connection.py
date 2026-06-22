@@ -23,37 +23,36 @@ Usage:
     db.close()
 """
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from app.config import settings
 from app.logger import get_logger
 
 logger = get_logger(__name__)
 
-# DATABASE INTEGRATION - Phase 4: Create Async SQLAlchemy Engine
-# This engine manages the connection to PostgreSQL with async support
+# DATABASE INTEGRATION - Phase 4: Create Synchronous SQLAlchemy Engine
+# Using synchronous driver (psycopg2) for Windows compatibility
 # pool_size=20: Maximum 20 connections in the pool
 # max_overflow=0: Don't create additional connections beyond pool_size
+db_url = settings.DATABASE_URL.replace("postgresql+psycopg://", "postgresql://")
 try:
-    engine = create_async_engine(
-        settings.DATABASE_URL,
+    engine = create_engine(
+        db_url,
         pool_size=settings.DATABASE_POOL_SIZE,
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
         echo=settings.DATABASE_ECHO,
         pool_pre_ping=True,
-        connect_args={"timeout": 3}  # Quick timeout for unavailable DB
     )
 except Exception as e:
     logger.warning(f"Failed to create database engine: {str(e)}")
     engine = None
 
-# DATABASE INTEGRATION - Phase 4: Async Session Factory
-# Creates a new async database session for each request
-SessionLocal = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
+# DATABASE INTEGRATION - Phase 4: Session Factory
+# Creates a new database session for each request
+SessionLocal = sessionmaker(
+    autocommit=False,
     autoflush=False,
+    bind=engine
 )
 
 # DATABASE INTEGRATION - Phase 4: Declarative Base
@@ -62,35 +61,36 @@ SessionLocal = async_sessionmaker(
 Base = declarative_base()
 
 
-# DATABASE INTEGRATION - Phase 4: Async Dependency Injection Function
+# DATABASE INTEGRATION - Phase 4: Dependency Injection Function
 # Use this in FastAPI route dependencies to get a database session
-async def get_db():
+def get_db():
     """
-    Async generator function that provides a database session to routes.
+    Generator function that provides a database session to routes.
 
     Usage in routes:
         @router.get("/endpoint")
-        async def my_endpoint(db: AsyncSession = Depends(get_db)):
-            # Use db to query database with await
+        def my_endpoint(db: Session = Depends(get_db)):
+            # Use db to query database
     """
-    async with SessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-async def init_db():
+def init_db():
     """Initialize database tables."""
     try:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables initialized successfully")
+        if engine:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Database tables initialized successfully")
     except Exception as e:
         logger.warning(f"Database initialization skipped (not available): {str(e)}")
 
 
-async def close_db():
+def close_db():
     """Close database engine."""
-    await engine.dispose()
+    if engine:
+        engine.dispose()
     logger.info("Database engine closed")

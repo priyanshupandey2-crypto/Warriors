@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app.models.user import User
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
-async def signup(request: SignupRequest, db: AsyncSession = Depends(get_db)) -> SignupResponse:
+def signup(request: SignupRequest, db: Session = Depends(get_db)) -> SignupResponse:
     """
     User signup endpoint.
     Creates a new user account with email and password.
@@ -28,9 +28,7 @@ async def signup(request: SignupRequest, db: AsyncSession = Depends(get_db)) -> 
 
         try:
             # Check if user already exists
-            stmt = select(User).where(User.email == validated['email'])
-            result = await db.execute(stmt)
-            existing_user = result.scalar_one_or_none()
+            existing_user = db.query(User).filter(User.email == validated['email']).first()
 
             if existing_user:
                 logger.warning(f"Signup failed: Email already registered - {validated['email']}")
@@ -52,8 +50,8 @@ async def signup(request: SignupRequest, db: AsyncSession = Depends(get_db)) -> 
             )
 
             db.add(new_user)
-            await db.commit()
-            await db.refresh(new_user)
+            db.commit()
+            db.refresh(new_user)
 
             # Generate access token for immediate login with role from database
             # Role is always "learner" for new signups, never from user input
@@ -71,7 +69,7 @@ async def signup(request: SignupRequest, db: AsyncSession = Depends(get_db)) -> 
             )
 
         except IntegrityError as e:
-            await db.rollback()
+            db.rollback()
             logger.error(f"Database integrity error during signup: {str(e)}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

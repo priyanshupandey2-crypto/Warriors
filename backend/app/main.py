@@ -58,17 +58,17 @@ def create_app() -> FastAPI:
     app.include_router(admin.router)  # Admin routes (protected)
 
     @app.on_event("startup")
-    async def startup_event():
+    def startup_event():
         """Log application startup and initialize database."""
         logger.info(f"Application startup - Environment: {settings.APP_ENV}, Debug: {settings.DEBUG}")
         logger.info(f"LangSmith tracing enabled: {settings.is_tracing_enabled()}")
-        await init_db()
+        init_db()
         logger.info("Database initialized successfully")
 
     @app.on_event("shutdown")
-    async def shutdown_event():
+    def shutdown_event():
         """Log application shutdown and close database."""
-        await close_db()
+        close_db()
         logger.info("Application shutdown")
 
     return app
