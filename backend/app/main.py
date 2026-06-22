@@ -8,6 +8,7 @@ from app.routers.auth import signup_router, login_router, verify_router
 from app.routes import health, test_trace
 from app.tracing import configure_langsmith
 from app.database import init_db, close_db
+from app.middleware.auth_middleware import AuthMiddleware
 
 logger = get_logger(__name__)
 
@@ -27,6 +28,9 @@ def create_app() -> FastAPI:
 
     # Configure LangSmith tracing
     configure_langsmith()
+
+    # Add authentication middleware (must be before CORS)
+    app.add_middleware(AuthMiddleware)
 
     # Add CORS middleware
     app.add_middleware(

@@ -1609,6 +1609,104 @@ app/routers/auth/
 
 ---
 
+## Global Authentication Middleware
+
+### Status: ✅ Implemented & Working
+
+**All routes EXCEPT public endpoints require authentication.**
+
+### How It Works
+
+1. **Middleware checks every request** to protected endpoints
+2. **Extracts JWT from Authorization header** (Bearer token format)
+3. **Verifies token validity** using JWT_SECRET
+4. **Stores user info in request state** for route handlers
+5. **Returns 401 Unauthorized** if token missing/invalid
+
+### Public Endpoints (No Auth Required)
+
+- `POST /api/auth/signup` - Create new user account
+- `POST /api/auth/login` - Login and get token
+- `GET /health` - Health check
+- `GET /test-trace` - Infrastructure test
+- `GET /docs` - API documentation
+- `GET /openapi.json` - OpenAPI schema
+- `GET /redoc` - ReDoc documentation
+
+### Protected Endpoints (Auth Required)
+
+ALL other endpoints require valid JWT token in `Authorization` header:
+- `/api/courses/*` - All course endpoints
+- `/api/classroom/*` - All classroom endpoints
+- `/api/analytics/*` - All analytics endpoints
+- `/api/admin/*` - Admin-only endpoints
+
+### Using Protected Routes
+
+**1. Get token via signup:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+**Response includes `access_token`:**
+```json
+{
+  "access_token": "Bearer eyJhbGc...",
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "learner"
+}
+```
+
+**2. Use token for protected route:**
+```bash
+curl -X GET http://127.0.0.1:8000/api/courses/featured \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+**3. Missing token returns 401:**
+```bash
+curl -X GET http://127.0.0.1:8000/api/courses/featured
+```
+
+**Response:**
+```json
+{
+  "detail": "Authentication required. Please provide a valid token."
+}
+```
+
+### Token Format
+
+**Must use Bearer scheme:**
+```
+Authorization: Bearer <token>
+```
+
+**NOT valid:**
+- `Authorization: <token>` (missing Bearer)
+- `Token: <token>` (wrong scheme)
+- Request body: `{"token": "..."}` (wrong location)
+
+### Implementation Details
+
+**Middleware file:** `app/middleware/auth_middleware.py`
+- Class: `AuthMiddleware(BaseHTTPMiddleware)`
+- Uses: `verify_token()` from `jwt_handler.py`
+- Returns: `JSONResponse` with proper HTTP status codes
+
+**Main app integration:** `app/main.py`
+- Added: `app.add_middleware(AuthMiddleware)` (before CORS)
+
+---
+
 ## Admin Route Protection
 
 ### Status: ✅ Implemented & Working
