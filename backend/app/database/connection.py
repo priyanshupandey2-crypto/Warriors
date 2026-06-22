@@ -34,13 +34,18 @@ logger = get_logger(__name__)
 # This engine manages the connection to PostgreSQL with async support
 # pool_size=20: Maximum 20 connections in the pool
 # max_overflow=0: Don't create additional connections beyond pool_size
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
-    echo=settings.DATABASE_ECHO,
-    pool_pre_ping=True,
-)
+try:
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        pool_size=settings.DATABASE_POOL_SIZE,
+        max_overflow=settings.DATABASE_MAX_OVERFLOW,
+        echo=settings.DATABASE_ECHO,
+        pool_pre_ping=True,
+        connect_args={"timeout": 3}  # Quick timeout for unavailable DB
+    )
+except Exception as e:
+    logger.warning(f"Failed to create database engine: {str(e)}")
+    engine = None
 
 # DATABASE INTEGRATION - Phase 4: Async Session Factory
 # Creates a new async database session for each request
