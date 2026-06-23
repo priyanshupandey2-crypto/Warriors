@@ -1933,6 +1933,18 @@ Comprehensive test coverage using pytest for all API endpoints. Currently implem
 - Response structure (4 tests): token format, user data, security
 - Edge cases (5 tests): multiple users, IDs, role enforcement
 
+**Login Endpoint Tests: 34 test cases (100% passing)**
+- Basic functionality (4 tests): successful login, email case-insensitivity, token/user info
+- Email validation (7 tests): format, case-sensitivity, spaces, missing fields
+- Password validation (4 tests): empty, short, missing, null passwords
+- Authentication (4 tests): user not found, wrong password, case-sensitivity, failed attempts
+- Response structure (6 tests): token format, user object, fields, no password leakage
+- Edge cases (5 tests): special characters, long passwords, role preservation, course enrollment
+- Missing fields (2 tests): all fields missing, null values
+- Integration (2 tests): login after signup, multiple users
+
+**Total Test Coverage: 85 tests (100% passing)**
+
 ### Setup & Installation
 
 **Test dependencies** (separate from production):
@@ -1950,14 +1962,30 @@ Includes: pytest, pytest-asyncio, httpx, pytest-cov, pytest-xdist, pytest-mock, 
 
 ### Running Tests
 
-**All tests:**
+**All auth tests (signup + login):**
+```bash
+pytest tests/test_auth_signup.py tests/test_auth_login.py -v
+```
+
+**Signup tests only:**
 ```bash
 pytest tests/test_auth_signup.py -v
+```
+
+**Login tests only:**
+```bash
+pytest tests/test_auth_login.py -v
 ```
 
 **Specific test class:**
 ```bash
 pytest tests/test_auth_signup.py::TestSignupEmailValidation -v
+pytest tests/test_auth_login.py::TestLoginAuthentication -v
+```
+
+**Specific single test:**
+```bash
+pytest tests/test_auth_login.py::TestLoginBasicFunctionality::test_login_success -v
 ```
 
 **With coverage report:**
@@ -1995,11 +2023,25 @@ pytest tests/ -n auto
 - Covers: validation, duplicates, response structure, edge cases, security
 - Can be extended with `--cov=app` to generate detailed coverage reports
 
+### Test Files
+
+**Implemented:**
+- `tests/test_auth_signup.py` - 51 tests for signup endpoint
+- `tests/test_auth_login.py` - 34 tests for login endpoint
+- `tests/conftest.py` - Shared fixtures and database setup
+
+**Key Test Utilities:**
+- Database fixtures with automatic table creation and cleanup
+- Client fixture with FastAPI TestClient
+- Session fixture for direct database access in tests
+- Automatic user table truncation between tests
+
 ### Next Steps for Testing
 Additional test files to implement:
-- `test_auth_login.py` - Login endpoint (validation, wrong credentials, tokens)
 - `test_auth_verify.py` - Token verification endpoint
 - `test_courses.py` - Course endpoints
 - `test_dashboard.py` - Dashboard endpoints
 - `test_analytics.py` - Analytics endpoints
+- `test_classroom.py` - Classroom endpoints
 - Integration tests for multi-endpoint workflows
+- Performance/load testing
