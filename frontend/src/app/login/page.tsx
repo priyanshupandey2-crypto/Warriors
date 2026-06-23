@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +87,13 @@ export default function LoginPage() {
             <div className="space-y-1">
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium text-on-surface-variant" htmlFor="login-password">Password</label>
-                <a className="text-xs font-semibold text-primary hover:underline transition-all" href="#">Forgot password?</a>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPasswordModal(true)}
+                  className="text-xs font-semibold text-primary hover:underline transition-all"
+                >
+                  Forgot password?
+                </button>
               </div>
               <div className="relative group">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock</span>
@@ -127,6 +134,34 @@ export default function LoginPage() {
           </footer>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl p-8 max-w-sm mx-4 border border-outline-variant/30">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-warning text-2xl">lock_reset</span>
+              <h2 className="text-2xl font-semibold text-on-surface">Password Reset</h2>
+            </div>
+
+            <p className="text-base text-on-surface-variant mb-6">
+              To reset your password, please contact our admin team. They'll help you regain access to your account.
+            </p>
+
+            <div className="bg-primary-container/10 border border-primary-container/30 rounded-lg p-4 mb-6">
+              <p className="text-sm font-medium text-on-surface mb-2">Admin Contact:</p>
+              <p className="text-base text-primary font-semibold">mirza.b.baig@globallogic.com</p>
+            </div>
+
+            <button
+              onClick={() => setShowForgotPasswordModal(false)}
+              className="w-full bg-primary text-on-primary py-3 rounded-lg text-sm font-medium hover:shadow-lg transition-all active:scale-[0.98]"
+            >
+              Got it, Close
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
