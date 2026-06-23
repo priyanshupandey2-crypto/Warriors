@@ -1,0 +1,97 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Generated Course Data
+generated_courses/
+mock_courses/
+test_courses/
+output/
+results/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing & Logs
+.pytest_cache/
+.coverage
+*.log
+htmlcov/
+
+# Temporary Files
+*.tmp
+*.bak
+tmp/
+temp/
+
+# Cache
+.cache/
+.mypy_cache/
+.tox/
+
+# Credentials
+credentials.json
+secrets.json
+
+# Jupyter
+.ipynb_checkpoints/
+.jupyter/
+
+# Node (if frontend added later)
+node_modules/
+package-lock.json
+
+# Generated files
+*.pyc
+.eggs/
+
+# Backup files
+*.backup
+*.bkp
+*.old
+
+# OS files
+.AppleDouble
+.LSOverride
+.Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor backups
+*~
+*.swp
+*.swo
+
+# Miscellaneous
+.cache
+.eggs
