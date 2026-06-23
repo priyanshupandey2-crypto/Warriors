@@ -100,10 +100,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input className="w-5 h-5 rounded-md border-outline-variant text-primary focus:ring-primary cursor-pointer transition-all accent-primary" id="remember" type="checkbox" />
-              <label className="text-sm font-medium text-on-surface-variant cursor-pointer" htmlFor="remember">Remember me for 30 days</label>
-            </div>
             <button
               className="w-full bg-primary text-white text-sm font-medium py-4 rounded-lg shadow-sm hover:shadow-md hover:bg-primary-container transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
               type="submit" disabled={loading}
