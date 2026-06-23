@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,14 +124,12 @@ export default function LoginPage() {
           </div>
 
           <footer className="mt-12 pt-8 border-t border-outline-variant">
-            <div className="flex flex-wrap justify-between gap-4 text-outline text-xs font-semibold">
-              <span>© {new Date().getFullYear()} AuraLearn AI</span>
-              <div className="flex gap-6">
-                <a className="hover:text-primary transition-colors" href="#">Privacy</a>
-                <a className="hover:text-primary transition-colors" href="#">Terms</a>
-                <a className="hover:text-primary transition-colors" href="#">Support</a>
-              </div>
-            </div>
+            <button
+              onClick={() => setShowSupportModal(true)}
+              className="text-outline text-xs font-semibold hover:text-primary transition-colors"
+            >
+              Support
+            </button>
           </footer>
         </div>
       </div>
@@ -158,6 +157,34 @@ export default function LoginPage() {
               className="w-full bg-primary text-on-primary py-3 rounded-lg text-sm font-medium hover:shadow-lg transition-all active:scale-[0.98]"
             >
               Got it, Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Support Modal */}
+      {showSupportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl p-8 max-w-sm mx-4 border border-outline-variant/30">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-primary text-2xl">help</span>
+              <h2 className="text-2xl font-semibold text-on-surface">Support</h2>
+            </div>
+
+            <p className="text-base text-on-surface-variant mb-6">
+              For any support or assistance, please contact:
+            </p>
+
+            <div className="bg-primary-container/10 border border-primary-container/30 rounded-lg p-4 mb-6">
+              <p className="text-sm font-medium text-on-surface mb-2">Contact:</p>
+              <p className="text-base text-primary font-semibold">mirza.b.baig@globallogic.com</p>
+            </div>
+
+            <button
+              onClick={() => setShowSupportModal(false)}
+              className="w-full bg-primary text-on-primary py-3 rounded-lg text-sm font-medium hover:shadow-lg transition-all active:scale-[0.98]"
+            >
+              Close
             </button>
           </div>
         </div>

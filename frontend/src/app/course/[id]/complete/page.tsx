@@ -227,13 +227,8 @@ export default function CourseCompletePage() {
         <div className="flex flex-col md:flex-row justify-between items-center py-8 px-6 max-w-[1280px] mx-auto text-sm text-on-surface-variant">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
             <span className="text-lg font-bold text-primary">AuraLearn</span>
-            <p className="mt-1 text-on-surface-variant opacity-70">
-              © {new Date().getFullYear()} AuraLearn. Empowering minds through AI.
-            </p>
           </div>
           <div className="flex gap-6">
-            <a className="hover:underline hover:text-primary transition-colors" href="#">Privacy Policy</a>
-            <a className="hover:underline hover:text-primary transition-colors" href="#">Terms of Service</a>
             <a className="hover:underline hover:text-primary transition-colors" href="#">Support</a>
           </div>
         </div>

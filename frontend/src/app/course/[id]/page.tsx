@@ -203,14 +203,7 @@ export default function CourseLearningPage() {
           {/* Footer */}
           <footer className="bg-surface-container-low py-8 mt-auto">
             <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 max-w-[1280px] mx-auto gap-4">
-              <div className="flex flex-col md:flex-row items-center gap-4">
-                <span className="text-lg font-semibold text-on-surface">AuraLearn AI</span>
-                <span className="text-sm text-on-surface-variant">© {new Date().getFullYear()} AuraLearn AI. All rights reserved.</span>
-              </div>
-              <div className="flex gap-6">
-                <a className="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
-                <a className="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
-              </div>
+              <span className="text-lg font-semibold text-on-surface">AuraLearn AI</span>
             </div>
           </footer>
         </section>
