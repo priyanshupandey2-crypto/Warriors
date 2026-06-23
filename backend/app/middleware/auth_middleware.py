@@ -3,8 +3,12 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from app.utils.jwt_handler import verify_token
 from app.logger import get_logger
+from contextvars import ContextVar
 
 logger = get_logger(__name__)
+
+# Context variable to store current user across async context
+current_user_context: ContextVar[dict] = ContextVar('current_user', default=None)
 
 # Public endpoints that don't require authentication
 PUBLIC_ENDPOINTS = [
@@ -15,6 +19,7 @@ PUBLIC_ENDPOINTS = [
     "/api/courses/featured",
     "/api/courses/",
     "/api/courses/generate",
+    "/api/courses/preview",
     "/health",
     "/test-trace",
     "/docs",
@@ -78,6 +83,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         # Store the user info in request state for later use
         request.state.user = payload
+        # Also store in context variable for access without Request parameter
+        current_user_context.set(payload)
         logger.info(f"Authenticated request to {request.url.path} by user: {payload.get('email')}")
 
         # Call the next middleware/route handler

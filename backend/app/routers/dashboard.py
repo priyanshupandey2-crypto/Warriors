@@ -18,6 +18,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.schemas.dashboard import DashboardResponse
 from app.services.dashboard_service import DashboardService
+from app.utils.jwt_handler import get_current_user
+from app.models.user import User
 from app.database import get_db
 
 router = APIRouter(prefix="/api/v1", tags=["dashboard"])

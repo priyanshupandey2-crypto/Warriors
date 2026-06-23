@@ -17,3 +17,4 @@ class User(Base):
     learning_activities = relationship("LearningActivity", back_populates="user")
     user_goals = relationship("UserGoal", back_populates="user")
     milestones = relationship("Milestone", back_populates="user")
+    quiz_submissions = relationship("QuizSubmission", back_populates="user")

@@ -1,79 +1,161 @@
-import json
-from fastapi import APIRouter, HTTPException, status
-from pathlib import Path
-from app.schemas.course_schemas import CourseGenerateRequest, CoursePreview, FeaturedCourse
-from typing import List
+from fastapi import APIRouter, HTTPException, status, Depends, Body
+from sqlalchemy.orm import Session
+from app.database import get_db, SessionLocal
+from app.models.course import Course
+from app.models.user_course import UserCourse
+from app.schemas.course_schemas import CourseGenerateRequest, FeaturedCourse
+from typing import List, Dict, Any
+from datetime import datetime
+from app.middleware.auth_middleware import current_user_context
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-
-
-def load_json_file(filename: str):
-    """Load JSON file from data directory."""
-    file_path = DATA_DIR / filename
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Mock data file not found: {filename}"
-        )
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Invalid JSON in mock data: {filename}"
-        )
-
 
 @router.get("/featured", response_model=List[FeaturedCourse])
-def get_featured_courses() -> List[FeaturedCourse]:
+def get_featured_courses(db: Session = Depends(get_db)) -> List[FeaturedCourse]:
     """Get featured courses for landing page."""
-    data = load_json_file("featuredCourses.json")
-    courses = data.get("courses", [])
-    return [FeaturedCourse(**course) for course in courses]
+    courses = db.query(Course).filter(
+        Course.status == "published"
+    ).limit(10).all()
+
+    return [
+        FeaturedCourse(
+            id=str(course.id),
+            title=course.title,
+            description=course.description,
+            difficulty_level=course.difficulty,
+            duration_weeks=course.duration_hours // 7 if course.duration_hours else 0,
+            modules_count=0,
+            tags=[],
+            thumbnail_url=course.thumbnail_url,
+            rating=None,
+            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count()
+        )
+        for course in courses
+    ]
 
 
 @router.get("/", response_model=List[FeaturedCourse])
-def browse_courses(skip: int = 0, limit: int = 10) -> List[FeaturedCourse]:
+def browse_courses(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)) -> List[FeaturedCourse]:
     """Browse all courses with pagination."""
-    data = load_json_file("featuredCourses.json")
-    courses = data.get("courses", [])
-    paginated = courses[skip : skip + limit]
-    return [FeaturedCourse(**course) for course in paginated]
+    courses = db.query(Course).filter(
+        Course.status == "published"
+    ).offset(skip).limit(limit).all()
+
+    return [
+        FeaturedCourse(
+            id=str(course.id),
+            title=course.title,
+            description=course.description,
+            difficulty_level=course.difficulty,
+            duration_weeks=course.duration_hours // 7 if course.duration_hours else 0,
+            modules_count=0,
+            tags=[],
+            thumbnail_url=course.thumbnail_url,
+            rating=None,
+            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count()
+        )
+        for course in courses
+    ]
 
 
 @router.post("/generate", response_model=dict)
-def generate_course(request: CourseGenerateRequest) -> dict:
-    """Generate a new course (mock - returns preview)."""
+def generate_course(request: CourseGenerateRequest, db: Session = Depends(get_db)) -> dict:
+    """Generate a new course and save to database."""
     if not request.topic or not request.difficulty_level:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Topic and difficulty level are required"
         )
 
+    new_course = Course(
+        title=request.topic,
+        description=f"AI-generated course: {request.topic} for {request.target_audience}",
+        difficulty=request.difficulty_level,
+        duration_hours=request.duration_weeks * 7,
+        thumbnail_url=None,
+        status="draft",
+        created_by=None
+    )
+
+    db.add(new_course)
+    db.commit()
+    db.refresh(new_course)
+
     return {
         "status": "success",
-        "message": f"Course generation started for topic: {request.topic}",
-        "course_id": f"course-gen-{hash(request.topic) % 10000}",
+        "message": f"Course generation completed for topic: {request.topic}",
+        "course_id": new_course.id,
         "estimated_time_minutes": 120
     }
 
 
-@router.get("/{course_id}/preview", response_model=CoursePreview)
-def get_course_preview(course_id: str) -> CoursePreview:
+@router.get("/{course_id}/preview")
+def get_course_preview(course_id: int, db: Session = Depends(get_db)):
     """Get course preview with modules and lessons."""
-    data = load_json_file("coursePreview.json")
-    return CoursePreview(**data)
+    course = db.query(Course).filter(Course.id == course_id).first()
 
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Course {course_id} not found"
+        )
 
-@router.post("/{course_id}/enroll", response_model=dict)
-def enroll_in_course(course_id: str) -> dict:
-    """Enroll user in a course."""
     return {
-        "status": "success",
-        "message": f"Successfully enrolled in course {course_id}",
-        "enrollment_id": f"enroll-{course_id}",
-        "enrollment_date": "2026-06-21T16:00:00Z"
+        "id": str(course.id),
+        "title": course.title,
+        "description": course.description,
+        "difficulty_level": course.difficulty,
+        "total_duration_hours": course.duration_hours,
+        "learning_objectives": [],
+        "overview": course.description,
+        "modules": [],
+        "lesson_sequence": [],
+        "learning_roadmap": ""
     }
+
+
+@router.post("/{cid}/enroll", response_model=dict)
+def enroll_in_course(cid: int) -> dict:
+    """Enroll user in a course."""
+    current_user = current_user_context.get()
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+
+    db = SessionLocal()
+    try:
+        course = db.query(Course).filter(Course.id == cid).first()
+        if not course:
+            raise HTTPException(status_code=404, detail=f"Course {cid} not found")
+
+        existing = db.query(UserCourse).filter(
+            UserCourse.user_id == user_id,
+            UserCourse.course_id == cid
+        ).first()
+
+        if existing:
+            raise HTTPException(status_code=400, detail="Already enrolled")
+
+        enrollment = UserCourse(
+            user_id=user_id,
+            course_id=cid,
+            status="ENROLLED",
+            progress_percentage=0,
+            completed_lessons=0,
+            total_lessons=0,
+            enrolled_at=datetime.utcnow()
+        )
+
+        db.add(enrollment)
+        db.commit()
+        db.refresh(enrollment)
+
+        return {
+            "status": "success",
+            "message": f"Successfully enrolled in course {cid}",
+            "enrollment_id": enrollment.id,
+            "enrollment_date": enrollment.enrolled_at.isoformat()
+        }
+    finally:
+        db.close()
