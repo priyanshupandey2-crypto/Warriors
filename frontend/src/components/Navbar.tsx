@@ -2,14 +2,21 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    router.push("/login");
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -111,8 +118,8 @@ export default function Navbar() {
                   )}
                   <div className="border-t border-outline-variant/20 mt-1 pt-1">
                     <button
-                      onClick={() => { logout(); setMenuOpen(false); }}
-                      className="flex items-center gap-3 w-full px-4 py-2 text-sm text-error hover:bg-error-container/20 transition-colors"
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 w-full px-4 py-2 text-sm text-error hover:bg-error-container/20 transition-colors rounded-lg"
                     >
                       <span className="material-symbols-outlined text-[20px]">logout</span>
                       Log Out
