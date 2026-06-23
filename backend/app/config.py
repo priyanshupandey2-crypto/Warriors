@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional as OptionalType
 
 
 class Settings(BaseSettings):
@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     LANGSMITH_ENDPOINT: str
     LANGSMITH_PROJECT: str
     LANGSMITH_TRACING: bool = False
+
+    # Firecrawl API configuration (optional, for curriculum extraction)
+    FIRECRAWL_API_KEY: OptionalType[str] = None
 
     # JWT configuration (required from .env)
     JWT_SECRET: str
