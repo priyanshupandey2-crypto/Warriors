@@ -69,7 +69,7 @@ class TestLoginBasicFunctionality:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="accesstoken@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -80,7 +80,7 @@ class TestLoginBasicFunctionality:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "accesstoken@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -208,8 +208,8 @@ class TestLoginPasswordValidation:
         """Test rejection of empty password."""
         from app.models.user import User
         user = User(
-            name="Test User",
-            email="test@example.com",
+            name="Empty Pass User",
+            email="emptypass@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -220,7 +220,7 @@ class TestLoginPasswordValidation:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "emptypass@example.com",
                 "password": ""
             }
         )
@@ -251,8 +251,8 @@ class TestLoginPasswordValidation:
         """Test rejection of password shorter than 6 characters."""
         from app.models.user import User
         user = User(
-            name="Test User",
-            email="test@example.com",
+            name="Short Pass User",
+            email="shortpass@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -263,7 +263,7 @@ class TestLoginPasswordValidation:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "shortpass@example.com",
                 "password": "Pass1"
             }
         )
@@ -290,7 +290,7 @@ class TestLoginAuthentication:
         from app.models.user import User
         user = User(
             name="John Doe",
-            email="john@example.com",
+            email="wrongpass@example.com",
             password_hash=hash_password("CorrectPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -301,7 +301,7 @@ class TestLoginAuthentication:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "john@example.com",
+                "email": "wrongpass@example.com",
                 "password": "WrongPassword123!"
             }
         )
@@ -313,7 +313,7 @@ class TestLoginAuthentication:
         from app.models.user import User
         user = User(
             name="Jane Doe",
-            email="jane@example.com",
+            email="casesensitive@example.com",
             password_hash=hash_password("CaseSensitive123!"),
             role="learner",
             courses_enrolled=[]
@@ -325,7 +325,7 @@ class TestLoginAuthentication:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "jane@example.com",
+                "email": "casesensitive@example.com",
                 "password": "casesensitive123!"
             }
         )
@@ -336,8 +336,8 @@ class TestLoginAuthentication:
         """Test multiple failed login attempts are handled."""
         from app.models.user import User
         user = User(
-            name="Test User",
-            email="test@example.com",
+            name="Multiple Attempts User",
+            email="multipleattempts@example.com",
             password_hash=hash_password("CorrectPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -350,7 +350,7 @@ class TestLoginAuthentication:
             response = client.post(
                 "/api/auth/login",
                 json={
-                    "email": "test@example.com",
+                    "email": "multipleattempts@example.com",
                     "password": "WrongPassword123!"
                 }
             )
@@ -360,7 +360,7 @@ class TestLoginAuthentication:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "multipleattempts@example.com",
                 "password": "CorrectPass123!"
             }
         )
@@ -375,7 +375,7 @@ class TestLoginResponseStructure:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="responsetoken@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -386,7 +386,7 @@ class TestLoginResponseStructure:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "responsetoken@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -400,7 +400,7 @@ class TestLoginResponseStructure:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="responseuser@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -411,7 +411,7 @@ class TestLoginResponseStructure:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "responseuser@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -425,7 +425,7 @@ class TestLoginResponseStructure:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="responsefields@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[1, 2]
@@ -436,7 +436,7 @@ class TestLoginResponseStructure:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "responsefields@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -453,7 +453,7 @@ class TestLoginResponseStructure:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="nopassresponse@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -464,7 +464,7 @@ class TestLoginResponseStructure:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "nopassresponse@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -479,7 +479,7 @@ class TestLoginResponseStructure:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="responsemessage@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -490,7 +490,7 @@ class TestLoginResponseStructure:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "responsemessage@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -507,7 +507,7 @@ class TestLoginEdgeCases:
         password = "P@ssw0rd!#$%"
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="specialchar@example.com",
             password_hash=hash_password(password),
             role="learner",
             courses_enrolled=[]
@@ -518,7 +518,7 @@ class TestLoginEdgeCases:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "specialchar@example.com",
                 "password": password
             }
         )
@@ -530,7 +530,7 @@ class TestLoginEdgeCases:
         password = "VeryLongPassword" * 10 + "123!"
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="longpass@example.com",
             password_hash=hash_password(password),
             role="learner",
             courses_enrolled=[]
@@ -541,7 +541,7 @@ class TestLoginEdgeCases:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "longpass@example.com",
                 "password": password
             }
         )
@@ -552,7 +552,7 @@ class TestLoginEdgeCases:
         from app.models.user import User
         user = User(
             name="Admin User",
-            email="admin@example.com",
+            email="adminrole@example.com",
             password_hash=hash_password("AdminPass123!"),
             role="admin",
             courses_enrolled=[]
@@ -563,7 +563,7 @@ class TestLoginEdgeCases:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "admin@example.com",
+                "email": "adminrole@example.com",
                 "password": "AdminPass123!"
             }
         )
@@ -622,7 +622,7 @@ class TestLoginEdgeCases:
         from app.models.user import User
         user = User(
             name="Test User",
-            email="test@example.com",
+            email="httpstatus@example.com",
             password_hash=hash_password("TestPass123!"),
             role="learner",
             courses_enrolled=[]
@@ -633,7 +633,7 @@ class TestLoginEdgeCases:
         response = client.post(
             "/api/auth/login",
             json={
-                "email": "test@example.com",
+                "email": "httpstatus@example.com",
                 "password": "TestPass123!"
             }
         )
@@ -698,14 +698,14 @@ class TestLoginIntegration:
         # Create two users
         user1 = User(
             name="User One",
-            email="user1@example.com",
+            email="useronedifferent@example.com",
             password_hash=hash_password("Pass1User123!"),
             role="learner",
             courses_enrolled=[]
         )
         user2 = User(
             name="User Two",
-            email="user2@example.com",
+            email="usertwodifferent@example.com",
             password_hash=hash_password("Pass2User123!"),
             role="learner",
             courses_enrolled=[]
@@ -718,7 +718,7 @@ class TestLoginIntegration:
         response1 = client.post(
             "/api/auth/login",
             json={
-                "email": "user1@example.com",
+                "email": "useronedifferent@example.com",
                 "password": "Pass1User123!"
             }
         )
@@ -729,7 +729,7 @@ class TestLoginIntegration:
         response2 = client.post(
             "/api/auth/login",
             json={
-                "email": "user2@example.com",
+                "email": "usertwodifferent@example.com",
                 "password": "Pass2User123!"
             }
         )

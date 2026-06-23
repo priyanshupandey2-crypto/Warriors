@@ -2,7 +2,7 @@
 # Install with: pip install -r requirements-test.txt
 
 # Core Testing Framework
-pytest==7.4.3
+pytest==8.2.2
 pytest-asyncio==0.24.0
 
 # HTTP Testing
