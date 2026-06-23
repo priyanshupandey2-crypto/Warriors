@@ -45,7 +45,8 @@ export default function DashboardPage() {
 
   const heatmapCells = useMemo(() => {
     const colors = ["bg-surface-container", "bg-primary-container/30", "bg-primary-container/60", "bg-primary"];
-    return Array.from({ length: 28 }, (_, i) => colors[Math.floor(Math.random() * 4)] + `-${i}`);
+    // Use index-based seeding to ensure consistent colors across server/client render
+    return Array.from({ length: 28 }, (_, i) => colors[(i * 7) % 4] + `-${i}`);
   }, []);
 
   return (
