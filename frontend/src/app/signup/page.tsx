@@ -11,14 +11,12 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(false);
   const [localError, setLocalError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) return;
     setLocalError("");
     setLoading(true);
     const result = await signup(name, email, password);
@@ -125,20 +123,9 @@ export default function SignupPage() {
                 </button>
               </div>
             </div>
-            <div className="flex items-start gap-4 pt-2">
-              <input
-                className="mt-1 w-5 h-5 text-primary border-outline-variant rounded focus:ring-primary/20 accent-primary"
-                id="terms" required type="checkbox"
-                checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
-              />
-              <label className="text-xs font-semibold text-on-surface-variant" htmlFor="terms">
-                I agree to the <a className="text-primary hover:underline font-bold" href="#">Terms of Service</a> and{" "}
-                <a className="text-primary hover:underline font-bold" href="#">Privacy Policy</a>.
-              </label>
-            </div>
             <button
               className="w-full bg-primary text-on-primary py-6 rounded-lg text-sm font-medium shadow-lg shadow-primary/20 hover:bg-primary-container transition-all active:scale-[0.98] flex items-center justify-center gap-4 disabled:opacity-50"
-              type="submit" disabled={loading || !agreed}
+              type="submit" disabled={loading}
             >
               {loading ? "Creating Account..." : "Create My Account"}
               <span className="material-symbols-outlined">arrow_forward</span>
