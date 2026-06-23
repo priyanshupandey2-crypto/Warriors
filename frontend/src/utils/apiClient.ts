@@ -9,6 +9,13 @@ export interface ApiError extends Error {
   detail?: string;
 }
 
+let toastCallback: ((message: string, type: string) => void) | null = null;
+
+// Register toast callback from ToastContext
+export function setToastCallback(callback: (message: string, type: string) => void) {
+  toastCallback = callback;
+}
+
 export async function apiCall<T = any>(
   endpoint: string,
   options: FetchOptions = {}
@@ -41,12 +48,19 @@ export async function apiCall<T = any>(
     // Handle 401 - Token expired or invalid
     if (response.status === 401) {
       if (typeof window !== "undefined") {
+        // Show toast notification
+        if (toastCallback) {
+          toastCallback("Your session expired. Please login again.", "error");
+        }
+
         // Clear auth data
         localStorage.removeItem("auralearn_token");
         localStorage.removeItem("auralearn_user");
 
-        // Redirect to login
-        window.location.href = "/login";
+        // Redirect to login after a short delay to allow toast to be seen
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
       }
     }
 
