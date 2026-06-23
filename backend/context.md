@@ -2279,3 +2279,105 @@ UserCourse.status.in_(["ENROLLED", "IN_PROGRESS"])
 5. 🔄 Add more seed data for testing
 6. 🔄 Implement remaining features (capstone reviews, etc.)
 7. 🔄 Add integration tests for multi-endpoint workflows
+
+---
+
+## Comprehensive Test Documentation
+
+### Complete Endpoint Test Cases and Outputs
+
+**File:** `ENDPOINT_TEST_CASES_WITH_OUTPUTS.md`
+
+This document provides exhaustive testing documentation for all 36 API endpoints with:
+
+**Coverage:**
+- All endpoints tested and verified working (36/36)
+- Complete request/response examples for every endpoint
+- curl command examples for manual testing
+- Expected status codes and error cases
+- Authentication requirements clearly documented
+
+**Sections:**
+1. **Health & Testing Endpoints (2)** - Server health and infrastructure verification
+   - GET /health
+   - GET /test-trace
+
+2. **Authentication Endpoints (3)** - User signup, login, and token verification
+   - POST /api/auth/signup
+   - POST /api/auth/login
+   - POST /api/auth/verify-token
+
+3. **Course Endpoints (6)** - Course browsing, generation, preview, and enrollment
+   - GET /api/courses/featured
+   - GET /api/courses/
+   - GET /api/courses/?skip=0&limit=5
+   - POST /api/courses/generate
+   - GET /api/courses/1/preview
+   - POST /api/courses/{id}/enroll
+
+4. **Classroom - Read Endpoints (5)** - Learning content access
+   - GET /api/classroom/1
+   - GET /api/classroom/1/lessons
+   - GET /api/classroom/1/lessons/1
+   - GET /api/classroom/1/quizzes
+   - GET /api/classroom/1/quizzes/1
+
+5. **Classroom - Write Endpoints (6)** - Learning interactions
+   - POST /api/classroom/1/quizzes/1/submit
+   - POST /api/classroom/1/capstone/start
+   - POST /api/classroom/1/capstone/submit
+   - POST /api/classroom/progress/complete?course_id=1&lesson_id=1
+   - POST /api/classroom/bookmarks/toggle?lesson_id=1&course_id=1
+   - GET /api/classroom/bookmarks/
+
+6. **Dashboard Endpoints (1)** - Public dashboard data
+   - GET /api/v1/dashboard
+
+7. **User Analytics Endpoints (8)** - User-specific analytics and progress
+   - GET /api/user/dashboard (WITH BUG FIX)
+   - GET /api/user/analytics/activity
+   - GET /api/user/analytics/consistency
+   - GET /api/user/milestones
+   - GET /api/user/achievements
+   - GET /api/user/progress/overview
+   - GET /api/user/stats
+   - GET /api/user/completed-courses
+
+8. **Admin Endpoints (5)** - Admin-only operations
+   - GET /api/admin/dashboard
+   - GET /api/admin/users-count
+   - POST /api/admin/action
+   - GET /api/admin/info
+   - GET /api/admin/test
+
+**Key Features:**
+- ✅ Real database responses (not mocked)
+- ✅ Actual HTTP status codes
+- ✅ Complete JSON response structures
+- ✅ Error case documentation
+- ✅ Security features explained (quiz answer hiding, auth requirements)
+- ✅ Data consistency verification for dashboard endpoint
+- ✅ Bug fix documentation and verification
+
+**Test Statistics:**
+- Total Endpoints: 36
+- Passing: 36
+- Success Rate: 100%
+- Public Endpoints: 16
+- Protected Endpoints (JWT): 15
+- Admin Endpoints: 5
+
+**Latest Updates (2026-06-23):**
+- Updated dashboard endpoint (#24) with actual test results showing all 4 enrolled courses
+- Verified data consistency: stats.enrolled_courses (4) matches courses_list length (4)
+- Added bug fix status and verification notes
+- Updated key findings to highlight data consistency bug fix
+
+**Related Files:**
+- `BUG_FIX_IMPLEMENTATION_SUMMARY.md` - Detailed bug fix documentation
+- `DASHBOARD_TEST_REPORT.md` - Dashboard endpoint specific testing results
+- `QUICK_TEST_REFERENCE.txt` - Quick reference for all endpoints
+
+**Location:** Root directory of Warriors project
+**Status:** ✅ Complete and up-to-date
+**Last Updated:** 2026-06-23
