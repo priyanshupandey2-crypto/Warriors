@@ -163,8 +163,12 @@ class CurriculumTemplateBuilder:
         """
         Extract main learning topics from heading hierarchy.
 
-        Uses top-level headings (first part of heading_path) as topics.
-        Filters noise and duplicates.
+        FIXED: Extracts from Level 2 (H2) headings instead of Level 1 (H1).
+        H1 is typically the page/tutorial title, H2 contains actual learning concepts.
+
+        Examples:
+            "PostgreSQL Tutorial > Joins" → Extract "Joins" (H2, learning concept)
+            "Machine Learning > Regression" → Extract "Regression" (H2, learning concept)
 
         Returns:
             Sorted list of unique topics
@@ -178,8 +182,16 @@ class CurriculumTemplateBuilder:
             if not heading_path:
                 continue
 
-            # Get main topic (first part before >)
-            main_topic = heading_path.split(" > ")[0].strip()
+            # FIXED: Extract from Level 2 (H2) instead of Level 1 (H1)
+            # H1 is page title: "PostgreSQL Tutorial"
+            # H2 is learning concept: "Joins", "Indexes", etc.
+            parts = heading_path.split(" > ")
+            if len(parts) < 2:
+                # If only one level, skip (it's just a page title)
+                continue
+
+            # Extract Level 2 heading (the actual learning concept)
+            main_topic = parts[1].strip()
             all_headings.append(main_topic)
 
             # Skip noise

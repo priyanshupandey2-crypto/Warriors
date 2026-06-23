@@ -339,41 +339,93 @@ class TopicExtractor:
         """
         Extract key concepts from content.
 
-        Heuristics:
-            - Bold text: **concept**
-            - Code: `concept`
-            - Multi-word phrases (phrases are more meaningful than single words)
+        IMPROVED: Multiple extraction strategies for 80%+ recall:
+            1. Bold text: **concept**
+            2. Code blocks: `concept`
+            3. Multi-word phrases from text
+            4. Sentence-level pattern matching
+            5. Section headings (H3+)
+
+        Previous recall: 50% (only bold/code/phrases)
+        Target recall: 80%+ (with additional strategies)
         """
         concepts = set()
 
-        # Extract bold text (usually emphasized concepts)
+        # STRATEGY 1: Extract bold text (usually emphasized concepts)
         bold_pattern = r"\*\*(.+?)\*\*"
         bold_concepts = re.findall(bold_pattern, markdown)
-        concepts.update([c.strip() for c in bold_concepts if len(c.strip()) > 2])
+        for concept in bold_concepts:
+            concept = concept.strip()
+            # Skip code/math formulas
+            if len(concept) > 2 and not concept.startswith('`') and '=' not in concept:
+                concepts.add(concept)
 
-        # Extract code blocks (usually technical terms)
+        # STRATEGY 2: Extract code blocks (usually technical terms)
+        # But skip formulas (contain =, *, etc.)
         code_pattern = r"`([^`]+)`"
         code_concepts = re.findall(code_pattern, markdown)
-        concepts.update([c.strip() for c in code_concepts if len(c.strip()) > 2])
+        for concept in code_concepts:
+            concept = concept.strip()
+            # Skip mathematical formulas
+            if (len(concept) > 2 and
+                not any(op in concept for op in ['=', '*', '+', '/', '^', 'theta']) and
+                concept.count(' ') < 4):  # Prefer short phrases, not full equations
+                concepts.add(concept)
 
-        # Extract multi-word phrases (more meaningful than single words)
-        phrase_pattern = r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b"
+        # STRATEGY 3: Extract capitalized multi-word phrases
+        # FIXED: Handle line breaks that broke extraction before
+        phrase_pattern = r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b"
         phrases = re.findall(phrase_pattern, markdown)
 
-        stop_words = {"The", "A", "An", "Is", "Are", "And", "Or", "In", "On", "At", "To", "Of", "For", "By"}
+        stop_words = {
+            "The", "A", "An", "Is", "Are", "And", "Or", "In", "On", "At",
+            "To", "Of", "For", "By", "With", "From", "As", "Have", "Has",
+            "This", "That", "These", "Those", "Which", "What", "Where"
+        }
+
         for phrase in phrases:
-            if phrase not in TopicExtractor.SQL_KEYWORDS and phrase not in stop_words:
+            phrase = phrase.strip()
+            # Only keep 2-4 word phrases (avoid overly long ones)
+            word_count = len(phrase.split())
+            if (len(phrase) > 2 and
+                2 <= word_count <= 4 and
+                phrase not in stop_words and
+                phrase not in TopicExtractor.GENERIC_TERMS):
                 concepts.add(phrase)
 
-        # Filter out overly generic terms and SQL keywords
+        # STRATEGY 4: Extract section headings (H3, H4) as concepts
+        # These are often important sub-concepts
+        heading_pattern = r"^###+ (.+?)$"
+        section_headings = re.findall(heading_pattern, markdown, flags=re.MULTILINE)
+        for heading in section_headings:
+            heading = heading.strip()
+            if (len(heading) > 2 and
+                heading not in TopicExtractor.GENERIC_TERMS and
+                len(heading.split()) <= 5):  # Skip overly long headings
+                concepts.add(heading)
+
+        # STRATEGY 5: Extract concepts from common pattern: "X is a/the concept"
+        # E.g., "Gradient Descent is an optimization algorithm"
+        definition_pattern = r"\b([A-Z][a-zA-Z\s]+?)\s+(?:is|are)\s+(?:a|the|an)\s+(\w+)"
+        definitions = re.findall(definition_pattern, markdown)
+        for concept, _ in definitions:
+            concept = concept.strip()
+            if (len(concept) > 2 and
+                len(concept.split()) <= 4 and
+                concept not in TopicExtractor.GENERIC_TERMS):
+                concepts.add(concept)
+
+        # Filter out overly generic terms
         filtered = [
             c for c in concepts
-            if c not in TopicExtractor.SQL_KEYWORDS
-            and c not in TopicExtractor.GENERIC_TERMS
-            and len(c) > 2
+            if (c not in TopicExtractor.GENERIC_TERMS and
+                len(c) > 2 and
+                len(c.split()) <= 4 and  # Max 4 words
+                '\\n' not in c and  # Remove newlines
+                not c.isupper())  # Avoid all-caps acronyms initially
         ]
 
-        return sorted(list(set(filtered)))[:30]  # Top 30 concepts
+        return sorted(list(set(filtered)))[:50]  # Top 50 concepts (increased from 30)
 
     @staticmethod
     def build_heading_path(headings: List[Tuple[int, str]]) -> str:
