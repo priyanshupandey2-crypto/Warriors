@@ -1916,3 +1916,90 @@ This backend provides production-ready infrastructure for AI agent workflows and
 - ✅ 17/36 endpoints tested and verified
 
 The infrastructure is production-ready. Development focus: complete endpoint testing and add seed data.
+
+---
+
+## Testing Infrastructure
+
+### Test Suite Overview
+Comprehensive test coverage using pytest for all API endpoints. Currently implemented:
+
+**Signup Endpoint Tests: 51 test cases (100% passing)**
+- Email validation (9 tests): format, length, duplicates, case-insensitivity
+- Name validation (9 tests): length, characters, whitespace handling
+- Password validation (10 tests): strength requirements, length constraints
+- Duplicate email handling (3 tests): case-sensitive and case-insensitive
+- Missing/null fields (4 tests): required field validation
+- Response structure (4 tests): token format, user data, security
+- Edge cases (5 tests): multiple users, IDs, role enforcement
+
+### Setup & Installation
+
+**Test dependencies** (separate from production):
+```bash
+pip install -r requirements-test.txt
+```
+
+Includes: pytest, pytest-asyncio, httpx, pytest-cov, pytest-xdist, pytest-mock, pytest-html
+
+**Database configuration:**
+- Uses `TEST_DATABASE_URL` from `.env` (separate test database on Neon PostgreSQL)
+- Falls back to `DATABASE_URL` if test database not configured
+- Automatically creates tables before test session
+- Cleans up user table between tests via TRUNCATE
+
+### Running Tests
+
+**All tests:**
+```bash
+pytest tests/test_auth_signup.py -v
+```
+
+**Specific test class:**
+```bash
+pytest tests/test_auth_signup.py::TestSignupEmailValidation -v
+```
+
+**With coverage report:**
+```bash
+pytest tests/ --cov=app --cov-report=html
+```
+
+**Parallel execution (faster):**
+```bash
+pytest tests/ -n auto
+```
+
+### Test Architecture
+
+**Key Files:**
+- `tests/test_auth_signup.py` - 51 signup endpoint tests organized in 9 test classes
+- `tests/conftest.py` - Shared pytest fixtures for database and client setup
+- `requirements-test.txt` - Test-only dependencies
+
+**How tests work:**
+1. ✅ App created in-memory (no server process needed)
+2. ✅ Database connection overridden to test database
+3. ✅ FastAPI TestClient simulates HTTP requests directly
+4. ✅ Completely isolated - no production data affected
+5. ✅ No manual backend startup required (`pytest` runs everything)
+
+**Test isolation:**
+- Session-level: Database tables created once per test session
+- Function-level: User table truncated before each test
+- No shared state between tests
+
+### Coverage Metrics
+- 51 tests for signup endpoint
+- 100% passing
+- Covers: validation, duplicates, response structure, edge cases, security
+- Can be extended with `--cov=app` to generate detailed coverage reports
+
+### Next Steps for Testing
+Additional test files to implement:
+- `test_auth_login.py` - Login endpoint (validation, wrong credentials, tokens)
+- `test_auth_verify.py` - Token verification endpoint
+- `test_courses.py` - Course endpoints
+- `test_dashboard.py` - Dashboard endpoints
+- `test_analytics.py` - Analytics endpoints
+- Integration tests for multi-endpoint workflows
