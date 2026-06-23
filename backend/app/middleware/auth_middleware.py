@@ -20,6 +20,7 @@ PUBLIC_ENDPOINTS = [
     "/api/courses/",
     "/api/courses/generate",
     "/api/courses/preview",
+    "/api/classroom/",
     "/health",
     "/test-trace",
     "/docs",
@@ -35,57 +36,55 @@ class AuthMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next):
-        # Check if the endpoint is public
-        if self._is_public_endpoint(request.url.path):
-            response = await call_next(request)
-            return response
-
-        # Get the Authorization header
+        is_public = self._is_public_endpoint(request.url.path)
         auth_header = request.headers.get("Authorization")
 
-        if not auth_header:
+        # If Authorization header is present, always try to authenticate and set user context
+        if auth_header:
+            try:
+                parts = auth_header.split()
+                if len(parts) != 2 or parts[0].lower() != "bearer":
+                    logger.warning(f"Invalid authorization header format: {request.url.path}")
+                    if not is_public:
+                        return JSONResponse(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            content={"detail": "Invalid authorization header. Use: Authorization: Bearer <token>"},
+                            headers={"WWW-Authenticate": "Bearer"}
+                        )
+                else:
+                    token = parts[1]
+                    # Verify the token
+                    is_valid, payload, message = verify_token(token)
+
+                    if is_valid:
+                        # Store the user info in request state for later use
+                        request.state.user = payload
+                        # Also store in context variable for access without Request parameter
+                        current_user_context.set(payload)
+                        logger.info(f"Authenticated request to {request.url.path} by user: {payload.get('email')}")
+                    elif not is_public:
+                        logger.warning(f"Invalid token for {request.url.path}: {message}")
+                        return JSONResponse(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            content={"detail": message},
+                            headers={"WWW-Authenticate": "Bearer"}
+                        )
+            except ValueError:
+                logger.warning(f"Malformed authorization header: {request.url.path}")
+                if not is_public:
+                    return JSONResponse(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        content={"detail": "Invalid authorization header format"},
+                        headers={"WWW-Authenticate": "Bearer"}
+                    )
+        elif not is_public:
+            # No auth header and endpoint is not public - require token
             logger.warning(f"Unauthorized access attempt to {request.url.path} - no token")
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Authentication required. Please provide a valid token."},
                 headers={"WWW-Authenticate": "Bearer"}
             )
-
-        # Extract the token from "Bearer <token>"
-        try:
-            parts = auth_header.split()
-            if len(parts) != 2 or parts[0].lower() != "bearer":
-                logger.warning(f"Invalid authorization header format: {request.url.path}")
-                return JSONResponse(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "Invalid authorization header. Use: Authorization: Bearer <token>"},
-                    headers={"WWW-Authenticate": "Bearer"}
-                )
-            token = parts[1]
-        except ValueError:
-            logger.warning(f"Malformed authorization header: {request.url.path}")
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Invalid authorization header format"},
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-
-        # Verify the token
-        is_valid, payload, message = verify_token(token)
-
-        if not is_valid:
-            logger.warning(f"Invalid token for {request.url.path}: {message}")
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": message},
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-
-        # Store the user info in request state for later use
-        request.state.user = payload
-        # Also store in context variable for access without Request parameter
-        current_user_context.set(payload)
-        logger.info(f"Authenticated request to {request.url.path} by user: {payload.get('email')}")
 
         # Call the next middleware/route handler
         response = await call_next(request)

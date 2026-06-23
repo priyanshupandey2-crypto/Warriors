@@ -159,11 +159,11 @@ def get_quiz(course_id: int, quiz_id: int, db: Session = Depends(get_db)) -> Qui
                     QuestionOptionSchema(
                         id=str(opt.id),
                         text=opt.text,
-                        is_correct=opt.is_correct
+                        is_correct=False
                     )
                     for opt in q.options
                 ],
-                explanation=q.explanation,
+                explanation=None,
                 difficulty=q.difficulty
             )
             for q in questions

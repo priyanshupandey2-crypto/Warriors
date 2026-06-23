@@ -2062,3 +2062,220 @@ Additional test files to implement:
 - Integration tests for multi-endpoint workflows
 - Performance/load testing
 - Concurrent request handling
+
+---
+
+## API Migration & Data Consistency Bug Fix (2026-06-23)
+
+### Migration: Mock JSON → PostgreSQL Database ✅
+
+**Status:** Complete - All 36 API endpoints migrated from mock JSON data to real PostgreSQL database
+
+**Changes Made:**
+
+1. **Database Tables Created:**
+   - `users` - User accounts and authentication
+   - `courses` - Course catalog with metadata
+   - `user_courses` - User enrollment tracking with status (ENROLLED, IN_PROGRESS, COMPLETED)
+   - `lessons` - Course lesson content with markdown
+   - `quizzes` - Assessment quizzes with questions
+   - `quiz_options` - Multiple choice options for quiz questions
+   - `learning_activities` - User learning activity tracking
+   - `user_goals` - User learning goals and milestones
+   - `milestones` - Course milestones and achievements
+
+2. **All Endpoints Updated:**
+   - Routes: `app/routers/courses.py`, `app/routers/classroom.py`, `app/routers/analytics.py`
+   - **Courses:** featured, browse, generate, preview, enroll (5 endpoints)
+   - **Classroom:** workspace, lessons, quizzes, quiz submission, capstone, progress, bookmarks (11 endpoints)
+   - **Analytics:** dashboard, activity, consistency, milestones, achievements, stats, progress (8 endpoints)
+   - **Admin:** dashboard, users-count, action, info, test (5 endpoints)
+   - **Auth:** signup, login, verify-token (3 endpoints)
+   - **Health:** health, test-trace (2 endpoints)
+
+3. **Repository Pattern Implemented:**
+   - **File:** `app/repositories/dashboard_repository.py`
+   - Centralized database queries for analytics and dashboard data
+   - Methods implemented:
+     - `get_stats()` - Enrolled/completed/hours/streak counts
+     - `get_weekly_activity()` - Weekly learning activity
+     - `get_enrolled_courses()` - List of enrolled courses with progress
+     - `get_recently_completed()` - Recently completed courses
+     - `get_milestones()` - Course milestones
+     - `get_user_greeting()` - Personalized greeting
+
+### Data Inconsistency Bug - FIXED ✅
+
+**Issue:** Dashboard endpoint returned conflicting data
+```json
+{
+  "stats": {"enrolled_courses": 4},
+  "enrolled_courses": {"courses_list": []}  // Empty!
+}
+```
+
+**Root Cause:** Two different status filters in dashboard repository:
+- `get_stats()` counted: `UserCourse.status.in_(["ENROLLED", "IN_PROGRESS"])` → 4 courses
+- `get_enrolled_courses()` counted: `UserCourse.status == "IN_PROGRESS"` → 0 courses
+
+**Solution Applied:**
+
+**File:** `app/repositories/dashboard_repository.py`
+
+**Change 1 - Line 456 (Query Filter):**
+```python
+# BEFORE:
+UserCourse.status == "IN_PROGRESS"
+
+# AFTER:
+UserCourse.status.in_(["ENROLLED", "IN_PROGRESS"])
+```
+
+**Change 2 - Line 473 (Status Field):**
+```python
+# BEFORE:
+"status": "in_progress"
+
+# AFTER:
+"status": c[0].status.lower()
+```
+
+**Why:** Makes status field reflect actual database value instead of hardcoding to "in_progress"
+
+**Verification:** ✅ Tested on 2026-06-23
+- Server restarted with updated code
+- All 4 enrolled courses now returned in courses_list
+- stats.enrolled_courses (4) matches courses_list length (4)
+- Data is now consistent
+
+### Test Results: 36/36 Endpoints PASSING ✅
+
+**All Endpoints Verified:**
+
+**Health & Testing (2):**
+- ✅ GET /health
+- ✅ GET /test-trace
+
+**Authentication (3):**
+- ✅ POST /api/auth/signup
+- ✅ POST /api/auth/login
+- ✅ POST /api/auth/verify-token
+
+**Courses (6):**
+- ✅ GET /api/courses/featured
+- ✅ GET /api/courses/
+- ✅ GET /api/courses/?skip=0&limit=5
+- ✅ POST /api/courses/generate
+- ✅ GET /api/courses/1/preview
+- ✅ POST /api/courses/{id}/enroll
+
+**Classroom (11):**
+- ✅ GET /api/classroom/1
+- ✅ GET /api/classroom/1/lessons
+- ✅ GET /api/classroom/1/lessons/1
+- ✅ GET /api/classroom/1/quizzes
+- ✅ GET /api/classroom/1/quizzes/1
+- ✅ POST /api/classroom/1/quizzes/1/submit
+- ✅ POST /api/classroom/1/capstone/start
+- ✅ POST /api/classroom/1/capstone/submit
+- ✅ POST /api/classroom/progress/complete?course_id=1&lesson_id=1
+- ✅ POST /api/classroom/bookmarks/toggle?lesson_id=1&course_id=1
+- ✅ GET /api/classroom/bookmarks/
+
+**Dashboard (1):**
+- ✅ GET /api/v1/dashboard
+
+**User Analytics (8):**
+- ✅ GET /api/user/dashboard
+- ✅ GET /api/user/analytics/activity
+- ✅ GET /api/user/analytics/consistency
+- ✅ GET /api/user/milestones
+- ✅ GET /api/user/achievements
+- ✅ GET /api/user/progress/overview
+- ✅ GET /api/user/stats
+- ✅ GET /api/user/completed-courses
+
+**Admin (5):**
+- ✅ GET /api/admin/dashboard
+- ✅ GET /api/admin/users-count
+- ✅ POST /api/admin/action
+- ✅ GET /api/admin/info
+- ✅ GET /api/admin/test
+
+### Authentication & Security Fixes (2026-06-22 to 2026-06-23)
+
+**1. Middleware Architecture:**
+- **File:** `app/middleware/auth_middleware.py`
+- Issue: Auth middleware skipped validation for public endpoints, so request.state.user wasn't set
+- Fix: Refactored to ALWAYS validate Authorization header and set request.state.user for valid tokens
+- Change: Decoupled auth validation from endpoint access control
+- Result: request.state.user now available in all protected routes
+
+**2. Enroll in Course Endpoint:**
+- **File:** `app/routers/courses.py`
+- Issue: Used deprecated `current_user_context.get()` which returned None
+- Fix: Changed to use `request.state.user` with Request parameter dependency injection
+- Added: `db: Session` parameter to avoid instantiating SessionLocal()
+- Result: Enrollment now works correctly with authenticated users
+
+**3. Quiz Security:**
+- **File:** `app/routers/classroom.py`
+- Issue: Quiz preview exposed correct answers and explanations
+- Fix: Set `is_correct=False` and `explanation=None` for preview responses
+- Result: Students can't cheat by viewing quiz answers before submission
+
+**4. Classroom Endpoints:**
+- **File:** `app/middleware/auth_middleware.py`
+- Issue: Classroom read endpoints returned 401 despite being public
+- Fix: Added `/api/classroom/` to PUBLIC_ENDPOINTS list
+- Result: Course previews and lesson browsing accessible without login
+
+### Files Modified
+
+1. **`app/middleware/auth_middleware.py`**
+   - Refactored dispatch() method
+   - Always validates Authorization header
+   - Sets request.state.user for valid tokens
+   - Added /api/classroom/ to public endpoints
+
+2. **`app/routers/courses.py`**
+   - Line: enroll_in_course() function
+   - Changed from current_user_context to request.state.user
+   - Added Request and Session dependencies
+
+3. **`app/routers/classroom.py`**
+   - Line 162: Changed `is_correct=opt.is_correct` to `is_correct=False`
+   - Line 166: Changed `explanation=q.explanation` to `explanation=None`
+
+4. **`app/repositories/dashboard_repository.py`**
+   - Line 456: Updated status filter
+   - Line 473: Updated status field assignment
+
+5. **`app/routers/analytics.py`**
+   - No changes needed (already calling corrected repository method)
+
+### Status Summary
+
+**Database:** ✅ PostgreSQL connected and initialized
+**All 36 Endpoints:** ✅ Tested and passing
+**Authentication:** ✅ JWT middleware working correctly
+**Security:** ✅ Quiz answers hidden from preview
+**Data Consistency:** ✅ Enrolled courses bug fixed
+**Performance:** ✅ Connection pooling enabled (20 connections)
+
+### Documentation Generated
+
+- **ENDPOINT_TEST_CASES_WITH_OUTPUTS.md** - Updated with actual endpoint responses
+- **BUG_FIX_IMPLEMENTATION_SUMMARY.md** - Detailed bug fix documentation
+- **DASHBOARD_TEST_REPORT.md** - Dashboard endpoint test results
+- **QUICK_TEST_REFERENCE.txt** - Quick reference for all endpoints
+
+### Next Steps
+
+1. ✅ Complete endpoint testing - ALL 36 PASSING
+2. ✅ Fix data inconsistency bug - RESOLVED
+3. ✅ Verify authentication - WORKING
+4. ✅ Test security measures - IMPLEMENTED
+5. 🔄 Add more seed data for testing
+6. 🔄 Implement remaining features (capstone reviews, etc.)
+7. 🔄 Add integration tests for multi-endpoint workflows

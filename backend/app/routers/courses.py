@@ -1,12 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Body
+from fastapi import APIRouter, HTTPException, status, Depends, Body, Request
 from sqlalchemy.orm import Session
-from app.database import get_db, SessionLocal
+from app.database import get_db
 from app.models.course import Course
 from app.models.user_course import UserCourse
 from app.schemas.course_schemas import CourseGenerateRequest, FeaturedCourse
 from typing import List, Dict, Any
 from datetime import datetime
-from app.middleware.auth_middleware import current_user_context
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
 
@@ -116,46 +115,42 @@ def get_course_preview(course_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{cid}/enroll", response_model=dict)
-def enroll_in_course(cid: int) -> dict:
+def enroll_in_course(cid: int, request: Request, db: Session = Depends(get_db)) -> dict:
     """Enroll user in a course."""
-    current_user = current_user_context.get()
+    current_user = getattr(request.state, "user", None)
     if not current_user:
         raise HTTPException(status_code=401, detail="User not authenticated")
     user_id = int(current_user.get("sub"))
 
-    db = SessionLocal()
-    try:
-        course = db.query(Course).filter(Course.id == cid).first()
-        if not course:
-            raise HTTPException(status_code=404, detail=f"Course {cid} not found")
+    course = db.query(Course).filter(Course.id == cid).first()
+    if not course:
+        raise HTTPException(status_code=404, detail=f"Course {cid} not found")
 
-        existing = db.query(UserCourse).filter(
-            UserCourse.user_id == user_id,
-            UserCourse.course_id == cid
-        ).first()
+    existing = db.query(UserCourse).filter(
+        UserCourse.user_id == user_id,
+        UserCourse.course_id == cid
+    ).first()
 
-        if existing:
-            raise HTTPException(status_code=400, detail="Already enrolled")
+    if existing:
+        raise HTTPException(status_code=400, detail="Already enrolled")
 
-        enrollment = UserCourse(
-            user_id=user_id,
-            course_id=cid,
-            status="ENROLLED",
-            progress_percentage=0,
-            completed_lessons=0,
-            total_lessons=0,
-            enrolled_at=datetime.utcnow()
-        )
+    enrollment = UserCourse(
+        user_id=user_id,
+        course_id=cid,
+        status="ENROLLED",
+        progress_percentage=0,
+        completed_lessons=0,
+        total_lessons=0,
+        enrolled_at=datetime.utcnow()
+    )
 
-        db.add(enrollment)
-        db.commit()
-        db.refresh(enrollment)
+    db.add(enrollment)
+    db.commit()
+    db.refresh(enrollment)
 
-        return {
-            "status": "success",
-            "message": f"Successfully enrolled in course {cid}",
-            "enrollment_id": enrollment.id,
-            "enrollment_date": enrollment.enrolled_at.isoformat()
-        }
-    finally:
-        db.close()
+    return {
+        "status": "success",
+        "message": f"Successfully enrolled in course {cid}",
+        "enrollment_id": enrollment.id,
+        "enrollment_date": enrollment.enrolled_at.isoformat()
+    }
