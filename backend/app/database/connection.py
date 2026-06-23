@@ -89,10 +89,16 @@ def init_db():
     """Initialize database tables."""
     try:
         if engine:
-            Base.metadata.create_all(bind=engine)
+            # Import all models to register them with SQLAlchemy
+            # This must be done after Base is created but before create_all
+            import app.models  # noqa: F401
+
+            Base.metadata.create_all(bind=engine, checkfirst=True)
             logger.info("Database tables initialized successfully")
     except Exception as e:
-        logger.warning(f"Database initialization skipped (not available): {str(e)}")
+        logger.error(f"Database initialization failed: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
 
 
 def close_db():
