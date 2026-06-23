@@ -1,0 +1,21 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.0
+anthropic==0.24.0
+langsmith==0.1.0
+python-dotenv==1.0.0
+aiohttp==3.9.1
+
+# RAG & Vector Database
+pinecone-client==2.2.4
+langchain==0.1.0
+openai==1.3.0
+duckduckgo-search==3.9.10
+
+# Optional: Web search
+serpapi==0.0.1
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.23.2
+httpx==0.25.2
