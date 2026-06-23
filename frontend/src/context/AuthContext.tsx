@@ -164,13 +164,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const isValid = validateToken(data.access_token);
       const expiry = getTokenExpiryTimestamp(data.access_token);
 
+      // Construct user object from signup response (different structure than login)
+      const userData: User = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+      };
+
       setToken(data.access_token);
-      setUser(data.user);
+      setUser(userData);
       setIsLogin(true);
       setIsTokenValid(isValid);
       setTokenExpiry(expiry);
       localStorage.setItem("auralearn_token", data.access_token);
-      localStorage.setItem("auralearn_user", JSON.stringify(data.user));
+      localStorage.setItem("auralearn_user", JSON.stringify(userData));
       return { success: true };
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Network error";
