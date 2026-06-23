@@ -1,10 +1,14 @@
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Annotated
 import jwt
+from fastapi import HTTPException, status, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+HTTPAuthenticationCredentials = HTTPAuthorizationCredentials  # Alias for compatibility
 from app.config import settings
 from app.logger import get_logger
 
 logger = get_logger(__name__)
+security = HTTPBearer(auto_error=True)
 
 
 class TokenError(Exception):
@@ -161,3 +165,11 @@ def get_token_expiration_info(token: str) -> Dict:
     except Exception as e:
         logger.error(f"Error getting token expiration info: {str(e)}")
         return {"error": str(e)}
+
+
+async def get_current_user(request: Request) -> Dict:
+    """Extract authenticated user from request state (set by AuthMiddleware)."""
+    user = getattr(request.state, "user", None)
+    if not user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    return user

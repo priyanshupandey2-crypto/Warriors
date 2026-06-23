@@ -94,9 +94,13 @@ class Course(Base):
     # user_courses: All enrollments for this course
     # learning_activities: All activity records for this course
     # milestones: All assignments/deadlines for this course
+    # lessons: All lessons in this course
+    # quizzes: All quizzes in this course
     user_courses = relationship("UserCourse", back_populates="course")
     learning_activities = relationship("LearningActivity", back_populates="course")
     milestones = relationship("Milestone", back_populates="course")
+    lessons = relationship("Lesson", back_populates="course")
+    quizzes = relationship("Quiz", back_populates="course")
 
     def __repr__(self):
         return f"<Course(id={self.id}, title='{self.title}', difficulty='{self.difficulty}')>"

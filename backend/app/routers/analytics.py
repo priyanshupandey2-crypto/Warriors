@@ -1,113 +1,146 @@
-import json
-from fastapi import APIRouter, HTTPException, status
-from pathlib import Path
+from fastapi import APIRouter, HTTPException, status, Depends, Request
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.repositories.dashboard_repository import DashboardRepository
 from typing import Dict, Any, List
 
 router = APIRouter(prefix="/api/user", tags=["analytics"])
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-
-
-def load_json_file(filename: str):
-    """Load JSON file from data directory."""
-    file_path = DATA_DIR / filename
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Mock data file not found: {filename}"
-        )
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Invalid JSON in mock data: {filename}"
-        )
-
 
 @router.get("/dashboard", response_model=Dict[str, Any])
-def get_dashboard(user_id: str = "user-123") -> Dict[str, Any]:
+async def get_dashboard(request: Request, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get user dashboard with all analytics."""
-    data = load_json_file("userDashboard.json")
-    return data
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+
+    return {
+        "user_id": user_id,
+        "greeting": repo.get_user_greeting(user_id),
+        "stats": repo.get_stats(user_id),
+        "weekly_activity": repo.get_weekly_activity(user_id),
+        "weekly_goal": repo.get_weekly_goal(user_id),
+        "milestones": repo.get_milestones(user_id),
+        "enrolled_courses": repo.get_enrolled_courses(user_id),
+        "completed_courses": repo.get_recently_completed(user_id)
+    }
 
 
 @router.get("/analytics/activity", response_model=Dict[str, Any])
-def get_activity(user_id: str = "user-123") -> Dict[str, Any]:
+async def get_activity(request: Request, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get user activity for the week."""
-    data = load_json_file("userDashboard.json")
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+    weekly_activity = repo.get_weekly_activity(user_id)
+
     return {
         "user_id": user_id,
-        "weekly_activity": data.get("weekly_activity", {}),
-        "total_minutes_this_week": data.get("weekly_activity", {}).get("total_minutes_learned", 0)
+        "weekly_activity": weekly_activity,
+        "total_minutes_this_week": sum(item["minutes"] for item in weekly_activity.get("week_data", []))
     }
 
 
 @router.get("/analytics/consistency", response_model=Dict[str, Any])
-def get_consistency(user_id: str = "user-123") -> Dict[str, Any]:
+async def get_consistency(request: Request, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get learning consistency metrics and heatmap."""
-    data = load_json_file("userDashboard.json")
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+    monthly_consistency = repo.get_monthly_consistency(user_id)
+
+    total_minutes = sum(item["minutes"] for item in monthly_consistency.get("consistency_data", []))
+    days_with_activity = len([item for item in monthly_consistency.get("consistency_data", []) if item["minutes"] > 0])
+
     return {
         "user_id": user_id,
-        "learning_consistency": data.get("learning_consistency", {}),
-        "consistency_score": data.get("learning_consistency", {}).get("consistency_score", 0),
-        "average_daily_minutes": data.get("learning_consistency", {}).get("average_daily_minutes", 0)
+        "learning_consistency": monthly_consistency,
+        "consistency_score": min((days_with_activity / 30) * 100, 100),
+        "average_daily_minutes": total_minutes // 30 if days_with_activity > 0 else 0
     }
 
 
 @router.get("/milestones", response_model=List[Dict[str, Any]])
-def get_milestones(user_id: str = "user-123") -> List[Dict[str, Any]]:
+async def get_milestones(request: Request, db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get upcoming milestones for user."""
-    data = load_json_file("userDashboard.json")
-    return data.get("upcoming_milestones", [])
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+    milestones_data = repo.get_milestones(user_id)
+
+    return milestones_data.get("milestones_list", [])
 
 
 @router.get("/achievements", response_model=List[Dict[str, Any]])
-def get_achievements(user_id: str = "user-123") -> List[Dict[str, Any]]:
+async def get_achievements(request: Request, db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get user achievements and badges."""
-    data = load_json_file("userDashboard.json")
-    return data.get("achievements", [])
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    return []
 
 
 @router.get("/progress/overview", response_model=Dict[str, Any])
-def get_progress_overview(user_id: str = "user-123") -> Dict[str, Any]:
+async def get_progress_overview(request: Request, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get overall progress overview."""
-    data = load_json_file("userDashboard.json")
-    stats = data.get("dashboard_stats", {})
-    enrolled_courses = data.get("enrolled_courses", [])
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+    stats = repo.get_stats(user_id)
+    enrolled_courses = repo.get_enrolled_courses(user_id)
 
     return {
         "user_id": user_id,
-        "total_enrolled": stats.get("enrolled_courses", 0),
-        "total_completed": stats.get("completed_courses", 0),
-        "in_progress": stats.get("in_progress_courses", 0),
-        "total_learning_hours": stats.get("total_learning_hours", 0),
-        "courses": enrolled_courses,
-        "recommendations": data.get("recommended_next_steps", [])
+        "total_enrolled": stats["enrolled_courses"],
+        "total_completed": stats["completed_courses"],
+        "in_progress": stats["enrolled_courses"] - stats["completed_courses"],
+        "total_learning_hours": stats["learning_hours"],
+        "courses": enrolled_courses.get("courses_list", []),
+        "recommendations": []
     }
 
 
 @router.get("/stats", response_model=Dict[str, Any])
-def get_stats(user_id: str = "user-123") -> Dict[str, Any]:
+async def get_stats(request: Request, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """Get detailed user statistics."""
-    data = load_json_file("userDashboard.json")
-    stats = data.get("dashboard_stats", {})
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+    stats = repo.get_stats(user_id)
 
     return {
         "user_id": user_id,
-        "enrolled_courses": stats.get("enrolled_courses", 0),
-        "completed_courses": stats.get("completed_courses", 0),
-        "in_progress_courses": stats.get("in_progress_courses", 0),
-        "total_learning_hours": stats.get("total_learning_hours", 0),
-        "total_points_earned": stats.get("total_points_earned", 0),
-        "current_streak_days": stats.get("current_streak_days", 0),
-        "longest_streak_days": stats.get("longest_streak_days", 0)
+        "enrolled_courses": stats["enrolled_courses"],
+        "completed_courses": stats["completed_courses"],
+        "in_progress_courses": stats["enrolled_courses"] - stats["completed_courses"],
+        "total_learning_hours": stats["learning_hours"],
+        "total_points_earned": 0,
+        "current_streak_days": stats["streak_days"],
+        "longest_streak_days": stats["streak_days"]
     }
 
 
 @router.get("/completed-courses", response_model=List[Dict[str, Any]])
-def get_completed_courses(user_id: str = "user-123") -> List[Dict[str, Any]]:
+async def get_completed_courses(request: Request, db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     """Get list of completed courses."""
-    data = load_json_file("userDashboard.json")
-    return data.get("completed_courses", [])
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    user_id = int(current_user.get("sub"))
+    repo = DashboardRepository(db)
+    completed = repo.get_recently_completed(user_id)
+
+    return completed.get("completed_list", [])

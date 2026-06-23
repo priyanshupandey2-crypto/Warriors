@@ -88,6 +88,8 @@ def get_db():
 def init_db():
     """Initialize database tables."""
     try:
+        # Import models here to ensure they're all registered with Base
+        import app.models  # noqa: F401
         if engine:
             Base.metadata.create_all(bind=engine)
             logger.info("Database tables initialized successfully")

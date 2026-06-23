@@ -18,13 +18,13 @@ class TestSignupBasicFunctionality:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "signup@example.com",
                 "password": "SecurePass123!"
             }
         )
         assert response.status_code == 201
         data = response.json()
-        assert data["email"] == "john@example.com"
+        assert data["email"] == "signup@example.com"
         assert data["name"] == "John Doe"
         assert data["role"] == "learner"
         assert "access_token" in data
@@ -38,13 +38,13 @@ class TestSignupBasicFunctionality:
             "/api/auth/signup",
             json={
                 "name": "Jane Doe",
-                "email": "JANE@EXAMPLE.COM",
+                "email": "JANEDOE@EXAMPLE.COM",
                 "password": "SecurePass123!"
             }
         )
         assert response.status_code == 201
         data = response.json()
-        assert data["email"] == "jane@example.com"
+        assert data["email"] == "janedoe@example.com"
 
     def test_signup_name_trimmed(self, client):
         """Test that name is trimmed of whitespace."""
@@ -52,7 +52,7 @@ class TestSignupBasicFunctionality:
             "/api/auth/signup",
             json={
                 "name": "  John Doe  ",
-                "email": "john@example.com",
+                "email": "johntrimmed@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -192,7 +192,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "namevalid1@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -230,7 +230,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": "A",
-                "email": "john@example.com",
+                "email": "namevalid2@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -244,7 +244,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": long_name,
-                "email": "john@example.com",
+                "email": "namevalid3@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -257,7 +257,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": "",
-                "email": "john@example.com",
+                "email": "namevalid4@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -270,7 +270,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": "   ",
-                "email": "john@example.com",
+                "email": "namevalid5@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -282,7 +282,7 @@ class TestSignupNameValidation:
         response = client.post(
             "/api/auth/signup",
             json={
-                "email": "john@example.com",
+                "email": "namevalid6@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -294,7 +294,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": "John123",
-                "email": "john@example.com",
+                "email": "namevalid7@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -307,7 +307,7 @@ class TestSignupNameValidation:
             "/api/auth/signup",
             json={
                 "name": "John@Doe",
-                "email": "john@example.com",
+                "email": "namevalid8@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -324,7 +324,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid1@example.com",
                 "password": "SecurePass123"
             }
         )
@@ -336,7 +336,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid2@example.com",
                 "password": "SecurePass!23"
             }
         )
@@ -348,7 +348,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid3@example.com",
                 "password": "Pass1"
             }
         )
@@ -362,7 +362,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid4@example.com",
                 "password": long_password
             }
         )
@@ -375,7 +375,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid5@example.com",
                 "password": "onlylowercase"
             }
         )
@@ -388,7 +388,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid6@example.com",
                 "password": "ONLYUPPERCASE"
             }
         )
@@ -401,7 +401,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid7@example.com",
                 "password": "123456789"
             }
         )
@@ -415,7 +415,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid8@example.com",
                 "password": "SecurePass"
             }
         )
@@ -428,7 +428,7 @@ class TestSignupPasswordValidation:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "passvalid9@example.com",
                 "password": ""
             }
         )
@@ -479,16 +479,16 @@ class TestSignupDuplicateEmail:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "dupmail1@example.com",
                 "password": "SecurePass123!"
             }
         )
-        # Duplicate signup
+        # Duplicate signup with SAME email
         response = client.post(
             "/api/auth/signup",
             json={
                 "name": "Jane Doe",
-                "email": "john@example.com",
+                "email": "dupmail1@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -502,7 +502,7 @@ class TestSignupDuplicateEmail:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "dupmail3@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -525,16 +525,16 @@ class TestSignupDuplicateEmail:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "dupmail4@example.com",
                 "password": "SecurePass123!"
             }
         )
-        # Attempt with same email but different name
+        # Attempt with SAME email but different name
         response = client.post(
             "/api/auth/signup",
             json={
                 "name": "Jane Smith",
-                "email": "john@example.com",
+                "email": "dupmail4@example.com",
                 "password": "DifferentPass123!"
             }
         )
@@ -559,7 +559,7 @@ class TestSignupMissingFields:
             "/api/auth/signup",
             json={
                 "name": None,
-                "email": "john@example.com",
+                "email": "missingfield1@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -583,7 +583,7 @@ class TestSignupMissingFields:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "missingfield2@example.com",
                 "password": None
             }
         )
@@ -599,7 +599,7 @@ class TestSignupContentType:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "contenttype1@example.com",
                 "password": "SecurePass123!"
             },
             headers={"Content-Type": "application/json"}
@@ -612,7 +612,7 @@ class TestSignupContentType:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "contenttype2@example.com",
                 "password": "SecurePass123!",
                 "role": "admin",  # Extra field
                 "courses_enrolled": [1, 2, 3]  # Extra field
@@ -631,7 +631,7 @@ class TestSignupResponseStructure:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "respstruct1@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -645,7 +645,7 @@ class TestSignupResponseStructure:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "respstruct2@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -661,14 +661,14 @@ class TestSignupResponseStructure:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "respstruct3@example.com",
                 "password": "SecurePass123!"
             }
         )
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == "John Doe"
-        assert data["email"] == "john@example.com"
+        assert data["email"] == "respstruct3@example.com"
         assert data["role"] == "learner"
 
     def test_signup_response_no_password_in_response(self, client):
@@ -677,7 +677,7 @@ class TestSignupResponseStructure:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "respstruct5@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -743,7 +743,7 @@ class TestSignupEdgeCases:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "edge1@example.com",
                 "password": "SecurePass123!"
             }
         )
@@ -756,7 +756,7 @@ class TestSignupEdgeCases:
             "/api/auth/signup",
             json={
                 "name": "John Doe",
-                "email": "john@example.com",
+                "email": "edge2@example.com",
                 "password": "SecurePass123!"
             }
         )

@@ -21,7 +21,7 @@ class TestVerifyTokenBasicFunctionality:
         # Create a user
         user = User(
             name="John Doe",
-            email="john@example.com",
+            email="johnverify@example.com",
             password_hash=hash_password("SecurePass123!"),
             role="learner",
             courses_enrolled=[]
@@ -42,7 +42,7 @@ class TestVerifyTokenBasicFunctionality:
         assert data["success"] is True
         assert data["id"] == user.id
         assert data["name"] == "John Doe"
-        assert data["email"] == "john@example.com"
+        assert data["email"] == "johnverify@example.com"
         assert data["role"] == "learner"
 
     def test_verify_token_returns_user_data(self, client, db_session):
@@ -489,14 +489,14 @@ class TestVerifyTokenEdgeCases:
 
         user1 = User(
             name="User One",
-            email="user1@example.com",
+            email="userone@example.com",
             password_hash=hash_password("UserOne123!"),
             role="learner",
             courses_enrolled=[]
         )
         user2 = User(
             name="User Two",
-            email="user2@example.com",
+            email="usertwo@example.com",
             password_hash=hash_password("UserTwo123!"),
             role="learner",
             courses_enrolled=[]

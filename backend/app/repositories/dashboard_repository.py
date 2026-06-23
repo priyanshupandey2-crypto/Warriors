@@ -453,7 +453,7 @@ class DashboardRepository:
         courses = self.db.query(UserCourse, Course).join(Course).filter(
             and_(
                 UserCourse.user_id == user_id,
-                UserCourse.status == "IN_PROGRESS"
+                UserCourse.status.in_(["ENROLLED", "IN_PROGRESS"])
             )
         ).order_by(
             UserCourse.last_accessed_at.desc()
@@ -470,7 +470,7 @@ class DashboardRepository:
                 "progress_percentage": c[0].progress_percentage,
                 "completed_lessons": c[0].completed_lessons,
                 "total_lessons": c[0].total_lessons,
-                "status": "in_progress"
+                "status": c[0].status.lower()
             }
             for c in courses
         ]
