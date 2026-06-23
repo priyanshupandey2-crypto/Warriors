@@ -22,7 +22,7 @@ export default function LoginPage() {
     const result = await login(email, password);
     setLoading(false);
     if (result.success) {
-      router.push("/dashboard");
+      router.push("/");
     } else {
       setLocalError(result.error || "Login failed");
     }
