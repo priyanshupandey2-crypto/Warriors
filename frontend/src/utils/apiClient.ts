@@ -4,6 +4,11 @@ export interface FetchOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
 }
 
+export interface ApiError extends Error {
+  status?: number;
+  detail?: string;
+}
+
 export async function apiCall<T = any>(
   endpoint: string,
   options: FetchOptions = {}
@@ -29,7 +34,23 @@ export async function apiCall<T = any>(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     const message = error.detail || error.message || `HTTP ${response.status}`;
-    throw new Error(message);
+    const apiError = new Error(message) as ApiError;
+    apiError.status = response.status;
+    apiError.detail = error.detail;
+
+    // Handle 401 - Token expired or invalid
+    if (response.status === 401) {
+      if (typeof window !== "undefined") {
+        // Clear auth data
+        localStorage.removeItem("auralearn_token");
+        localStorage.removeItem("auralearn_user");
+
+        // Redirect to login
+        window.location.href = "/login";
+      }
+    }
+
+    throw apiError;
   }
 
   return response.json();

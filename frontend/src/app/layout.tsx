@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import TokenExpirationHandler from "@/components/TokenExpirationHandler";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,7 +30,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <TokenExpirationHandler />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
