@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const { signup } = useAuth();
+  const { signup, error } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -14,18 +14,24 @@ export default function SignupPage() {
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(false);
+  const [localError, setLocalError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) return;
+    setLocalError("");
     setLoading(true);
-    await signup(name, email, password);
+    const result = await signup(name, email, password);
     setLoading(false);
-    setToast(true);
-    setTimeout(() => {
-      setToast(false);
-      router.push("/");
-    }, 1500);
+    if (result.success) {
+      setToast(true);
+      setTimeout(() => {
+        setToast(false);
+        router.push("/");
+      }, 1500);
+    } else {
+      setLocalError(result.error || "Signup failed");
+    }
   };
 
   return (
@@ -80,6 +86,12 @@ export default function SignupPage() {
               Create your account to start your personalized learning journey.
             </p>
           </div>
+          {(localError || error) && (
+            <div className="p-4 bg-error/10 border border-error rounded-lg mb-6">
+              <p className="text-sm font-medium text-error">{localError || error}</p>
+            </div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-on-surface mb-2" htmlFor="full-name">Full Name</label>

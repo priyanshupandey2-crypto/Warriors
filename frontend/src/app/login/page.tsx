@@ -5,19 +5,25 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, error } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLocalError("");
     setLoading(true);
-    await login(email, password);
+    const result = await login(email, password);
     setLoading(false);
-    router.push("/dashboard");
+    if (result.success) {
+      router.push("/dashboard");
+    } else {
+      setLocalError(result.error || "Login failed");
+    }
   };
 
   return (
@@ -58,6 +64,12 @@ export default function LoginPage() {
               Log in to pick up right where you left off in your learning journey.
             </p>
           </div>
+
+          {(localError || error) && (
+            <div className="p-4 bg-error/10 border border-error rounded-lg">
+              <p className="text-sm font-medium text-error">{localError || error}</p>
+            </div>
+          )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-1">

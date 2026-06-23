@@ -5,16 +5,17 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: "user" | "admin";
+  role: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isLoading: boolean;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,78 +26,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("auralearn_token");
     const savedUser = localStorage.getItem("auralearn_user");
     if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      try {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem("auralearn_token");
+        localStorage.removeItem("auralearn_user");
+      }
     }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
+    setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) throw new Error("Login failed");
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = errorData.detail || errorData.message || "Login failed";
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+
       const data = await res.json();
-      setToken(data.token);
+      setToken(data.access_token);
       setUser(data.user);
-      localStorage.setItem("auralearn_token", data.token);
+      localStorage.setItem("auralearn_token", data.access_token);
       localStorage.setItem("auralearn_user", JSON.stringify(data.user));
-    } catch {
-      // For demo: mock login
-      const mockUser: User = {
-        id: 1,
-        name: email.split("@")[0].replace(/\./g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        email,
-        role: email.includes("admin") ? "admin" : "user",
-      };
-      const mockToken = "mock_jwt_" + Date.now();
-      setToken(mockToken);
-      setUser(mockUser);
-      localStorage.setItem("auralearn_token", mockToken);
-      localStorage.setItem("auralearn_user", JSON.stringify(mockUser));
+      return { success: true };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Network error";
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
     }
   };
 
   const signup = async (name: string, email: string, password: string) => {
+    setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/signup`, {
+      const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
-      if (!res.ok) throw new Error("Signup failed");
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = errorData.detail || errorData.message || "Signup failed";
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+
       const data = await res.json();
-      setToken(data.token);
+      setToken(data.access_token);
       setUser(data.user);
-      localStorage.setItem("auralearn_token", data.token);
+      localStorage.setItem("auralearn_token", data.access_token);
       localStorage.setItem("auralearn_user", JSON.stringify(data.user));
-    } catch {
-      const mockUser: User = { id: 1, name, email, role: "user" };
-      const mockToken = "mock_jwt_" + Date.now();
-      setToken(mockToken);
-      setUser(mockUser);
-      localStorage.setItem("auralearn_token", mockToken);
-      localStorage.setItem("auralearn_user", JSON.stringify(mockUser));
+      return { success: true };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Network error";
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
     }
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
+    setError(null);
     localStorage.removeItem("auralearn_token");
     localStorage.removeItem("auralearn_user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, signup, logout, isLoading, error }}>
       {children}
     </AuthContext.Provider>
   );
