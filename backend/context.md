@@ -1916,3 +1916,149 @@ This backend provides production-ready infrastructure for AI agent workflows and
 - ✅ 17/36 endpoints tested and verified
 
 The infrastructure is production-ready. Development focus: complete endpoint testing and add seed data.
+
+---
+
+## Testing Infrastructure
+
+### Test Suite Overview
+Comprehensive test coverage using pytest for all API endpoints. Currently implemented:
+
+**Signup Endpoint Tests: 51 test cases (100% passing)**
+- Email validation (9 tests): format, length, duplicates, case-insensitivity
+- Name validation (9 tests): length, characters, whitespace handling
+- Password validation (10 tests): strength requirements, length constraints
+- Duplicate email handling (3 tests): case-sensitive and case-insensitive
+- Missing/null fields (4 tests): required field validation
+- Response structure (4 tests): token format, user data, security
+- Edge cases (5 tests): multiple users, IDs, role enforcement
+
+**Login Endpoint Tests: 34 test cases (100% passing)**
+- Basic functionality (4 tests): successful login, email case-insensitivity, token/user info
+- Email validation (7 tests): format, case-sensitivity, spaces, missing fields
+- Password validation (4 tests): empty, short, missing, null passwords
+- Authentication (4 tests): user not found, wrong password, case-sensitivity, failed attempts
+- Response structure (6 tests): token format, user object, fields, no password leakage
+- Edge cases (5 tests): special characters, long passwords, role preservation, course enrollment
+- Missing fields (2 tests): all fields missing, null values
+- Integration (2 tests): login after signup, multiple users
+
+**Verify Token Endpoint Tests: 25 test cases (100% passing)**
+- Basic functionality (3 tests): valid token verification, user data returned, Bearer prefix
+- Invalid tokens (6 tests): empty, malformed, corrupted, wrong secret, expired, invalid user
+- Random tokens (1 test): completely invalid token strings
+- Missing headers (5 tests): missing Authorization header, wrong Bearer prefix, wrong scheme, empty header
+- Response structure (5 tests): success/failure fields, HTTP status codes, all fields present
+- Edge cases (5 tests): special characters in email, role preservation, multiple tokens, extra whitespace, user identity
+- Integration (3 tests): token from signup, token from login, complete lifecycle (signup → login → verify)
+
+**Total Test Coverage: 110 tests (100% passing)**
+
+### Setup & Installation
+
+**Test dependencies** (separate from production):
+```bash
+pip install -r requirements-test.txt
+```
+
+Includes: pytest, pytest-asyncio, httpx, pytest-cov, pytest-xdist, pytest-mock, pytest-html
+
+**Database configuration:**
+- Uses `TEST_DATABASE_URL` from `.env` (separate test database on Neon PostgreSQL)
+- Falls back to `DATABASE_URL` if test database not configured
+- Automatically creates tables before test session
+- Cleans up user table between tests via TRUNCATE
+
+### Running Tests
+
+**All auth tests (signup + login + verify token):**
+```bash
+pytest tests/test_auth_signup.py tests/test_auth_login.py tests/test_auth_verify_token.py -v
+```
+
+**Signup tests only:**
+```bash
+pytest tests/test_auth_signup.py -v
+```
+
+**Login tests only:**
+```bash
+pytest tests/test_auth_login.py -v
+```
+
+**Verify token tests only:**
+```bash
+pytest tests/test_auth_verify_token.py -v
+```
+
+**Specific test class:**
+```bash
+pytest tests/test_auth_signup.py::TestSignupEmailValidation -v
+pytest tests/test_auth_login.py::TestLoginAuthentication -v
+```
+
+**Specific single test:**
+```bash
+pytest tests/test_auth_login.py::TestLoginBasicFunctionality::test_login_success -v
+```
+
+**With coverage report:**
+```bash
+pytest tests/ --cov=app --cov-report=html
+```
+
+**Parallel execution (faster):**
+```bash
+pytest tests/ -n auto
+```
+
+### Test Architecture
+
+**Key Files:**
+- `tests/test_auth_signup.py` - 51 signup endpoint tests organized in 9 test classes
+- `tests/test_auth_login.py` - 34 login endpoint tests organized in 8 test classes
+- `tests/test_auth_verify_token.py` - 25 verify token endpoint tests organized in 7 test classes
+- `tests/conftest.py` - Shared pytest fixtures for database and client setup
+- `requirements-test.txt` - Test-only dependencies
+
+**How tests work:**
+1. ✅ App created in-memory (no server process needed)
+2. ✅ Database connection overridden to test database
+3. ✅ FastAPI TestClient simulates HTTP requests directly
+4. ✅ Completely isolated - no production data affected
+5. ✅ No manual backend startup required (`pytest` runs everything)
+
+**Test isolation:**
+- Session-level: Database tables created once per test session
+- Function-level: User table truncated before each test
+- No shared state between tests
+
+### Coverage Metrics
+- 51 tests for signup endpoint
+- 100% passing
+- Covers: validation, duplicates, response structure, edge cases, security
+- Can be extended with `--cov=app` to generate detailed coverage reports
+
+### Test Files
+
+**Implemented:**
+- `tests/test_auth_signup.py` - 51 tests for signup endpoint
+- `tests/test_auth_login.py` - 34 tests for login endpoint
+- `tests/conftest.py` - Shared fixtures and database setup
+
+**Key Test Utilities:**
+- Database fixtures with automatic table creation and cleanup
+- Client fixture with FastAPI TestClient
+- Session fixture for direct database access in tests
+- Automatic user table truncation between tests
+
+### Next Steps for Testing
+Additional test files to implement:
+- `test_courses.py` - Course endpoints (list, create, update, delete)
+- `test_dashboard.py` - Dashboard endpoints (user stats, progress)
+- `test_analytics.py` - Analytics endpoints (learning patterns, metrics)
+- `test_classroom.py` - Classroom endpoints (lessons, content)
+- `test_admin.py` - Admin endpoints (user management, system stats)
+- Integration tests for multi-endpoint workflows
+- Performance/load testing
+- Concurrent request handling
