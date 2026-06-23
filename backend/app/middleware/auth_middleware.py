@@ -87,4 +87,22 @@ class AuthMiddleware(BaseHTTPMiddleware):
     @staticmethod
     def _is_public_endpoint(path: str) -> bool:
         """Check if the endpoint is in the public list."""
-        return path in PUBLIC_ENDPOINTS
+        # Exact match
+        if path in PUBLIC_ENDPOINTS:
+            return True
+
+        # Check with/without trailing slash
+        path_with_slash = path if path.endswith("/") else path + "/"
+        path_without_slash = path.rstrip("/")
+
+        if path_with_slash in PUBLIC_ENDPOINTS:
+            return True
+        if path_without_slash in PUBLIC_ENDPOINTS:
+            return True
+
+        # Check if path starts with any public endpoint
+        for endpoint in PUBLIC_ENDPOINTS:
+            if endpoint.endswith("/") and (path.startswith(endpoint) or path_without_slash == endpoint.rstrip("/")):
+                return True
+
+        return False
