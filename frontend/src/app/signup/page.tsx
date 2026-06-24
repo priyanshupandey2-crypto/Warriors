@@ -1,11 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const { signup, error } = useAuth();
+  const { signup, error, user } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -14,6 +16,13 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(false);
   const [localError, setLocalError] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      showToast("You are already logged in", "info", 3000);
+      router.push("/");
+    }
+  }, [user, router, showToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

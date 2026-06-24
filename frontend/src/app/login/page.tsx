@@ -1,11 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { login, error } = useAuth();
+  const { login, error, user } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +16,13 @@ export default function LoginPage() {
   const [localError, setLocalError] = useState("");
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      showToast("You are already logged in", "info", 3000);
+      router.push("/");
+    }
+  }, [user, router, showToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
