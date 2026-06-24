@@ -25,10 +25,19 @@ export default function LoginPage() {
       initialCheckDone.current = true;
       if (user) {
         showToast("You are already logged in", "info", 3000);
-        router.push("/");
+        const destination = user.role === "admin" ? "/admin" : "/";
+        router.push(destination);
       }
     }
   }, [isLoading, user, router, showToast]);
+
+  useEffect(() => {
+    // Redirect admin users to /admin after successful login
+    // This runs after login form submission
+    if (!loading && user && user.role === "admin") {
+      router.push("/admin");
+    }
+  }, [loading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
