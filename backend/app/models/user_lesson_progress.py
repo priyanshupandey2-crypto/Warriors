@@ -35,6 +35,8 @@ class UserLessonProgress(Base):
     completed_at = Column(DateTime, nullable=True)
     last_accessed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     time_spent_minutes = Column(Integer, default=0)
+    marked_to_revisit = Column(Boolean, default=False)
+    revisit_marked_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="lesson_progress")

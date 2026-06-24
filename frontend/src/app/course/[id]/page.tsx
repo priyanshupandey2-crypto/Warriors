@@ -45,6 +45,9 @@ export default function CourseLearningPage() {
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<number>>(new Set());
+  const [markedLessonIds, setMarkedLessonIds] = useState<Set<number>>(new Set());
+  const [markedToRevisit, setMarkedToRevisit] = useState(false);
+  const [revisitToggling, setRevisitToggling] = useState(false);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -76,6 +79,12 @@ export default function CourseLearningPage() {
     }
   }, [courseId, apiCall]);
 
+  useEffect(() => {
+    if (activeLesson) {
+      checkLessonRevisitStatus(activeLesson.id);
+    }
+  }, [activeLesson]);
+
   const checkEnrollmentStatus = async () => {
     try {
       const response = await apiCall<any>(`/api/progress/course/${courseId}`);
@@ -84,14 +93,20 @@ export default function CourseLearningPage() {
         setProgressPercentage(response.progress_percentage || 0);
         setCompletedLessons(response.completed_lessons || 0);
 
-        // Mark completed lessons
+        // Mark completed lessons and marked lessons
         if (response.lesson_progress && Array.isArray(response.lesson_progress)) {
           const completedIds = new Set(
             response.lesson_progress
               .filter((lp: any) => lp.is_completed)
               .map((lp: any) => lp.lesson_id)
           );
+          const markedIds = new Set(
+            response.lesson_progress
+              .filter((lp: any) => lp.marked_to_revisit)
+              .map((lp: any) => lp.lesson_id)
+          );
           setCompletedLessonIds(completedIds);
+          setMarkedLessonIds(markedIds);
         }
       }
     } catch (error) {
@@ -127,6 +142,58 @@ export default function CourseLearningPage() {
   const handleLessonClick = (lesson: Lesson, module: Module) => {
     setActiveLesson(lesson);
     setActiveModule(module);
+    checkLessonRevisitStatus(lesson.id);
+  };
+
+  const checkLessonRevisitStatus = async (lessonId: number) => {
+    try {
+      const response = await apiCall<any>(`/api/progress/lesson/${lessonId}/progress`);
+      if (response) {
+        setMarkedToRevisit(response.marked_to_revisit || false);
+      }
+    } catch (error) {
+      setMarkedToRevisit(false);
+    }
+  };
+
+  const updateMarkedLessonsSet = (lessonId: number, isMarked: boolean) => {
+    setMarkedLessonIds(prev => {
+      const newSet = new Set(prev);
+      if (isMarked) {
+        newSet.add(lessonId);
+      } else {
+        newSet.delete(lessonId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleToggleRevisit = async () => {
+    if (!activeLesson) return;
+
+    try {
+      setRevisitToggling(true);
+      const response = await apiCall("/api/progress/lesson/revisit", {
+        method: "POST",
+        body: JSON.stringify({
+          lesson_id: activeLesson.id,
+          marked_to_revisit: !markedToRevisit,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        const newMarkedStatus = !markedToRevisit;
+        setMarkedToRevisit(newMarkedStatus);
+        updateMarkedLessonsSet(activeLesson.id, newMarkedStatus);
+      }
+    } catch (error) {
+      console.error("Failed to toggle revisit mark:", error);
+    } finally {
+      setRevisitToggling(false);
+    }
   };
 
   const handlePreviousLesson = () => {
@@ -259,6 +326,7 @@ export default function CourseLearningPage() {
                 <div className="space-y-1 mt-2">
                   {module.lessons && module.lessons.map((lesson, lessonIdx) => {
                     const isCompleted = completedLessonIds.has(lesson.id);
+                    const isMarked = markedLessonIds.has(lesson.id);
                     return (
                       <button
                         key={lessonIdx}
@@ -277,9 +345,19 @@ export default function CourseLearningPage() {
                         >
                           {isCompleted ? "check_circle" : "play_circle"}
                         </span>
-                        <span className={`text-base ${activeLesson?.id === lesson.id ? "font-semibold" : ""}`}>
+                        <span className={`flex-1 text-base ${activeLesson?.id === lesson.id ? "font-semibold" : ""}`}>
                           {lesson.title}
                         </span>
+                        {isMarked && (
+                          <span
+                            className={`material-symbols-outlined text-sm ${
+                              activeLesson?.id === lesson.id ? "text-on-primary-container" : "text-tertiary"
+                            }`}
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            bookmark
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -299,8 +377,17 @@ export default function CourseLearningPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1 px-4 py-2 rounded-lg border border-outline-variant text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-all active:scale-95">
-                <span className="material-symbols-outlined text-[18px]">bookmark</span>Mark to Revisit
+              <button
+                onClick={handleToggleRevisit}
+                disabled={revisitToggling}
+                className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium transition-all active:scale-95 ${
+                  markedToRevisit
+                    ? "border-tertiary bg-tertiary-container text-on-tertiary-container"
+                    : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: markedToRevisit ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
+                {markedToRevisit ? "Marked" : "Mark to Revisit"}
               </button>
               <button
                 onClick={handleCompleteLesson}

@@ -4,6 +4,7 @@ Course progress and enrollment tracking endpoints
 
 from fastapi import APIRouter, HTTPException, status, Depends, Request
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app.models.user_course import UserCourse
 from app.models.lesson import Lesson
@@ -18,6 +19,7 @@ from app.schemas.progress_schemas import (
     LessonProgressCreate,
     LessonCompletionRequest,
     LessonProgress,
+    LessonRevisitRequest,
 )
 from datetime import datetime
 
@@ -66,8 +68,15 @@ def enroll_in_course(
     )
 
     db.add(enrollment)
-    db.commit()
-    db.refresh(enrollment)
+    try:
+        db.commit()
+        db.refresh(enrollment)
+    except IntegrityError as e:
+        db.rollback()
+        # Check if it's a foreign key violation for user_id
+        if "user_id" in str(e):
+            raise HTTPException(status_code=401, detail="User not found. Please log in again.")
+        raise HTTPException(status_code=400, detail="Failed to enroll in course")
 
     return enrollment
 
@@ -258,10 +267,60 @@ def get_lesson_progress(
             "is_completed": False,
             "time_spent_minutes": 0,
             "completed_at": None,
+            "marked_to_revisit": False,
+            "revisit_marked_at": None,
         }
 
     return {
         "is_completed": progress.is_completed,
         "time_spent_minutes": progress.time_spent_minutes,
         "completed_at": progress.completed_at,
+        "marked_to_revisit": progress.marked_to_revisit,
+        "revisit_marked_at": progress.revisit_marked_at,
+    }
+
+
+@router.post("/lesson/revisit")
+def toggle_lesson_revisit(
+    request_body: LessonRevisitRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Mark or unmark a lesson to revisit later."""
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
+    user_id = int(current_user.get("sub"))
+    lesson_id = request_body.lesson_id
+
+    # Get lesson
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    # Get or create lesson progress
+    progress = db.query(UserLessonProgress).filter(
+        UserLessonProgress.user_id == user_id, UserLessonProgress.lesson_id == lesson_id
+    ).first()
+
+    if not progress:
+        progress = UserLessonProgress(
+            user_id=user_id,
+            lesson_id=lesson_id,
+            course_id=lesson.course_id,
+            marked_to_revisit=request_body.marked_to_revisit,
+            revisit_marked_at=datetime.utcnow() if request_body.marked_to_revisit else None,
+        )
+        db.add(progress)
+    else:
+        progress.marked_to_revisit = request_body.marked_to_revisit
+        progress.revisit_marked_at = datetime.utcnow() if request_body.marked_to_revisit else None
+
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Lesson marked for revisit" if request_body.marked_to_revisit else "Revisit mark removed",
+        "marked_to_revisit": request_body.marked_to_revisit,
     }

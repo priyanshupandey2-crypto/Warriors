@@ -27,6 +27,8 @@ class LessonProgress(BaseModel):
     completed_at: Optional[datetime]
     last_accessed_at: datetime
     time_spent_minutes: int
+    marked_to_revisit: bool
+    revisit_marked_at: Optional[datetime]
 
     class Config:
         from_attributes = True
@@ -85,3 +87,8 @@ class CourseProgressResponse(BaseModel):
 class LessonCompletionRequest(BaseModel):
     lesson_id: int
     time_spent_minutes: int = 0
+
+
+class LessonRevisitRequest(BaseModel):
+    lesson_id: int
+    marked_to_revisit: bool
