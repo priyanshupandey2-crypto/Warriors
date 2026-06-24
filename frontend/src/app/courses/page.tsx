@@ -29,6 +29,7 @@ export default function CoursesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(new Set());
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const itemsPerPage = 9;
   const apiCall = useApiCall();
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -240,12 +241,20 @@ export default function CoursesPage() {
                               </div>
                             )}
                             <div className="relative h-48 overflow-hidden bg-surface-container">
-                              {course.thumbnail_url ? (
+                              {course.thumbnail_url && !failedImages.has(course.id) ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img className="w-full h-full object-cover" src={course.thumbnail_url} alt={course.title} />
+                                <img
+                                  className="w-full h-full object-cover"
+                                  src={course.thumbnail_url}
+                                  alt={course.title}
+                                  onError={() => setFailedImages(prev => new Set([...prev, course.id]))}
+                                />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <span className="material-symbols-outlined text-4xl text-outline">image</span>
+                                <div className="w-full h-full flex items-center justify-center bg-surface-container">
+                                  <div className="text-center">
+                                    <span className="material-symbols-outlined text-5xl text-outline-variant mb-2 block">image_not_supported</span>
+                                    <p className="text-sm text-on-surface-variant">No image available</p>
+                                  </div>
                                 </div>
                               )}
                             </div>
