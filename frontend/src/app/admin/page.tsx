@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/context/ToastContext";
 
 const adminStats = [
   { label: "Total Courses", value: "124", trend: "+4 this month", trendIcon: "trending_up", trendColor: "text-tertiary" },
@@ -26,7 +27,16 @@ const sidebarLinks = [
 export default function AdminPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    // Redirect non-admin users to home with toast
+    if (user && user.role !== "admin") {
+      showToast("Not allowed", "error");
+      router.push("/");
+    }
+  }, [user, router, showToast]);
 
   const filteredCourses = courses.filter(
     (c) => c.title.toLowerCase().includes(search.toLowerCase()) || c.id.toLowerCase().includes(search.toLowerCase())

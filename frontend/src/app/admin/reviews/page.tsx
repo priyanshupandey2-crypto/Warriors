@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/context/ToastContext";
 
 const reviewStats = [
   { label: "Pending Reviews", value: "128", trend: "+12 today" }
@@ -62,8 +63,17 @@ const sidebarLinks = [
 export default function ReviewQueuePage() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [selectedReview, setSelectedReview] = useState<typeof reviews[0] | null>(null);
+
+  useEffect(() => {
+    // Redirect non-admin users to home with toast
+    if (user && user.role !== "admin") {
+      showToast("Not allowed", "error");
+      router.push("/");
+    }
+  }, [user, router, showToast]);
 
   const filteredReviews = reviews.filter(
     (r) => r.name.toLowerCase().includes(search.toLowerCase()) || r.topic.toLowerCase().includes(search.toLowerCase())
