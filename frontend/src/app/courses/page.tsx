@@ -28,9 +28,26 @@ export default function CoursesPage() {
   const [sortBy, setSortBy] = useState("popular");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(new Set());
   const itemsPerPage = 9;
   const apiCall = useApiCall();
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const fetchEnrolledCourses = async () => {
+      try {
+        const response = await apiCall<any>("/api/progress/my-courses");
+        if (response && response.courses) {
+          const enrolledIds = new Set(response.courses.map((c: any) => c.course_id.toString()));
+          setEnrolledCourseIds(enrolledIds);
+        }
+      } catch (error) {
+        console.error("Failed to fetch enrolled courses:", error);
+      }
+    };
+
+    fetchEnrolledCourses();
+  }, [apiCall]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -210,27 +227,37 @@ export default function CoursesPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filtered.length > 0 ? (
-                      filtered.map((course) => (
-                        <div key={course.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
-                          <div className="relative h-48 overflow-hidden bg-surface-container">
-                            {course.thumbnail_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img className="w-full h-full object-cover" src={course.thumbnail_url} alt={course.title} />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <span className="material-symbols-outlined text-4xl text-outline">image</span>
+                      filtered.map((course) => {
+                        const isEnrolled = enrolledCourseIds.has(course.id);
+                        return (
+                          <div key={course.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col relative">
+                            {isEnrolled && (
+                              <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-tertiary text-on-primary px-3 py-1 rounded-full text-xs font-semibold">
+                                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                  check_circle
+                                </span>
+                                Enrolled
                               </div>
                             )}
-                          </div>
-                          <div className="p-6 flex-grow flex flex-col">
-                            <div className="flex items-start justify-between mb-2">
-                              <h3 className="text-lg font-bold text-on-surface line-clamp-2 flex-1">{course.title}</h3>
-                              {course.category && (
-                                <span className="ml-2 px-3 py-1 bg-primary text-on-primary text-xs font-medium rounded whitespace-nowrap">
-                                  {course.category}
-                                </span>
+                            <div className="relative h-48 overflow-hidden bg-surface-container">
+                              {course.thumbnail_url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img className="w-full h-full object-cover" src={course.thumbnail_url} alt={course.title} />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="material-symbols-outlined text-4xl text-outline">image</span>
+                                </div>
                               )}
                             </div>
+                            <div className="p-6 flex-grow flex flex-col">
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="text-lg font-bold text-on-surface line-clamp-2 flex-1">{course.title}</h3>
+                                {course.category && (
+                                  <span className="ml-2 px-3 py-1 bg-primary text-on-primary text-xs font-medium rounded whitespace-nowrap">
+                                    {course.category}
+                                  </span>
+                                )}
+                              </div>
                             <p className="text-sm text-on-surface-variant mb-4 line-clamp-2">{course.description}</p>
                             <div className="flex items-center gap-4 mb-6 text-on-surface-variant text-sm">
                               <span className="flex items-center gap-1">
@@ -253,7 +280,8 @@ export default function CoursesPage() {
                             </div>
                           </div>
                         </div>
-                      ))
+                        );
+                      })
                     ) : (
                       <div className="col-span-full text-center py-12">
                         <p className="text-on-surface-variant">No courses found matching your criteria</p>
