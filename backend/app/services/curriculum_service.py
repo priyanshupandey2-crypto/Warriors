@@ -128,31 +128,44 @@ class CurriculumService:
 
 
     def _generate_source_urls(self, topic: str, tags: List[str]) -> List[str]:
-        """Generate URLs for curriculum extraction."""
+        """
+        Generate URLs for curriculum extraction.
+
+        Prioritizes reliable sources that usually have the topic.
+        Avoids generating URLs that commonly return 404s.
+        """
         urls = []
         topic_slug = "-".join(topic.lower().split())
         topic_clean = topic_slug.replace("-tutorial", "").replace("-guide", "")
 
+        # GeeksForGeeks - very reliable for programming/CS topics
         gfg_urls = [
             f"https://www.geeksforgeeks.org/{topic_slug}/",
             f"https://www.geeksforgeeks.org/{topic_clean}/",
         ]
         urls.extend(gfg_urls)
 
+        # W3Schools - excellent for web/database topics
         w3_urls = [
             f"https://www.w3schools.com/{topic_slug}/",
-            f"https://www.w3schools.com/whatis/{topic_slug}.asp",
+            # Skip whatis URL - often returns 404
         ]
         urls.extend(w3_urls)
 
-        mdn_urls = [
-            f"https://developer.mozilla.org/en-US/docs/Learn/{topic_slug}/",
-            f"https://developer.mozilla.org/en-US/docs/Web/{topic_slug}/",
-        ]
-        urls.extend(mdn_urls)
+        # MDN - only add if topic looks like web/JavaScript related
+        # Avoid for general topics like "SQL" or "Database"
+        web_related_keywords = {"javascript", "css", "html", "dom", "web", "react", "vue", "angular"}
+        if any(kw in topic.lower() for kw in web_related_keywords):
+            mdn_urls = [
+                f"https://developer.mozilla.org/en-US/docs/Learn/{topic_slug}/",
+                f"https://developer.mozilla.org/en-US/docs/Web/{topic_slug}/",
+            ]
+            urls.extend(mdn_urls)
 
+        # Roadmap.sh - great for learning paths
         urls.append(f"https://roadmap.sh/{topic_slug}")
 
+        # Remove duplicates while preserving order
         seen = set()
         unique_urls = []
         for url in urls:
@@ -160,6 +173,7 @@ class CurriculumService:
                 seen.add(url)
                 unique_urls.append(url)
 
+        logger.info(f"Generated {len(unique_urls)} source URLs for topic '{topic}'")
         return unique_urls
 
     def _save_curriculum_to_db(

@@ -593,26 +593,29 @@ class FirecrawlService:
         Validate that extracted content has sufficient educational value.
 
         Checks:
-            1. Content length (must be > 1000 chars)
-            2. Heading structure (must have >= 2 headings)
-            3. Content richness (enough concepts extracted)
+            1. Content length (must be > 500 chars - lowered from 1000)
+            2. Heading structure (must have >= 1 heading - lowered from 2)
+            3. Content richness (at least 2 concepts - lowered from 3)
 
         Returns:
             (is_valid, message)
         """
-        # Check content length
-        if len(markdown) < 1000:
-            return False, f"Content too short ({len(markdown)} chars < 1000 minimum)"
+        # Check content length (minimum 500 chars for meaningful content)
+        min_length = 500
+        if len(markdown) < min_length:
+            return False, f"Content too short ({len(markdown)} chars < {min_length} minimum)"
 
-        # Check for headings
+        # Check for headings (at least 1 heading for structure)
         headings = self.extractor.extract_headings(markdown)
-        if len(headings) < 2:
-            return False, f"Insufficient structure ({len(headings)} headings < 2 minimum)"
+        min_headings = 1
+        if len(headings) < min_headings:
+            return False, f"Insufficient structure ({len(headings)} headings < {min_headings} minimum)"
 
-        # Check for concepts
+        # Check for concepts (at least 2 for meaningful content)
         concepts = self.extractor.extract_concepts(markdown)
-        if len(concepts) < 3:
-            return False, f"Low concept density ({len(concepts)} concepts < 3 minimum)"
+        min_concepts = 2
+        if len(concepts) < min_concepts:
+            return False, f"Low concept density ({len(concepts)} concepts < {min_concepts} minimum)"
 
         return True, f"Quality check passed: {len(markdown)} chars, {len(headings)} headings, {len(concepts)} concepts"
 
