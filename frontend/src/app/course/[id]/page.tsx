@@ -1,109 +1,291 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import Navbar from "@/components/Navbar";
+import { useApiCall } from "@/hooks/useApiCall";
 
-const sidebarData = [
-  {
-    title: "Module 1: Cognitive Foundations",
-    lessons: [
-      { name: "The Designer's Brain", status: "completed" },
-      { name: "Understanding Mental Models", status: "current" },
-      { name: "Cognitive Load Theory", status: "locked" },
-      { name: "Practice: User Flow Audit", status: "locked", badge: true },
-    ],
-  },
-  {
-    title: "Module 2: Behavioral Patterns",
-    lessons: [
-      { name: "Hick's Law in Action", status: "locked" },
-      { name: "Fitts's Law Demystified", status: "locked" },
-      { name: "Mid-term Assessment", status: "locked" },
-    ],
-  },
-];
+interface Lesson {
+  id: number;
+  title: string;
+  duration_minutes: number;
+  content_markdown?: string;
+  order: number;
+}
+
+interface Module {
+  id?: number;
+  title: string;
+  description?: string;
+  lessons?: Lesson[];
+}
+
+interface CoursePreview {
+  id: string;
+  title: string;
+  description: string;
+  difficulty_level: string;
+  total_duration_hours: number;
+  modules: Module[];
+  lesson_sequence: Lesson[];
+}
 
 export default function CourseLearningPage() {
-  const [activeLesson, setActiveLesson] = useState("Understanding Mental Models");
+  const params = useParams();
+  const courseId = params.id;
+  const apiCall = useApiCall();
+
+  const [course, setCourse] = useState<CoursePreview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+  const [activeModule, setActiveModule] = useState<Module | null>(null);
+  const [enrolled, setEnrolled] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [progressPercentage, setProgressPercentage] = useState(0);
+  const [completedLessons, setCompletedLessons] = useState(0);
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const response = await apiCall<CoursePreview>(
+          `/api/courses/${courseId}/preview`
+        );
+        if (response) {
+          setCourse(response);
+          // Set first module and first lesson as active
+          if (response.modules && response.modules.length > 0) {
+            setActiveModule(response.modules[0]);
+            if (response.modules[0].lessons && response.modules[0].lessons.length > 0) {
+              setActiveLesson(response.modules[0].lessons[0]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch course:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (courseId) {
+      fetchCourse();
+      checkEnrollmentStatus();
+    }
+  }, [courseId, apiCall]);
+
+  const checkEnrollmentStatus = async () => {
+    try {
+      const response = await apiCall<any>(`/api/progress/course/${courseId}`);
+      if (response) {
+        setEnrolled(true);
+        setProgressPercentage(response.progress_percentage || 0);
+        setCompletedLessons(response.completed_lessons || 0);
+
+        // Mark completed lessons
+        if (response.lesson_progress && Array.isArray(response.lesson_progress)) {
+          const completedIds = new Set(
+            response.lesson_progress
+              .filter((lp: any) => lp.is_completed)
+              .map((lp: any) => lp.lesson_id)
+          );
+          setCompletedLessonIds(completedIds);
+        }
+      }
+    } catch (error) {
+      setEnrolled(false);
+    }
+  };
+
+  const handleEnroll = async () => {
+    try {
+      setEnrolling(true);
+      const response = await apiCall("/api/progress/enroll", {
+        method: "POST",
+        body: JSON.stringify({ course_id: parseInt(courseId as string) }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        setEnrolled(true);
+        setProgressPercentage(0);
+        setCompletedLessons(0);
+      }
+    } catch (error) {
+      console.error("Failed to enroll:", error);
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const totalLessons = course?.lesson_sequence?.length || 0;
+
+  const handleLessonClick = (lesson: Lesson, module: Module) => {
+    setActiveLesson(lesson);
+    setActiveModule(module);
+  };
+
+  const handlePreviousLesson = () => {
+    if (!activeLesson || !course) return;
+
+    const currentIndex = course.lesson_sequence.findIndex(
+      (l) => l.id === activeLesson.id
+    );
+
+    if (currentIndex > 0) {
+      const previousLesson = course.lesson_sequence[currentIndex - 1];
+      // Find the module that contains this lesson
+      const moduleWithLesson = course.modules?.find((mod) =>
+        mod.lessons?.some((l) => l.id === previousLesson.id)
+      );
+      if (moduleWithLesson) {
+        handleLessonClick(previousLesson, moduleWithLesson);
+      }
+    }
+  };
+
+  const handleNextLesson = () => {
+    if (!activeLesson || !course) return;
+
+    const currentIndex = course.lesson_sequence.findIndex(
+      (l) => l.id === activeLesson.id
+    );
+
+    if (currentIndex < course.lesson_sequence.length - 1) {
+      const nextLesson = course.lesson_sequence[currentIndex + 1];
+      // Find the module that contains this lesson
+      const moduleWithLesson = course.modules?.find((mod) =>
+        mod.lessons?.some((l) => l.id === nextLesson.id)
+      );
+      if (moduleWithLesson) {
+        handleLessonClick(nextLesson, moduleWithLesson);
+      }
+    }
+  };
+
+  const isPreviousDisabled = !activeLesson || course?.lesson_sequence?.findIndex((l) => l.id === activeLesson.id) === 0;
+  const isNextDisabled = !activeLesson || course?.lesson_sequence?.findIndex((l) => l.id === activeLesson.id) === (totalLessons - 1);
+
+  const handleCompleteLesson = async () => {
+    if (!activeLesson) return;
+
+    try {
+      const response = await apiCall("/api/progress/lesson/complete", {
+        method: "POST",
+        body: JSON.stringify({
+          lesson_id: activeLesson.id,
+          time_spent_minutes: activeLesson.duration_minutes,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        // Update progress bar
+        setProgressPercentage(response.progress_percentage || 0);
+        setCompletedLessons(response.completed_lessons || 0);
+        setCompletedLessonIds(prev => new Set([...prev, activeLesson.id]));
+
+        // Mark lesson as completed and move to next
+        if (!isNextDisabled) {
+          handleNextLesson();
+        }
+      }
+    } catch (error) {
+      console.error("Failed to mark lesson complete:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-on-surface-variant">Course not found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Top Nav */}
-      <nav className="bg-surface-container-lowest fixed top-0 w-full z-50 shadow-[0_12px_16px_rgba(0,0,0,0.04)] h-16">
-        <div className="flex justify-between items-center w-full px-6 max-w-[1280px] mx-auto h-full">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="text-2xl font-semibold text-primary tracking-tight">AuraLearn</Link>
-            <div className="hidden md:flex items-center gap-4 ml-8">
-              <Link href="/dashboard" className="text-base text-primary border-b-2 border-primary pb-1">My Learning</Link>
-              <Link href="/courses" className="text-base text-on-surface-variant hover:text-primary transition-colors">Courses</Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all">notifications</button>
-            <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold border border-outline-variant">AC</div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main */}
-      <main className="pt-16 h-screen flex overflow-hidden">
+      <main className="pt-20 h-screen flex overflow-hidden">
         {/* Sidebar */}
         <aside className="w-80 flex-shrink-0 bg-surface-container-lowest border-r border-surface-container shadow-sm overflow-y-auto custom-scrollbar flex flex-col hidden md:flex">
           <div className="p-6">
-            <h1 className="text-2xl font-semibold text-on-surface mb-2">Mastering UX Psychology</h1>
-            <div className="w-full bg-surface-container rounded-full h-2 mb-6 overflow-hidden">
-              <div className="bg-primary h-full rounded-full" style={{ width: "35%" }} />
-            </div>
-            <div className="flex items-center justify-between text-sm font-medium text-on-surface-variant">
-              <span>Progress</span>
-              <span className="text-primary font-bold">35% Complete</span>
-            </div>
-          </div>
-          <nav className="flex-1 space-y-1 pb-8">
-            {sidebarData.map((mod, mi) => (
-              <div key={mi} className="px-6 mb-4">
-                <div className="flex items-center justify-between py-2 cursor-pointer group">
-                  <h2 className="text-sm font-medium text-on-surface uppercase tracking-wider">{mod.title}</h2>
-                  {mi > 0 && <span className="material-symbols-outlined text-outline">lock</span>}
+            <h1 className="text-2xl font-semibold text-on-surface mb-2">
+              {course?.title}
+            </h1>
+            {enrolled ? (
+              <>
+                <div className="w-full bg-surface-container rounded-full h-2 mb-6 overflow-hidden">
+                  <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${progressPercentage}%` }} />
                 </div>
-                <div className={`space-y-1 mt-2 ${mi > 0 ? "opacity-60" : ""}`}>
-                  {mod.lessons.map((lesson, li) => (
-                    <button
-                      key={li}
-                      className={`flex items-center gap-2 p-2 rounded-lg w-full text-left transition-all ${
-                        lesson.name === activeLesson
-                          ? "bg-primary-container text-on-primary-container shadow-sm border border-primary/10"
-                          : lesson.status === "locked" && mi > 0
-                          ? "pointer-events-none text-on-surface-variant"
-                          : "hover:bg-surface-container-low text-on-surface-variant"
-                      }`}
-                      onClick={() => lesson.status !== "locked" && setActiveLesson(lesson.name)}
-                    >
-                      <span
-                        className={`material-symbols-outlined ${
-                          lesson.status === "completed" ? "text-tertiary-container" : lesson.name === activeLesson ? "text-on-primary-container" : "text-outline"
+                <div className="flex items-center justify-between text-sm font-medium text-on-surface-variant">
+                  <span>Progress</span>
+                  <span className="text-primary font-bold">{progressPercentage}% Complete</span>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={handleEnroll}
+                disabled={enrolling}
+                className="w-full bg-primary text-on-primary font-semibold py-2 rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
+              >
+                {enrolling ? "Enrolling..." : "Enroll in Course"}
+              </button>
+            )}
+          </div>
+
+          <nav className="flex-1 space-y-1 pb-8">
+            {course?.modules && course.modules.map((module, moduleIdx) => (
+              <div key={moduleIdx} className="px-6 mb-4">
+                <div className="flex items-center justify-between py-2 cursor-pointer group">
+                  <h2 className="text-sm font-medium text-on-surface uppercase tracking-wider">{module.title}</h2>
+                </div>
+                <div className="space-y-1 mt-2">
+                  {module.lessons && module.lessons.map((lesson, lessonIdx) => {
+                    const isCompleted = completedLessonIds.has(lesson.id);
+                    return (
+                      <button
+                        key={lessonIdx}
+                        onClick={() => handleLessonClick(lesson, module)}
+                        className={`flex items-center gap-2 p-2 rounded-lg w-full text-left transition-all ${
+                          activeLesson?.id === lesson.id
+                            ? "bg-primary-container text-on-primary-container shadow-sm border border-primary/10"
+                            : "hover:bg-surface-container-low text-on-surface-variant"
                         }`}
-                        style={{ fontVariationSettings: lesson.status === "completed" ? "'FILL' 1" : "'FILL' 0" }}
                       >
-                        {lesson.status === "completed" ? "check_circle" : lesson.name === activeLesson ? "play_circle" : "radio_button_unchecked"}
-                      </span>
-                      <span className={`text-base ${lesson.name === activeLesson ? "font-semibold" : ""}`}>{lesson.name}</span>
-                      {lesson.badge && <span className="ml-auto material-symbols-outlined text-tertiary-container text-[18px]">verified</span>}
-                    </button>
-                  ))}
+                        <span
+                          className={`material-symbols-outlined ${
+                            activeLesson?.id === lesson.id ? "text-on-primary-container" : isCompleted ? "text-tertiary" : "text-outline"
+                          }`}
+                          style={{ fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0" }}
+                        >
+                          {isCompleted ? "check_circle" : "play_circle"}
+                        </span>
+                        <span className={`text-base ${activeLesson?.id === lesson.id ? "font-semibold" : ""}`}>
+                          {lesson.title}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
-            {/* Marked to revisit */}
-            <div className="px-6 mt-12 border-t border-surface-container pt-8">
-              <h2 className="text-sm font-medium text-on-surface-variant mb-4 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">bookmark_border</span>
-                Marked to Revisit
-              </h2>
-              <div className="p-2 bg-surface-container-high rounded-lg flex items-center gap-2 border border-primary/5">
-                <span className="material-symbols-outlined text-[#F59E0B] text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
-                <span className="text-sm font-medium text-on-surface">Gestalt Principles</span>
-              </div>
-            </div>
           </nav>
         </aside>
 
@@ -112,108 +294,113 @@ export default function CourseLearningPage() {
           {/* Top Bar */}
           <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-surface-container flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-on-surface-variant">Module 1 • Lesson 2</span>
-              <h3 className="text-2xl font-semibold text-on-surface hidden md:block">{activeLesson}</h3>
+              <span className="text-sm font-medium text-on-surface-variant">
+                {activeModule?.title} • {activeLesson?.title}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <button className="flex items-center gap-1 px-4 py-2 rounded-lg border border-outline-variant text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-all active:scale-95">
                 <span className="material-symbols-outlined text-[18px]">bookmark</span>Mark to Revisit
               </button>
-              <button className="flex items-center gap-1 px-4 py-2 rounded-lg bg-tertiary text-on-primary text-sm font-medium hover:opacity-90 transition-all active:scale-95 shadow-sm">
-                <span className="material-symbols-outlined text-[18px]">check</span>Complete &amp; Next
+              <button
+                onClick={handleCompleteLesson}
+                disabled={isNextDisabled && activeLesson?.order === totalLessons}
+                className="flex items-center gap-1 px-4 py-2 rounded-lg bg-tertiary text-on-primary text-sm font-medium hover:opacity-90 transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined text-[18px]">check</span>
+                {activeLesson?.order === totalLessons ? "Course Complete!" : "Complete & Next"}
               </button>
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-6 md:p-12 max-w-4xl mx-auto w-full space-y-8 pb-12">
-            <div className="space-y-6">
-              <header>
-                <h2 className="text-3xl font-semibold text-on-surface mb-2">What are Mental Models?</h2>
-                <p className="text-lg text-on-surface-variant leading-relaxed">
-                  A mental model is what the user believes about the system at hand. These models are based on belief, not facts: that is, it&apos;s a model of what users know (or think they know) about a system.
-                </p>
-              </header>
-
-              {/* Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                <div className="p-6 bg-surface-container-low rounded-xl border border-surface-container">
-                  <div className="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-primary">psychology</span>
+          <div className="flex-1 p-6 md:p-12 max-w-4xl mx-auto w-full space-y-8 pb-12 overflow-y-auto">
+            {activeLesson ? (
+              <div className="space-y-6">
+                {/* Lesson Info */}
+                <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-surface-container-low rounded-lg border border-surface-container">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-primary">schedule</span>
+                    <div>
+                      <p className="text-sm text-on-surface-variant">Duration</p>
+                      <p className="font-semibold text-on-surface">{activeLesson.duration_minutes} minutes</p>
+                    </div>
                   </div>
-                  <h4 className="text-2xl font-semibold text-on-surface mb-1">Jakob&apos;s Law</h4>
-                  <p className="text-base text-on-surface-variant">
-                    Users spend most of their time on other sites. This means they prefer your site to work the same way as all the other sites they already know.
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-tertiary">check_circle</span>
+                    <div>
+                      <p className="text-sm text-on-surface-variant">Lesson Progress</p>
+                      <p className="font-semibold text-on-surface">{activeLesson.order} of {totalLessons}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-6 bg-surface-container-low rounded-xl border border-surface-container">
-                  <div className="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-tertiary">schema</span>
-                  </div>
-                  <h4 className="text-2xl font-semibold text-on-surface mb-1">Consistency is Key</h4>
-                  <p className="text-base text-on-surface-variant">
-                    By leveraging existing mental models, we can create superior experiences in which the users can focus on their tasks rather than learning new models.
-                  </p>
+
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      h1: ({ node, ...props }) => <h1 className="text-4xl font-bold text-on-surface mt-6 mb-4 first:mt-0" {...props} />,
+                      h2: ({ node, ...props }) => <h2 className="text-3xl font-semibold text-on-surface mt-5 mb-3" {...props} />,
+                      h3: ({ node, ...props }) => <h3 className="text-2xl font-semibold text-on-surface mt-4 mb-2" {...props} />,
+                      p: ({ node, ...props }) => <p className="text-base text-on-surface-variant leading-relaxed mb-3" {...props} />,
+                      ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-4 text-on-surface-variant" {...props} />,
+                      ol: ({ node, ...props }) => <ol className="list-decimal pl-6 space-y-2 mb-4 text-on-surface-variant" {...props} />,
+                      li: ({ node, ...props }) => <li className="text-base text-on-surface-variant" {...props} />,
+                      code: ({ node, inline, ...props }) =>
+                        inline ? (
+                          <code className="bg-surface-container px-2 py-1 rounded text-sm font-mono text-primary" {...props} />
+                        ) : (
+                          <code className="block bg-surface-container p-4 rounded-lg overflow-x-auto text-sm font-mono text-primary mb-4" {...props} />
+                        ),
+                      pre: ({ node, ...props }) => <pre className="bg-surface-container p-4 rounded-lg overflow-x-auto mb-4" {...props} />,
+                      blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary pl-4 italic text-on-surface-variant mb-4" {...props} />,
+                      hr: ({ node, ...props }) => <hr className="border-t border-outline-variant my-6" {...props} />,
+                      strong: ({ node, ...props }) => <strong className="font-bold text-on-surface" {...props} />,
+                      em: ({ node, ...props }) => <em className="italic text-on-surface-variant" {...props} />,
+                    }}
+                  >
+                    {activeLesson.content_markdown || "Lesson content goes here. This is a placeholder for the actual lesson material."}
+                  </ReactMarkdown>
                 </div>
               </div>
-
-              {/* Additional content */}
-              <div className="space-y-4">
-                <p className="text-base text-on-surface-variant">
-                  The most common mistake designers make is assuming that their users have the same mental model as they do. This is often called the &quot;False-Consensus Effect.&quot; To avoid this, we must:
-                </p>
-                <ul className="space-y-2">
-                  {[
-                    "Conduct thorough user research before defining architectures.",
-                    "Use card sorting to understand how users categorize information.",
-                    "Maintain internal consistency across the entire product ecosystem.",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-primary mt-1">trending_flat</span>
-                      <span className="text-base text-on-surface-variant">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-on-surface-variant">Select a lesson to start learning</p>
               </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="pt-12 border-t border-surface-container flex flex-col md:flex-row items-center justify-between gap-6">
-              <button className="flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_back</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-xs font-semibold text-on-surface-variant uppercase">Previous Lesson</p>
-                  <p className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">The Designer&apos;s Brain</p>
-                </div>
-              </button>
-              <button className="flex items-center gap-4 group text-right">
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-on-surface-variant uppercase">Next Lesson</p>
-                  <p className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Cognitive Load Theory</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined text-on-primary">arrow_forward</span>
-                </div>
-              </button>
-            </div>
+            )}
           </div>
 
-          {/* Footer */}
-          <footer className="bg-surface-container-low py-8 mt-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 max-w-[1280px] mx-auto gap-4">
-              <span className="text-lg font-semibold text-on-surface">AuraLearn AI</span>
-            </div>
-          </footer>
+          {/* Navigation Footer */}
+          <div className="border-t border-surface-container bg-white/50 backdrop-blur-sm px-6 py-4 flex items-center justify-between">
+            <button
+              onClick={handlePreviousLesson}
+              disabled={isPreviousDisabled}
+              className={`flex items-center gap-1 transition-colors ${
+                isPreviousDisabled
+                  ? "text-outline-variant cursor-not-allowed opacity-50"
+                  : "text-on-surface-variant hover:text-primary"
+              }`}
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+              Previous Lesson
+            </button>
+            <span className="text-sm text-on-surface-variant">
+              Lesson {activeLesson?.order} of {totalLessons}
+            </span>
+            <button
+              onClick={handleNextLesson}
+              disabled={isNextDisabled}
+              className={`flex items-center gap-1 transition-colors ${
+                isNextDisabled
+                  ? "text-outline-variant cursor-not-allowed opacity-50"
+                  : "text-on-surface-variant hover:text-primary"
+              }`}
+            >
+              Next Lesson
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
         </section>
       </main>
-
-      {/* FAB */}
-      <button className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl bg-secondary text-on-secondary shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group">
-        <span className="material-symbols-outlined text-[28px]">edit_note</span>
-        <span className="absolute right-full mr-4 bg-on-background text-white px-4 py-2 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">Take Notes</span>
-      </button>
     </div>
   );
 }

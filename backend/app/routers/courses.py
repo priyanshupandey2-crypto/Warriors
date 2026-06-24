@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
 from app.models.course import Course
+from app.models.lesson import Lesson
 from app.models.user_course import UserCourse
 from app.schemas.course_schemas import CourseGenerateRequest, FeaturedCourse
 from typing import List, Dict, Any
@@ -155,17 +156,58 @@ def get_course_preview(course_id: int, db: Session = Depends(get_db)):
             detail=f"Course {course_id} not found"
         )
 
+    # Get all lessons for this course
+    lessons = db.query(Lesson).filter(Lesson.course_id == course.id).order_by(Lesson.order).all()
+
+    # Group lessons by module (we'll create module structure from lessons)
+    # Since we don't have a Module model yet, we'll group lessons sequentially
+    modules = []
+    current_module_lessons = []
+    lessons_per_module = 3  # Group lessons into modules of 3
+
+    for idx, lesson in enumerate(lessons):
+        current_module_lessons.append({
+            "id": lesson.id,
+            "title": lesson.title,
+            "duration_minutes": lesson.duration_minutes,
+            "content_markdown": lesson.content_markdown,
+            "order": lesson.order,
+        })
+
+        # Create a new module every 3 lessons or at the end
+        if len(current_module_lessons) == lessons_per_module or idx == len(lessons) - 1:
+            module_num = len(modules) + 1
+            modules.append({
+                "title": f"Module {module_num}: {course.title.split()[0]} Module",
+                "description": f"Learn about {course.title.lower()}",
+                "lessons": current_module_lessons,
+            })
+            current_module_lessons = []
+
     return {
         "id": str(course.id),
         "title": course.title,
         "description": course.description,
         "difficulty_level": course.difficulty,
         "total_duration_hours": course.duration_hours,
-        "learning_objectives": [],
+        "learning_objectives": [
+            f"Master {course.title}",
+            f"Understand core concepts of {course.title}",
+            f"Apply {course.title} in real-world scenarios"
+        ],
         "overview": course.description,
-        "modules": [],
-        "lesson_sequence": [],
-        "learning_roadmap": ""
+        "modules": modules,
+        "lesson_sequence": [
+            {
+                "id": lesson.id,
+                "title": lesson.title,
+                "duration_minutes": lesson.duration_minutes,
+                "order": lesson.order,
+                "content_markdown": lesson.content_markdown,
+            }
+            for lesson in lessons
+        ],
+        "learning_roadmap": f"Complete all {len(lessons)} lessons to master {course.title}"
     }
 
 

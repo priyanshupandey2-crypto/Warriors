@@ -8,7 +8,7 @@ if sys.platform == "win32":
 
 from app.config import settings
 from app.logger import configure_logging, get_logger
-from app.routers import analytics, classroom, courses, admin, dashboard
+from app.routers import analytics, classroom, courses, admin, dashboard, progress
 from app.routers.auth import signup_router, login_router, verify_router
 from app.routes import health, test_trace
 from app.tracing import configure_langsmith
@@ -56,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(classroom.router)
     app.include_router(dashboard.router)
     app.include_router(analytics.router)
+    app.include_router(progress.router)
     app.include_router(admin.router)  # Admin routes (protected)
 
     @app.on_event("startup")
