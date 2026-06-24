@@ -25,7 +25,7 @@ export default function CoursesPage() {
   const [search, setSearch] = useState("");
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [selectedDiff, setSelectedDiff] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState("popular");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
   const itemsPerPage = 9;
