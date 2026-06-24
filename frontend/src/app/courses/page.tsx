@@ -14,6 +14,7 @@ interface Course {
   thumbnail_url: string | null;
   rating: number | null;
   enrollments: number;
+  category?: string;
 }
 
 const categories = ["All Categories", "Computer Science", "Business & Strategy", "Creative Design", "Marketing"];
@@ -22,7 +23,7 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedCat, setSelectedCat] = useState("All Categories");
+  const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [selectedDiff, setSelectedDiff] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
@@ -34,16 +35,24 @@ export default function CoursesPage() {
       try {
         setLoading(true);
         const skip = (currentPage - 1) * itemsPerPage;
-        const response = await apiCall<any>(`/api/courses?skip=${skip}&limit=${itemsPerPage}`);
+        let url = `/api/courses?skip=${skip}&limit=${itemsPerPage}`;
 
-        // Check if response is in paginated format (has data and total properties)
+
+        if (selectedDiff) {
+          url += `&difficulty=${encodeURIComponent(selectedDiff)}`;
+        }
+        if (selectedCats.length > 0) {
+          const encodedCats = selectedCats.map(c => encodeURIComponent(c)).join(",");
+          url += `&categories=${encodedCats}`;
+        }
+
+        const response = await apiCall<any>(url);
+
         if (response && typeof response === 'object' && 'data' in response && 'total' in response) {
           setCourses(response.data || []);
           setTotalCourses(response.total || 0);
         } else if (Array.isArray(response)) {
           setCourses(response);
-          // For array format, we don't know the real total, so assume it's all on this page
-          // This is a fallback for old API format
           setTotalCourses(response.length);
         } else {
           setCourses([]);
@@ -59,12 +68,11 @@ export default function CoursesPage() {
     };
 
     fetchCourses();
-  }, [currentPage, apiCall, itemsPerPage]);
+  }, [currentPage, selectedDiff, selectedCats, apiCall, itemsPerPage]);
 
   const filtered = courses && courses.length > 0 ? courses.filter((c) => {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
-    const matchDiff = !selectedDiff || c.difficulty_level === selectedDiff;
-    return matchSearch && matchDiff;
+    return matchSearch;
   }) : [];
 
   const totalPages = Math.ceil(totalCourses / itemsPerPage);
@@ -99,33 +107,59 @@ export default function CoursesPage() {
               <div>
                 <h3 className="text-sm font-medium text-primary mb-4 uppercase tracking-wider">Categories</h3>
                 <div className="space-y-2">
-                  {categories.map((cat) => (
-                    <label key={cat} className="flex items-center gap-2 group cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary accent-primary"
-                        checked={selectedCat === cat}
-                        onChange={() => setSelectedCat(cat)}
-                      />
-                      <span className="text-base text-on-surface group-hover:text-primary transition-colors">{cat}</span>
-                    </label>
-                  ))}
+                  {categories.map((cat) => {
+                    const isAll = cat === "All Categories";
+                    const isChecked = isAll ? selectedCats.length === 0 : selectedCats.includes(cat);
+
+                    return (
+                      <label key={cat} className="flex items-center gap-2 group cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary accent-primary"
+                          checked={isChecked}
+                          onChange={() => {
+                            if (isAll) {
+                              setSelectedCats([]);
+                              setCurrentPage(1);
+                            } else {
+                              let newCats: string[];
+                              if (selectedCats.includes(cat)) {
+                                newCats = selectedCats.filter(c => c !== cat);
+                              } else {
+                                newCats = [...selectedCats, cat];
+                              }
+                              setSelectedCats(newCats);
+                              setCurrentPage(1);
+                            }
+                          }}
+                        />
+                        <span className="text-base text-on-surface group-hover:text-primary transition-colors">{cat}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
               <div className="pt-4 border-t border-outline-variant">
                 <h3 className="text-sm font-medium text-primary mb-4 uppercase tracking-wider">Difficulty</h3>
                 <div className="space-y-2">
-                  {["Beginner", "Intermediate", "Advanced"].map((diff) => (
-                    <label key={diff} className="flex items-center gap-2 group cursor-pointer">
-                      <input
-                        type="radio" name="difficulty"
-                        className="w-5 h-5 border-outline-variant text-primary focus:ring-primary accent-primary"
-                        checked={selectedDiff === diff}
-                        onChange={() => setSelectedDiff(selectedDiff === diff ? "" : diff)}
-                      />
-                      <span className="text-base text-on-surface">{diff}</span>
-                    </label>
-                  ))}
+                  {["All", "Beginner", "Intermediate", "Advanced"].map((diff) => {
+                    const isAll = diff === "All";
+                    const isChecked = isAll ? selectedDiff === "" : selectedDiff === diff;
+                    return (
+                      <label key={diff} className="flex items-center gap-2 group cursor-pointer">
+                        <input
+                          type="radio" name="difficulty"
+                          className="w-5 h-5 border-outline-variant text-primary focus:ring-primary accent-primary"
+                          checked={isChecked}
+                          onChange={() => {
+                            setSelectedDiff(isAll ? "" : diff);
+                            setCurrentPage(1);
+                          }}
+                        />
+                        <span className="text-base text-on-surface">{diff}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </aside>
@@ -138,14 +172,10 @@ export default function CoursesPage() {
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-between items-center mb-8">
+                  <div className="mb-8">
                     <p className="text-sm font-medium text-on-surface-variant">
                       Total <span className="font-bold text-on-surface">{totalCourses}</span> courses • Showing <span className="font-bold text-on-surface">{filtered.length}</span> courses
                     </p>
-                    <select className="bg-transparent border-none text-sm font-medium text-primary focus:ring-0 cursor-pointer">
-                      <option>Newest First</option>
-                      <option>Most Popular</option>
-                    </select>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filtered.length > 0 ? (
@@ -162,7 +192,14 @@ export default function CoursesPage() {
                             )}
                           </div>
                           <div className="p-6 flex-grow flex flex-col">
-                            <h3 className="text-lg font-bold text-on-surface line-clamp-2 mb-2">{course.title}</h3>
+                            <div className="flex items-start justify-between mb-2">
+                              <h3 className="text-lg font-bold text-on-surface line-clamp-2 flex-1">{course.title}</h3>
+                              {course.category && (
+                                <span className="ml-2 px-3 py-1 bg-primary text-on-primary text-xs font-medium rounded whitespace-nowrap">
+                                  {course.category}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm text-on-surface-variant mb-4 line-clamp-2">{course.description}</p>
                             <div className="flex items-center gap-4 mb-6 text-on-surface-variant text-sm">
                               <span className="flex items-center gap-1">

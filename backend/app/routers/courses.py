@@ -38,22 +38,33 @@ def get_featured_courses(db: Session = Depends(get_db)) -> List[FeaturedCourse]:
             tags=[],
             thumbnail_url=course.thumbnail_url,
             rating=None,
-            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count()
+            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count(),
+            category=course.category
         )
         for course in courses
     ]
 
 
 @router.get("/", response_model=PaginatedCoursesResponse)
-def browse_courses(skip: int = 0, limit: int = 9, db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
-    """Browse all courses with pagination."""
+def browse_courses(skip: int = 0, limit: int = 9, difficulty: str = None, categories: str = None, db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
+    """Browse all courses with pagination and optional difficulty and category filters."""
+    # Build base query
+    query = db.query(Course).filter(Course.status == "published")
+
+    # Apply difficulty filter if provided
+    if difficulty:
+        query = query.filter(Course.difficulty == difficulty)
+
+    # Apply category filter if provided
+    if categories:
+        category_list = [c.strip() for c in categories.split(",")]
+        query = query.filter(Course.category.in_(category_list))
+
     # Get total count
-    total = db.query(Course).filter(Course.status == "published").count()
+    total = query.count()
 
     # Get paginated courses
-    courses = db.query(Course).filter(
-        Course.status == "published"
-    ).offset(skip).limit(limit).all()
+    courses = query.offset(skip).limit(limit).all()
 
     data = [
         FeaturedCourse(
@@ -66,7 +77,8 @@ def browse_courses(skip: int = 0, limit: int = 9, db: Session = Depends(get_db))
             tags=[],
             thumbnail_url=course.thumbnail_url,
             rating=None,
-            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count()
+            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count(),
+            category=course.category
         )
         for course in courses
     ]
