@@ -65,6 +65,7 @@ class UserCourseProgress(BaseModel):
     enrolled_at: datetime
     last_accessed_at: Optional[datetime]
     completed_at: Optional[datetime]
+    thumbnail_url: Optional[str] = None
 
 
 class UserEnrolledCourses(BaseModel):

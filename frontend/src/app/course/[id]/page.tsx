@@ -119,6 +119,26 @@ export default function CourseLearningPage() {
     }
   }, [activeLesson]);
 
+  // Fetch quiz submissions after course is loaded
+  useEffect(() => {
+    if (course && course.modules) {
+      const fetchQuizSubmissions = async () => {
+        const allQuizzes = course.modules.flatMap((mod) => mod.quizzes || []);
+        const passedIds = new Set<number>();
+
+        for (const quiz of allQuizzes) {
+          const submission = await apiCall<any>(`/api/quiz/${quiz.id}/my-submission`);
+          if (submission && submission.passed) {
+            passedIds.add(quiz.id);
+          }
+        }
+        setPassedQuizIds(passedIds);
+      };
+
+      fetchQuizSubmissions();
+    }
+  }, [course, apiCall]);
+
   useEffect(() => {
     // When both course and completed lessons are loaded, set first uncompleted lesson
     if (course && enrolled && completedLessonIds.size >= 0) {
@@ -151,19 +171,6 @@ export default function CourseLearningPage() {
           setMarkedLessonIds(markedIds);
         }
 
-        // Fetch quiz submission status for all quizzes
-        if (course?.modules) {
-          const allQuizzes = course.modules.flatMap((mod) => mod.quizzes || []);
-          const passedIds = new Set<number>();
-
-          for (const quiz of allQuizzes) {
-            const submission = await apiCall<any>(`/api/quiz/${quiz.id}/my-submission`);
-            if (submission && submission.passed) {
-              passedIds.add(quiz.id);
-            }
-          }
-          setPassedQuizIds(passedIds);
-        }
       }
     } catch (error) {
       setEnrolled(false);
@@ -559,7 +566,7 @@ export default function CourseLearningPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              {!selectedQuizId && (
+              {!selectedQuizId && activeLesson && (
                 <>
                   <button
                     onClick={handleToggleRevisit}
@@ -602,7 +609,6 @@ export default function CourseLearningPage() {
                   if (passed) {
                     setPassedQuizIds(prev => new Set([...prev, selectedQuizId]));
                   }
-                  setSelectedQuizId(null);
                   checkEnrollmentStatus();
                 }}
               />

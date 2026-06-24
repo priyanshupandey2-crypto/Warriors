@@ -1,53 +1,112 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { useApiCall } from "@/hooks/useApiCall";
 
-const stats = [
-  { label: "Enrolled", value: "12 Courses", icon: "school", bg: "bg-primary-container/10", iconColor: "text-primary" },
-  { label: "Completed", value: "4 Courses", icon: "check_circle", bg: "bg-tertiary-container/10", iconColor: "text-tertiary" },
-  { label: "Learning Hours", value: "84.5 hrs", icon: "schedule", bg: "bg-secondary-container/10", iconColor: "text-secondary" },
-  { label: "Streak", value: "7 Days", icon: "local_fire_department", bg: "bg-error-container/20", iconColor: "text-error" },
-];
+interface EnrolledCourse {
+  id: number;
+  course_id: number;
+  course_title: string;
+  status: string;
+  progress_percentage: number;
+  completed_lessons: number;
+  total_lessons: number;
+  enrolled_at: string;
+  last_accessed_at: string;
+  thumbnail_url?: string;
+}
 
-const weeklyData = [
-  { day: "Mon", mins: 45, pct: 40 },
-  { day: "Tue", mins: 72, pct: 65 },
-  { day: "Wed", mins: 110, pct: 90 },
-  { day: "Thu", mins: 32, pct: 30 },
-  { day: "Fri", mins: 55, pct: 50 },
-  { day: "Sat", mins: 18, pct: 20 },
-  { day: "Sun", mins: 5, pct: 10 },
-];
+// Default fallback data (last 7 days format)
+const getDefaultWeeklyData = () => {
+  const today = new Date();
+  const days = [];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const enrolledCourses = [
-  { title: "Mastering UX Psychology", module: "Module 4: Cognitive Biases", progress: 65, lessons: "12/18", level: "Advanced", levelColor: "bg-primary-container/10 text-primary", barColor: "bg-primary", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9qNGZbFT3550PGcEtRKuUepXYq6K78j5FkNHDKqOwp2yvCRlAbCLBk27Zn_C_uw7yUABnZiKwz2bDAELrHzd7b7gKCtZQGZB1RP7Vu1T-Snm-AGKCSjRtG7g6MCcTQkMxgQONLRhhmEw3cFfV8ium-2QAJ2epsAXX0U0BfCDDdyuBpLvm_thCzUNqAFLU_t8H6KFjT4-0KXRoBfK2HqUvRRxgtf0mfE5K_r98R5Z7nAaVvYPb7wIKBRdpeU9HzkEbl9XxPdFsdLSL" },
-  { title: "Python for Data Science", module: "Module 2: Pandas & NumPy", progress: 32, lessons: "4/12", level: "Intermediate", levelColor: "bg-secondary-container/10 text-secondary", barColor: "bg-secondary", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBWt8pqLg2BPwdQTWwjmwfvoP6pl8GgheIcFs1XrlZ2eeLiEzID0gp4PYgYsc-JNJaVifOCLczlDBqzD-NeLw5Soggxdm15GHkScRpaY-7QFfnp-0YrK7qRLYzuVrBz8SfeRghGEHQ3taf51O03FaSI73Suj8hQF3_TF2fv0oIIjnukZ9-hXVMom0WK2XhZEfZRvTM1w5p8JPvwvOzYpVD6MYLXZsvjFf3pi2Nu-74jZD2sAamMpNXktPFY66oZiR6udorModdh0VCf" },
-  { title: "Digital Brand Identity", module: "Module 6: Color Theory", progress: 88, lessons: "15/17", level: "Beginner", levelColor: "bg-tertiary-container/10 text-tertiary", barColor: "bg-tertiary", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAmEH0pmSlaXgIZ_67QQJBn4OCaEpUiktap3BR2nD5sb8K5vmGrxvN9nFZfsHDwa6QHO6vocUGiV66ZTqHHmTvqx8OKwcKP-Ik6kbhU38I90Om_zLEC0twb3QCF13HJRyiP3vN5k7TUDCGbnDtJRXmTXhhTstSkd_Q8nuvwSVf8yOQlh3NUaVk0rXhTWkFRz3tonevm6sqOC0zytz07CRFLaitEq9BYHiD5sUWEU4fT6FzBCQOapEmZQgOv-A4-dnXgGV--LKO72wBC" },
-];
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    days.push({
+      day: dayNames[date.getDay()],
+      mins: 0,
+      pct: 0,
+    });
+  }
+  return days;
+};
 
-const completedCourses = [
-  { title: "AI Foundations" },
-  { title: "Modern Typography" },
-  { title: "Public Speaking 101" },
-];
+const levelConfig = {
+  Beginner: { color: "bg-tertiary-container/10 text-tertiary", barColor: "bg-tertiary" },
+  Intermediate: { color: "bg-secondary-container/10 text-secondary", barColor: "bg-secondary" },
+  Advanced: { color: "bg-primary-container/10 text-primary", barColor: "bg-primary" },
+};
 
-const milestones = [
-  { title: "UX Design Sprint", due: "Due in 2 days", icon: "auto_awesome", color: "border-secondary", iconBg: "bg-secondary/10 text-secondary" },
-  { title: "Python Basics Final", due: "Due tomorrow", icon: "quiz", color: "border-tertiary", iconBg: "bg-tertiary/10 text-tertiary" },
-];
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const apiCall = useApiCall();
   const userName = user?.name || "Alex Chen";
 
-  const heatmapCells = useMemo(() => {
-    const colors = ["bg-surface-container", "bg-primary-container/30", "bg-primary-container/60", "bg-primary"];
-    // Use index-based seeding to ensure consistent colors across server/client render
-    return Array.from({ length: 28 }, (_, i) => colors[(i * 7) % 4] + `-${i}`);
-  }, []);
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
+  const [completedCourses, setCompletedCourses] = useState<any[]>([]);
+  const [activityData, setActivityData] = useState<any[]>([]);
+  const [learningHours, setLearningHours] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [upcomingSections, setUpcomingSections] = useState<any[]>([]);
+  const [stats, setStats] = useState([
+    { label: "Enrolled", value: "0 Courses", icon: "school", bg: "bg-primary-container/10", iconColor: "text-primary" },
+    { label: "Completed", value: "0 Courses", icon: "check_circle", bg: "bg-tertiary-container/10", iconColor: "text-tertiary" },
+    { label: "Learning Hours", value: "0 hrs", icon: "schedule", bg: "bg-secondary-container/10", iconColor: "text-secondary" },
+    { label: "Streak", value: "0 Days", icon: "local_fire_department", bg: "bg-error-container/20", iconColor: "text-error" },
+  ]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [courseResponse, activityResponse, hoursResponse, streakResponse, upcomingResponse] = await Promise.all([
+          apiCall<any>("/api/progress/my-courses"),
+          apiCall<any>("/api/progress/activity/last-7-days"),
+          apiCall<any>("/api/progress/total-learning-hours"),
+          apiCall<any>("/api/progress/streak"),
+          apiCall<any>("/api/progress/upcoming-sections"),
+        ]);
+
+        if (courseResponse) {
+          const learningHrsValue = hoursResponse?.total_hours || 0;
+          const streakValue = streakResponse?.streak || 0;
+          setLearningHours(learningHrsValue);
+          setStreak(streakValue);
+          setStats([
+            { label: "Enrolled", value: `${courseResponse.enrolled_count} Courses`, icon: "school", bg: "bg-primary-container/10", iconColor: "text-primary" },
+            { label: "Completed", value: `${courseResponse.completed_count} Courses`, icon: "check_circle", bg: "bg-tertiary-container/10", iconColor: "text-tertiary" },
+            { label: "Learning Hours", value: `${learningHrsValue} hrs`, icon: "schedule", bg: "bg-secondary-container/10", iconColor: "text-secondary" },
+            { label: "Streak", value: `${streakValue} ${streakValue === 1 ? "Day" : "Days"}`, icon: "local_fire_department", bg: "bg-error-container/20", iconColor: "text-error" },
+          ]);
+
+          const inProgress = courseResponse.courses.filter((c: EnrolledCourse) => c.status === "IN_PROGRESS" || c.status === "ENROLLED");
+          const completed = courseResponse.courses.filter((c: EnrolledCourse) => c.status === "COMPLETED");
+
+          setEnrolledCourses(inProgress);
+          setCompletedCourses(completed);
+        }
+
+        if (activityResponse) {
+          setActivityData(activityResponse);
+        }
+
+        if (upcomingResponse) {
+          setUpcomingSections(upcomingResponse);
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [apiCall]);
+
 
   return (
     <>
@@ -79,99 +138,156 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Weekly Activity */}
             <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-semibold text-on-surface">Weekly Activity</h2>
-                <select className="text-sm border-outline-variant rounded-lg bg-surface focus:ring-primary focus:border-primary">
-                  <option>This Week</option>
-                  <option>Last Week</option>
-                </select>
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-on-surface">Last 7 Days Activity</h2>
               </div>
-              <div className="h-64 flex items-end justify-between gap-2 px-4">
-                {weeklyData.map((d, i) => (
-                  <div key={d.day} className="flex-1 flex flex-col items-center gap-2 group">
-                    <div
-                      className={`w-full rounded-t-lg transition-all relative ${
-                        i === 2 ? "bg-primary" : "bg-primary-container/20 group-hover:bg-primary-container"
-                      }`}
-                      style={{ height: `${d.pct}%` }}
-                    >
-                      <div className={`absolute -top-10 left-1/2 -translate-x-1/2 bg-on-background text-white text-xs py-1 px-2 rounded transition-opacity ${
-                        i === 2 ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                      }`}>
-                        {d.mins}m
-                      </div>
-                    </div>
-                    <span className={`text-xs font-semibold ${i === 2 ? "text-primary font-bold" : "text-outline"}`}>{d.day}</span>
-                  </div>
-                ))}
+              <div className="w-full h-64">
+                <svg viewBox="0 -5 900 220" className="w-full h-full" preserveAspectRatio="none">
+                  {/* Grid lines and Y-axis labels */}
+                  {[0, 25, 50, 75, 100].map((pct) => {
+                    const mins = (pct / 100) * 240;
+                    return (
+                      <g key={`grid-${pct}`}>
+                        <line
+                          x1="50"
+                          y1={200 - (pct * 2)}
+                          x2="850"
+                          y2={200 - (pct * 2)}
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          opacity="0.1"
+                          className="text-on-surface"
+                        />
+                        <text
+                          x="40"
+                          y={200 - (pct * 2) + 4}
+                          textAnchor="end"
+                          className="text-xs font-semibold fill-on-surface-variant"
+                          fontSize="12"
+                        >
+                          {Math.round(mins)}m
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Line chart */}
+                  <polyline
+                    points={(() => {
+                      const data = activityData.length > 0 ? activityData : getDefaultWeeklyData();
+                      return data
+                        .map((d, i) => {
+                          const x = 50 + (i / (data.length - 1)) * 800;
+                          const y = 200 - (d.pct * 2);
+                          return `${x},${y}`;
+                        })
+                        .join(" ");
+                    })()}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="text-primary"
+                  />
+
+                  {/* Data points */}
+                  {(() => {
+                    const data = activityData.length > 0 ? activityData : getDefaultWeeklyData();
+                    return data.map((d, i) => {
+                      const x = 50 + (i / (data.length - 1)) * 800;
+                      const y = 200 - (d.pct * 2);
+                      const isToday = i === data.length - 1;
+                      return (
+                        <g key={`point-${i}`}>
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r="4"
+                            className={`${isToday ? "text-primary" : "text-primary-container"}`}
+                            fill="currentColor"
+                          />
+                          {/* Tooltip on hover */}
+                          <g className="opacity-0 hover:opacity-100 transition-opacity">
+                            <rect
+                              x={x - 20}
+                              y={y - 35}
+                              width="40"
+                              height="24"
+                              rx="4"
+                              className="fill-on-background"
+                            />
+                            <text
+                              x={x}
+                              y={y - 15}
+                              textAnchor="middle"
+                              className="fill-background text-xs font-semibold"
+                              fontSize="12"
+                            >
+                              {d.mins}m
+                            </text>
+                          </g>
+                        </g>
+                      );
+                    });
+                  })()}
+
+                  {/* X-axis labels */}
+                  {(() => {
+                    const data = activityData.length > 0 ? activityData : getDefaultWeeklyData();
+                    return data.map((d, i) => {
+                      const x = 50 + (i / (data.length - 1)) * 800;
+                      const isToday = i === data.length - 1;
+                      return (
+                        <text
+                          key={`label-${i}`}
+                          x={x}
+                          y="215"
+                          textAnchor="middle"
+                          className={`text-xs font-semibold ${isToday ? "fill-primary" : "fill-on-surface-variant"}`}
+                          fontSize="12"
+                        >
+                          {d.day}
+                        </text>
+                      );
+                    });
+                  })()}
+                </svg>
               </div>
             </div>
 
-            {/* Consistency Heatmap */}
-            <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold text-on-surface">Monthly Consistency</h2>
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-semibold text-outline">Less</span>
-                  <div className="flex gap-[2px]">
-                    <div className="w-3 h-3 bg-surface-container rounded-sm" />
-                    <div className="w-3 h-3 bg-primary-container/30 rounded-sm" />
-                    <div className="w-3 h-3 bg-primary-container/60 rounded-sm" />
-                    <div className="w-3 h-3 bg-primary rounded-sm" />
-                  </div>
-                  <span className="text-xs font-semibold text-outline">More</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-7 md:grid-cols-14 gap-2">
-                {heatmapCells.map((c) => {
-                  const color = c.substring(0, c.lastIndexOf("-"));
-                  return (
-                    <div
-                      key={c}
-                      className={`heatmap-cell ${color} hover:ring-2 hover:ring-primary transition-all cursor-pointer`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           {/* Right Column */}
           <div className="space-y-8">
-            {/* Weekly Goal */}
-            <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container text-center relative overflow-hidden">
-              <h2 className="text-2xl font-semibold text-on-surface mb-8 relative z-10">Weekly Goal</h2>
-              <div className="relative w-48 h-48 mx-auto mb-4">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle className="text-surface-container" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" strokeWidth="8" />
-                  <circle className="text-primary transition-all duration-1000" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" strokeDasharray="282.7" strokeDashoffset="56.5" strokeWidth="8" />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-5xl font-bold text-primary leading-none">12</span>
-                  <span className="text-sm text-outline">/ 15 hours</span>
-                </div>
-              </div>
-              <p className="text-base text-on-surface-variant relative z-10">80% of your target reached! Just 3 more hours to go.</p>
-              <Link href="/courses" className="mt-8 w-full bg-primary text-on-primary py-4 rounded-lg text-sm font-medium hover:shadow-lg transition-all active:scale-[0.98] block text-center">
-                Boost Your Momentum
-              </Link>
-            </div>
 
             {/* Upcoming Milestones */}
             <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container">
               <h2 className="text-2xl font-semibold text-on-surface mb-4">Upcoming Milestones</h2>
               <div className="space-y-4">
-                {milestones.map((m) => (
-                  <div key={m.title} className={`flex gap-4 p-2 hover:bg-surface-container-low rounded-lg transition-colors border-l-4 ${m.color}`}>
-                    <div className={`flex-shrink-0 ${m.iconBg} p-2 rounded`}>
-                      <span className="material-symbols-outlined">{m.icon}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-on-surface">{m.title}</p>
-                      <p className="text-xs text-outline">{m.due}</p>
-                    </div>
+                {upcomingSections.length > 0 ? (
+                  upcomingSections.map((section, idx) => {
+                    const colorMap = {
+                      lesson: { color: "border-secondary", iconBg: "bg-secondary/10 text-secondary" },
+                      quiz: { color: "border-tertiary", iconBg: "bg-tertiary/10 text-tertiary" },
+                    };
+                    const colors = colorMap[section.type as keyof typeof colorMap] || colorMap.lesson;
+                    return (
+                      <div key={`${section.type}-${section.id}`} className={`flex gap-4 p-2 hover:bg-surface-container-low rounded-lg transition-colors border-l-4 ${colors.color}`}>
+                        <div className={`flex-shrink-0 ${colors.iconBg} p-2 rounded`}>
+                          <span className="material-symbols-outlined">{section.icon}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-on-surface">{section.title}</p>
+                          <p className="text-xs text-on-surface-variant">{section.courseName}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-on-surface-variant">No pending sections</p>
+                    <p className="text-xs text-outline mt-2">You&apos;re all caught up!</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -187,53 +303,77 @@ export default function DashboardPage() {
             <Link href="/courses" className="text-primary text-sm font-medium hover:underline">View all</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {enrolledCourses.map((course) => (
-              <Link href="/course/1" key={course.title} className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container overflow-hidden group hover:shadow-md transition-shadow">
-                <div className="relative h-48">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="w-full h-full object-cover" src={course.img} alt={course.title} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                    <span className="bg-white text-on-background px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1">
-                      <span className="material-symbols-outlined">play_arrow</span> Resume
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold text-on-surface">{course.title}</h3>
-                    <span className={`${course.levelColor} px-2 py-0.5 rounded text-[10px] font-bold uppercase`}>{course.level}</span>
-                  </div>
-                  <p className="text-sm text-on-surface-variant mb-4">{course.module}</p>
-                  <div className="w-full bg-surface-container h-2 rounded-full mb-1 overflow-hidden">
-                    <div className={`${course.barColor} h-full rounded-full`} style={{ width: `${course.progress}%` }} />
-                  </div>
-                  <div className="flex justify-between text-xs text-outline">
-                    <span>{course.progress}% Complete</span>
-                    <span>{course.lessons} Lessons</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+            {enrolledCourses.length > 0 ? (
+              enrolledCourses.map((course) => {
+                const level = course.progress_percentage >= 75 ? "Advanced" : course.progress_percentage >= 50 ? "Intermediate" : "Beginner";
+                const config = levelConfig[level as keyof typeof levelConfig];
+                return (
+                  <Link href={`/course/${course.course_id}`} key={course.id} className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container overflow-hidden group hover:shadow-md transition-shadow">
+                    <div className="relative h-48 bg-gradient-to-br from-primary-container/30 to-secondary-container/30 flex items-center justify-center overflow-hidden">
+                      {course.thumbnail_url ? (
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img className="w-full h-full object-cover" src={course.thumbnail_url} alt={course.course_title} onError={(e) => console.log("Image failed to load:", course.thumbnail_url)} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                            <span className="bg-white text-on-background px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1">
+                              <span className="material-symbols-outlined">play_arrow</span> Resume
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                          <span className="material-symbols-outlined text-[80px] text-primary/30">school</span>
+                          <p className="text-xs text-outline mt-2">No image</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-bold text-on-surface">{course.course_title}</h3>
+                        <span className={`${config.color} px-2 py-0.5 rounded text-[10px] font-bold uppercase`}>{level}</span>
+                      </div>
+                      <p className="text-sm text-on-surface-variant mb-4">
+                        {course.completed_lessons}/{course.total_lessons} sections completed
+                      </p>
+                      <div className="w-full bg-surface-container h-2 rounded-full mb-1 overflow-hidden">
+                        <div className={`${config.barColor} h-full rounded-full`} style={{ width: `${course.progress_percentage}%` }} />
+                      </div>
+                      <div className="flex justify-between text-xs text-outline">
+                        <span>{course.progress_percentage}% Complete</span>
+                        <span>{course.completed_lessons}/{course.total_lessons} Sections</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-on-surface-variant">No courses in progress. Start learning today!</p>
+                <Link href="/courses" className="text-primary text-sm font-medium hover:underline mt-4 inline-block">Browse Courses</Link>
+              </div>
+            )}
           </div>
         </section>
 
         {/* Recently Completed */}
-        <section className="mt-12">
-          <h2 className="text-3xl font-semibold text-on-background mb-6">Recently Completed</h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-            {completedCourses.map((c) => (
-              <div key={c.title} className="flex-shrink-0 w-64 bg-surface-container-low p-4 rounded-xl border border-surface-container flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-primary border border-outline-variant">
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+        {completedCourses.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-3xl font-semibold text-on-background mb-6">Recently Completed</h2>
+            <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+              {completedCourses.map((c) => (
+                <div key={c.id} className="flex-shrink-0 w-64 bg-surface-container-low p-4 rounded-xl border border-surface-container flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-primary border border-outline-variant">
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface truncate w-40">{c.course_title}</p>
+                    <span className="text-[10px] text-primary font-bold bg-primary-container/10 px-2 py-0.5 rounded">CERTIFIED</span>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-on-surface truncate w-40">{c.title}</p>
-                  <span className="text-[10px] text-primary font-bold bg-primary-container/10 px-2 py-0.5 rounded">CERTIFIED</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </>

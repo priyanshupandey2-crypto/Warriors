@@ -22,7 +22,7 @@ from app.schemas.progress_schemas import (
     LessonProgress,
     LessonRevisitRequest,
 )
-from datetime import datetime
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/progress", tags=["progress"])
 
@@ -98,9 +98,12 @@ def get_user_enrolled_courses(request: Request, db: Session = Depends(get_db)):
 
     # Build response with course details
     courses = []
+    import sys
     for enrollment in enrollments:
         course = db.query(Course).filter(Course.id == enrollment.course_id).first()
         if course:
+            sys.stderr.write(f"DEBUG: Course {course.id} title: {course.title} thumbnail_url: {course.thumbnail_url}\n")
+            sys.stderr.flush()
             courses.append(
                 UserCourseProgress(
                     id=enrollment.id,
@@ -113,6 +116,7 @@ def get_user_enrolled_courses(request: Request, db: Session = Depends(get_db)):
                     enrolled_at=enrollment.enrolled_at,
                     last_accessed_at=enrollment.last_accessed_at,
                     completed_at=enrollment.completed_at,
+                    thumbnail_url=course.thumbnail_url,
                 )
             )
 
@@ -340,3 +344,226 @@ def toggle_lesson_revisit(
         "message": "Lesson marked for revisit" if request_body.marked_to_revisit else "Revisit mark removed",
         "marked_to_revisit": request_body.marked_to_revisit,
     }
+
+
+@router.get("/upcoming-sections")
+def get_upcoming_sections(request: Request, db: Session = Depends(get_db)):
+    """Get incomplete lessons and quizzes from enrolled courses."""
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
+    user_id = int(current_user.get("sub"))
+
+    # Get all enrolled courses
+    enrollments = db.query(UserCourse).filter(UserCourse.user_id == user_id).all()
+
+    upcoming = []
+
+    for enrollment in enrollments:
+        course = db.query(Course).filter(Course.id == enrollment.course_id).first()
+        if not course:
+            continue
+
+        # Get all lessons for this course
+        lessons = db.query(Lesson).filter(Lesson.course_id == course.id).all()
+        for lesson in lessons:
+            # Check if lesson is incomplete
+            progress = db.query(UserLessonProgress).filter(
+                UserLessonProgress.user_id == user_id,
+                UserLessonProgress.lesson_id == lesson.id,
+                UserLessonProgress.is_completed == True,
+            ).first()
+
+            if not progress:
+                upcoming.append({
+                    "id": lesson.id,
+                    "type": "lesson",
+                    "title": lesson.title,
+                    "courseName": course.title,
+                    "icon": "description",
+                })
+
+        # Get all quizzes for this course
+        quizzes = db.query(Quiz).filter(Quiz.course_id == course.id).all()
+        for quiz in quizzes:
+            # Check if quiz has ANY passing submission (even if there are failed attempts)
+            passed_submission = db.query(QuizSubmission).filter(
+                QuizSubmission.user_id == user_id,
+                QuizSubmission.quiz_id == quiz.id,
+                QuizSubmission.passed == True,
+            ).order_by(QuizSubmission.submitted_at.desc()).first()
+
+            # Only add quiz to upcoming if user has never passed it
+            if not passed_submission:
+                upcoming.append({
+                    "id": quiz.id,
+                    "type": "quiz",
+                    "title": quiz.title,
+                    "courseName": course.title,
+                    "icon": "quiz",
+                })
+
+    # Return only first 2 items
+    return upcoming[:2]
+
+
+@router.get("/streak")
+def get_user_streak(request: Request, db: Session = Depends(get_db)):
+    """Get current learning streak (consecutive days with activity)."""
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
+    user_id = int(current_user.get("sub"))
+
+    # Get all activity dates (completed lessons and passed quizzes)
+    today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Get completed lessons
+    completed_lessons = db.query(UserLessonProgress).filter(
+        UserLessonProgress.user_id == user_id,
+        UserLessonProgress.is_completed == True,
+    ).all()
+
+    # Get passed quizzes
+    passed_quizzes = db.query(QuizSubmission).filter(
+        QuizSubmission.user_id == user_id,
+        QuizSubmission.passed == True,
+    ).all()
+
+    # Collect all activity dates
+    activity_dates = set()
+
+    for lesson in completed_lessons:
+        if lesson.completed_at:
+            activity_dates.add(lesson.completed_at.replace(hour=0, minute=0, second=0, microsecond=0).date())
+
+    for quiz in passed_quizzes:
+        if quiz.submitted_at:
+            activity_dates.add(quiz.submitted_at.replace(hour=0, minute=0, second=0, microsecond=0).date())
+
+    # Calculate streak (count consecutive days backward from today)
+    streak = 0
+    current_date = today.date()
+
+    while current_date in activity_dates:
+        streak += 1
+        current_date -= timedelta(days=1)
+
+    return {
+        "streak": streak,
+        "last_activity_date": max(activity_dates) if activity_dates else None,
+    }
+
+
+@router.get("/total-learning-hours")
+def get_total_learning_hours(request: Request, db: Session = Depends(get_db)):
+    """Get total learning hours for the user based on estimated duration."""
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
+    user_id = int(current_user.get("sub"))
+
+    # Get all completed lessons for the user
+    completed_lessons = db.query(UserLessonProgress).filter(
+        UserLessonProgress.user_id == user_id,
+        UserLessonProgress.is_completed == True,
+    ).all()
+
+    # Get all passed quizzes for the user
+    passed_quizzes = db.query(QuizSubmission).filter(
+        QuizSubmission.user_id == user_id,
+        QuizSubmission.passed == True,
+    ).all()
+
+    # Calculate total time from lessons
+    lesson_minutes = 0
+    for lesson_progress in completed_lessons:
+        lesson = db.query(Lesson).filter(Lesson.id == lesson_progress.lesson_id).first()
+        if lesson:
+            lesson_minutes += lesson.duration_minutes or 0
+
+    # Calculate total time from quizzes
+    quiz_minutes = 0
+    for quiz_submission in passed_quizzes:
+        quiz = db.query(Quiz).filter(Quiz.id == quiz_submission.quiz_id).first()
+        if quiz:
+            quiz_minutes += quiz.duration_minutes or 0
+
+    # Convert to hours
+    total_minutes = lesson_minutes + quiz_minutes
+    total_hours = total_minutes / 60
+
+    return {
+        "total_minutes": total_minutes,
+        "total_hours": round(total_hours, 1),
+    }
+
+
+@router.get("/activity/last-7-days")
+def get_last_7_days_activity(request: Request, db: Session = Depends(get_db)):
+    """Get last 7 days activity with time spent per day."""
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
+    user_id = int(current_user.get("sub"))
+
+    # Get last 7 days starting from today
+    today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    seven_days_ago = today - timedelta(days=6)
+
+    # Get completed lessons in last 7 days
+    completed_lessons = db.query(UserLessonProgress).filter(
+        UserLessonProgress.user_id == user_id,
+        UserLessonProgress.is_completed == True,
+        UserLessonProgress.completed_at >= seven_days_ago,
+        UserLessonProgress.completed_at < today + timedelta(days=1),
+    ).all()
+
+    # Get completed quizzes in last 7 days
+    completed_quizzes = db.query(QuizSubmission).filter(
+        QuizSubmission.user_id == user_id,
+        QuizSubmission.passed == True,
+        QuizSubmission.submitted_at >= seven_days_ago,
+        QuizSubmission.submitted_at < today + timedelta(days=1),
+    ).all()
+
+    # Initialize activity for each day (using dates as keys to avoid collisions)
+    activity = {}
+    for i in range(7):
+        day = seven_days_ago + timedelta(days=i)
+        activity[day.date()] = {"day": day.strftime("%a"), "mins": 0, "pct": 0}
+
+    # Calculate time for lessons
+    for lesson_progress in completed_lessons:
+        day = lesson_progress.completed_at.replace(hour=0, minute=0, second=0, microsecond=0).date()
+        lesson = db.query(Lesson).filter(Lesson.id == lesson_progress.lesson_id).first()
+        if lesson and day in activity:
+            activity[day]["mins"] += lesson.duration_minutes or 0
+
+    # Calculate time for quizzes
+    for quiz_submission in completed_quizzes:
+        day = quiz_submission.submitted_at.replace(hour=0, minute=0, second=0, microsecond=0).date()
+        quiz = db.query(Quiz).filter(Quiz.id == quiz_submission.quiz_id).first()
+        if quiz and day in activity:
+            activity[day]["mins"] += quiz.duration_minutes or 0
+
+    # Calculate percentages (assume max 240 mins per day = 100%)
+    max_mins = 240
+    for day_data in activity.values():
+        day_data["pct"] = min(int((day_data["mins"] / max_mins) * 100), 100)
+
+    # Return in chronological order (7 days ago to today)
+    result = [
+        {
+            "day": activity[date]["day"],
+            "mins": activity[date]["mins"],
+            "pct": activity[date]["pct"],
+        }
+        for date in sorted(activity.keys())
+    ]
+
+    return result

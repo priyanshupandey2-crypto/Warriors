@@ -20,6 +20,7 @@ interface Quiz {
   description?: string;
   passing_score: number;
   total_points: number;
+  duration_minutes?: number;
   questions: Question[];
 }
 
@@ -47,6 +48,13 @@ export default function QuizInterface({ quizId, courseId, onComplete }: QuizInte
         const response = await apiCall<Quiz>(`/api/quiz/${quizId}`);
         if (response) {
           setQuiz(response);
+        }
+
+        // Check if quiz was already passed
+        const submission = await apiCall<any>(`/api/quiz/${quizId}/my-submission`);
+        if (submission && submission.passed) {
+          setResult(submission);
+          setSubmitted(true);
         }
       } catch (error) {
         console.error("Failed to fetch quiz:", error);
@@ -98,6 +106,7 @@ export default function QuizInterface({ quizId, courseId, onComplete }: QuizInte
         body: JSON.stringify({
           quiz_id: quizId,
           answers: answersList,
+          time_spent_minutes: quiz.duration_minutes || 30,
         }),
         headers: {
           "Content-Type": "application/json",

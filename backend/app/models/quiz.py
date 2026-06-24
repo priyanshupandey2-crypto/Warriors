@@ -16,6 +16,7 @@ class Quiz(Base):
     description = Column(Text, nullable=True)
     passing_score = Column(Integer, default=70)
     total_points = Column(Integer, default=100)
+    duration_minutes = Column(Integer, default=30)
     order = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
@@ -75,6 +76,7 @@ class QuizSubmission(Base):
     quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False, index=True)
     score = Column(Integer, nullable=True)
     passed = Column(Boolean, default=False)
+    time_spent_minutes = Column(Integer, default=0)
     submitted_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="quiz_submissions")

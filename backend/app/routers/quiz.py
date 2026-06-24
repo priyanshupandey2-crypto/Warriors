@@ -71,6 +71,7 @@ class AnswerSubmission(BaseModel):
 class QuizSubmissionRequest(BaseModel):
     quiz_id: int
     answers: List[AnswerSubmission]
+    time_spent_minutes: int = 0
 
 
 class QuizSubmissionResponse(BaseModel):
@@ -162,12 +163,17 @@ def submit_quiz(
     score = int((correct_answers / total_questions * 100)) if total_questions > 0 else 0
     passed = score >= quiz.passing_score
 
+    import sys
+    sys.stderr.write(f"DEBUG: Quiz {quiz_id} - correct_answers={correct_answers}/{total_questions}, score={score}, passing_score={quiz.passing_score}, passed={passed}\n")
+    sys.stderr.flush()
+
     # Create submission record
     submission = QuizSubmission(
         user_id=user_id,
         quiz_id=quiz_id,
         score=score,
         passed=passed,
+        time_spent_minutes=request_body.time_spent_minutes,
         submitted_at=datetime.utcnow(),
     )
 
@@ -175,6 +181,8 @@ def submit_quiz(
     try:
         db.commit()
         db.refresh(submission)
+        sys.stderr.write(f"DEBUG: Submission saved - ID={submission.id}, passed={submission.passed}\n")
+        sys.stderr.flush()
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=401, detail="User not found. Please log in again.")
@@ -257,6 +265,10 @@ def get_my_quiz_submission(
         return None
 
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+
+    import sys
+    sys.stderr.write(f"DEBUG: get_my_submission for quiz {quiz_id} - submission ID={submission.id}, passed={submission.passed}, score={submission.score}\n")
+    sys.stderr.flush()
 
     return QuizSubmissionResponse(
         id=submission.id,
