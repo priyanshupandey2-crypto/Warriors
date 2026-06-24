@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/context/ToastContext";
+import { useApiCall } from "@/hooks/useApiCall";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -13,6 +15,8 @@ const steps = [
 
 export default function GeneratePage() {
   const router = useRouter();
+  const { showToast } = useToast();
+  const apiCall = useApiCall();
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("Beginner");
   const [duration, setDuration] = useState("1 Week");
@@ -20,21 +24,51 @@ export default function GeneratePage() {
   const [tags, setTags] = useState("");
   const [phase, setPhase] = useState<"form" | "generating" | "done">("form");
   const [currentStep, setCurrentStep] = useState(0);
+  const [generationId, setGenerationId] = useState<number | null>(null);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!topic.trim()) return;
-    setPhase("generating");
-    setCurrentStep(0);
-    const interval = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev >= steps.length - 1) {
-          clearInterval(interval);
-          setTimeout(() => router.push("/course/preview"), 1200);
-          return prev;
-        }
-        return prev + 1;
+
+    try {
+      setPhase("generating");
+      setCurrentStep(0);
+
+      // Send course generation request to backend
+      const response = await apiCall<any>("/api/course-generation/create", {
+        method: "POST",
+        body: JSON.stringify({
+          topic,
+          difficulty_level: difficulty,
+          learning_duration: duration,
+          expertise_domain: audience,
+          relevant_tags: tags,
+        }),
       });
-    }, 1800);
+
+      if (response && response.status) {
+        setGenerationId(response.generation_id);
+        showToast("Course generation submitted successfully", "success");
+
+        // Simulate generation steps
+        const interval = setInterval(() => {
+          setCurrentStep((prev) => {
+            if (prev >= steps.length - 1) {
+              clearInterval(interval);
+              setTimeout(() => router.push("/dashboard"), 1200);
+              return prev;
+            }
+            return prev + 1;
+          });
+        }, 1800);
+      } else {
+        showToast(response?.error || "Failed to submit course generation", "error");
+        setPhase("form");
+      }
+    } catch (error) {
+      console.error("Failed to generate course:", error);
+      showToast("Failed to submit course generation", "error");
+      setPhase("form");
+    }
   };
 
   return (
@@ -95,8 +129,14 @@ export default function GeneratePage() {
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-on-surface-variant">Target Audience</label>
-                    <input className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" placeholder="e.g. Finance Students" value={audience} onChange={(e) => setAudience(e.target.value)} />
+                    <label className="text-sm font-medium text-on-surface-variant">Expertise Domain</label>
+                    <select className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" value={audience} onChange={(e) => setAudience(e.target.value)}>
+                      <option value="">Select a domain</option>
+                      <option>Computer Science</option>
+                      <option>Business & Strategy</option>
+                      <option>Creative Design</option>
+                      <option>Marketing</option>
+                    </select>
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-on-surface-variant">Relevant Tags</label>
