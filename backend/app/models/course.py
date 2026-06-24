@@ -30,7 +30,7 @@ Relationships:
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Float
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -89,6 +89,20 @@ class Course(Base):
     # DATABASE INTEGRATION - Phase 3: Timestamps
     # When this course was created
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Admin Dashboard - Category and Instructor Tracking
+    category = Column(String(100), nullable=True)
+    # Course category: "Engineering", "Design", "AI & Data", "Management"
+    # Used to organize and filter courses in admin dashboard
+
+    lead_instructor = Column(String(100), nullable=True)
+    # Primary instructor name who created/teaches this course
+    # Displayed in admin course listing
+
+    avg_rating = Column(Float, default=0.0, nullable=False)
+    # Average user rating for this course (0.0 to 5.0)
+    # Updated when users rate the course
+    # Displayed in admin dashboard stats
 
     # DATABASE INTEGRATION - Phase 3: Relationships
     # user_courses: All enrollments for this course
