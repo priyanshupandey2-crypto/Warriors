@@ -30,7 +30,7 @@ Relationships:
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Float
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -82,6 +82,9 @@ class Course(Base):
     # archived: Old courses, no new enrollments
     status = Column(String(50), default="published", nullable=False)
 
+    # Course category (Computer Science, Business & Strategy, Creative Design, Marketing)
+    category = Column(String(100), nullable=True)
+
     # DATABASE INTEGRATION - Phase 3: Course Author
     # Foreign key to users table (who created this course)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -90,17 +93,33 @@ class Course(Base):
     # When this course was created
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    # Admin Dashboard - Category and Instructor Tracking
+    category = Column(String(100), nullable=True)
+    # Course category: "Engineering", "Design", "AI & Data", "Management"
+    # Used to organize and filter courses in admin dashboard
+
+    lead_instructor = Column(String(100), nullable=True)
+    # Primary instructor name who created/teaches this course
+    # Displayed in admin course listing
+
+    avg_rating = Column(Float, default=0.0, nullable=False)
+    # Average user rating for this course (0.0 to 5.0)
+    # Updated when users rate the course
+    # Displayed in admin dashboard stats
+
     # DATABASE INTEGRATION - Phase 3: Relationships
     # user_courses: All enrollments for this course
     # learning_activities: All activity records for this course
     # milestones: All assignments/deadlines for this course
     # lessons: All lessons in this course
     # quizzes: All quizzes in this course
+    # modules_list: All modules in this course
     user_courses = relationship("UserCourse", back_populates="course")
     learning_activities = relationship("LearningActivity", back_populates="course")
     milestones = relationship("Milestone", back_populates="course")
     lessons = relationship("Lesson", back_populates="course")
     quizzes = relationship("Quiz", back_populates="course")
+    modules_list = relationship("Module", back_populates="course")
 
     def __repr__(self):
         return f"<Course(id={self.id}, title='{self.title}', difficulty='{self.difficulty}')>"

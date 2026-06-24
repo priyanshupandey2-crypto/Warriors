@@ -3,10 +3,12 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useToast } from "@/context/ToastContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -15,6 +17,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setMenuOpen(false);
+    showToast("Logout successful", "success");
     router.push("/login");
   };
 

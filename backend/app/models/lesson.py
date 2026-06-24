@@ -11,6 +11,7 @@ class Lesson(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False, index=True)
+    module_id = Column(Integer, ForeignKey("modules.id"), nullable=False, index=True)
     title = Column(String(255), nullable=False)
     order = Column(Integer, nullable=False)
     content_markdown = Column(Text, nullable=True)
@@ -20,6 +21,7 @@ class Lesson(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     course = relationship("Course", back_populates="lessons")
+    module = relationship("Module", back_populates="lessons")
 
     def __repr__(self):
         return f"<Lesson(id={self.id}, course_id={self.course_id}, title='{self.title}')>"

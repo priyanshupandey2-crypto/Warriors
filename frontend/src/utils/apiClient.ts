@@ -36,6 +36,7 @@ export async function apiCall<T = any>(
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
+    cache: 'no-store',
   });
 
   if (!response.ok) {
@@ -48,19 +49,24 @@ export async function apiCall<T = any>(
     // Handle 401 - Token expired or invalid
     if (response.status === 401) {
       if (typeof window !== "undefined") {
-        // Show toast notification
-        if (toastCallback) {
-          toastCallback("Your session expired. Please login again.", "error");
+        const token = localStorage.getItem("auralearn_token");
+
+        // Only show toast if user was actually logged in
+        if (token) {
+          // Show toast notification
+          if (toastCallback) {
+            toastCallback("Your session expired. Please login again.", "error");
+          }
+
+          // Clear auth data
+          localStorage.removeItem("auralearn_token");
+          localStorage.removeItem("auralearn_user");
+
+          // Redirect to login after a short delay to allow toast to be seen
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1500);
         }
-
-        // Clear auth data
-        localStorage.removeItem("auralearn_token");
-        localStorage.removeItem("auralearn_user");
-
-        // Redirect to login after a short delay to allow toast to be seen
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 1500);
       }
     }
 

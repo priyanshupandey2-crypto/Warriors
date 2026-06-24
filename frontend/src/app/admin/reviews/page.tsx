@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/context/ToastContext";
 
 const reviewStats = [
   { label: "Pending Reviews", value: "128", trend: "+12 today" }
@@ -62,8 +63,27 @@ const sidebarLinks = [
 export default function ReviewQueuePage() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [selectedReview, setSelectedReview] = useState<typeof reviews[0] | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Redirect non-admin users to home with toast
+    if (user && user.role !== "admin") {
+      showToast("Not allowed", "error");
+      router.push("/");
+    }
+  }, [user, router, showToast]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const filteredReviews = reviews.filter(
     (r) => r.name.toLowerCase().includes(search.toLowerCase()) || r.topic.toLowerCase().includes(search.toLowerCase())
@@ -103,43 +123,64 @@ export default function ReviewQueuePage() {
             </Link>
           ))}
         </nav>
-        <div className="mt-auto space-y-1">
-          <button
-            onClick={() => { logout(); router.push("/"); }}
-            className="flex items-center gap-4 w-full px-4 py-2 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg"
-          >
-            <span className="material-symbols-outlined">logout</span>
-            <span>Sign Out</span>
-          </button>
-        </div>
       </aside>
 
       {/* Main Canvas */}
       <main className="ml-64 min-h-screen flex flex-col">
         {/* Top Navbar */}
-        <header className="flex justify-between items-center px-6 w-full h-16 sticky top-0 z-40 bg-surface-container-lowest shadow-sm">
-          <div className="flex items-center gap-8 flex-1">
-            <div className="relative w-full max-w-md group">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-              <input
-                className="w-full bg-surface-container-low border-none rounded-full pl-12 pr-4 py-2 text-base focus:ring-2 focus:ring-primary transition-all outline-none"
-                placeholder="Search by user or topic..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+        <header className="flex justify-between items-center px-6 w-full sticky top-0 z-40 bg-surface-container-lowest py-4 border-b border-outline-variant/30">
+          <div className="relative w-full max-w-md">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input
+              className="w-full bg-surface-container-low border-none rounded-full pl-12 pr-4 py-2 text-base focus:ring-2 focus:ring-primary transition-all outline-none"
+              placeholder="Search by user or topic..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-          <div className="flex items-center gap-4">
-            <button className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors relative">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
-            </button>
-            <div className="h-8 w-[1px] bg-outline-variant mx-2" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">
-                {(user?.name || "A").charAt(0).toUpperCase()}
-              </div>
-              <span className="text-sm font-bold text-on-surface">{user?.name || "Admin_Aura"}</span>
+          <div className="flex items-center gap-4 ml-auto">
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-bold">
+                  {user?.name.charAt(0).toUpperCase()}
+                </div>
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/30 py-2 animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-3 border-b border-outline-variant/20">
+                    <p className="text-sm font-bold text-on-surface">{user?.name}</p>
+                    <p className="text-xs text-on-surface-variant">{user?.email}</p>
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/generate"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+                    Create Course
+                  </Link>
+                  <div className="border-t border-outline-variant/20 mt-1 pt-1">
+                    <button
+                      onClick={() => { logout(); router.push("/"); setMenuOpen(false); }}
+                      className="flex items-center gap-3 w-full px-4 py-2 text-sm text-error hover:bg-error-container/20 transition-colors rounded-lg"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">logout</span>
+                      Log Out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>

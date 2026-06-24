@@ -33,7 +33,7 @@ export default function ToastContainer() {
   };
 
   return (
-    <div className="fixed top-6 right-6 z-50 space-y-3 max-w-sm">
+    <div className="fixed bottom-6 right-6 z-50 space-y-3 max-w-sm">
       {toasts.map((toast) => (
         <div key={toast.id} className={getStyles(toast.type)}>
           <span className="material-symbols-outlined text-lg">{getIcon(toast.type)}</span>

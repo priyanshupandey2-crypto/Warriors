@@ -1,11 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { login, error } = useAuth();
+  const { login, error, user, isLoading } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +16,28 @@ export default function LoginPage() {
   const [localError, setLocalError] = useState("");
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const initialCheckDone = useRef(false);
+
+  useEffect(() => {
+    // Wait for auth to finish loading, then check if user is already logged in
+    // Only do this check once on initial load
+    if (!isLoading && !initialCheckDone.current) {
+      initialCheckDone.current = true;
+      if (user) {
+        showToast("You are already logged in", "info", 3000);
+        const destination = user.role === "admin" ? "/admin" : "/";
+        router.push(destination);
+      }
+    }
+  }, [isLoading, user, router, showToast]);
+
+  useEffect(() => {
+    // Redirect admin users to /admin after successful login
+    // This runs after login form submission
+    if (!loading && user && user.role === "admin") {
+      router.push("/admin");
+    }
+  }, [loading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

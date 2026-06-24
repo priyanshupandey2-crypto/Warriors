@@ -5,19 +5,23 @@ from app.database import Base
 
 
 class Quiz(Base):
-    """Represents a quiz within a course."""
+    """Represents a quiz within a module."""
 
     __tablename__ = "quizzes"
 
     id = Column(Integer, primary_key=True, index=True)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False, index=True)
+    module_id = Column(Integer, ForeignKey("modules.id"), nullable=False, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     passing_score = Column(Integer, default=70)
     total_points = Column(Integer, default=100)
+    duration_minutes = Column(Integer, default=30)
+    order = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     course = relationship("Course", back_populates="quizzes")
+    module = relationship("Module", back_populates="quizzes")
     questions = relationship("QuizQuestion", back_populates="quiz")
     submissions = relationship("QuizSubmission", back_populates="quiz")
 
@@ -72,6 +76,7 @@ class QuizSubmission(Base):
     quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False, index=True)
     score = Column(Integer, nullable=True)
     passed = Column(Boolean, default=False)
+    time_spent_minutes = Column(Integer, default=0)
     submitted_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="quiz_submissions")
