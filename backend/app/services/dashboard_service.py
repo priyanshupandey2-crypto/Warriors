@@ -22,16 +22,12 @@ Migration Status:
     NEW (Ready): get_dashboard(user_id) with repository queries
 """
 
-import json
-from pathlib import Path
 from typing import Dict, Any
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.schemas.dashboard import DashboardResponse
 from app.repositories.dashboard_repository import DashboardRepository
-
-DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 class DashboardService:
