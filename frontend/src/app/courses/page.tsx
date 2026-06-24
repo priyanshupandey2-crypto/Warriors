@@ -37,7 +37,7 @@ export default function CoursesPage() {
       try {
         setLoading(true);
         const skip = (currentPage - 1) * itemsPerPage;
-        let url = `/api/courses?skip=${skip}&limit=${itemsPerPage}`;
+        let url = `/api/courses/?skip=${skip}&limit=${itemsPerPage}`;
 
 
         if (search) {
