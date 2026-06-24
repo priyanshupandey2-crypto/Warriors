@@ -48,7 +48,17 @@ class CurriculumRepository:
         headings: List[str],
         metadata: Dict[str, Any]
     ) -> CurriculumSource:
-        """Save extracted source to database."""
+        """Save extracted source to database. Reuses existing sources if URL already exists."""
+        # Check if source already exists
+        existing = self.get_source_by_url(url)
+        if existing:
+            # Update fetched_at timestamp to mark as recently used
+            existing.fetched_at = datetime.utcnow()
+            self.db.commit()
+            self.db.refresh(existing)
+            return existing
+
+        # Create new source
         source = CurriculumSource(
             url=url,
             source_type=source_type,
@@ -56,7 +66,7 @@ class CurriculumRepository:
             description=description,
             raw_markdown=raw_markdown,
             headings=headings,
-            metadata=metadata,
+            source_metadata=metadata,  # FIX: column is source_metadata not metadata
             fetched_at=datetime.utcnow()
         )
         self.db.add(source)
@@ -126,7 +136,18 @@ class CurriculumRepository:
         concepts: List[str],
         metadata: Dict[str, Any]
     ) -> CurriculumChunk:
-        """Save content chunk to database."""
+        """Save content chunk to database. Reuses existing chunks if they exist."""
+        # Check if chunk already exists for this source and index
+        existing = self.db.query(CurriculumChunk).filter(
+            CurriculumChunk.source_id == source_id,
+            CurriculumChunk.chunk_index == chunk_index
+        ).first()
+
+        if existing:
+            # Return existing chunk
+            return existing
+
+        # Create new chunk
         chunk = CurriculumChunk(
             source_id=source_id,
             chunk_index=chunk_index,
@@ -134,7 +155,7 @@ class CurriculumRepository:
             content=content,
             token_count=token_count,
             concepts=concepts,
-            metadata=metadata
+            chunk_metadata=metadata  # FIX: column is chunk_metadata not metadata
         )
         self.db.add(chunk)
         self.db.commit()

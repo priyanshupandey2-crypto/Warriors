@@ -1,5 +1,11 @@
 from pydantic_settings import BaseSettings
 from typing import Optional as OptionalType
+from pathlib import Path
+
+# Ensure we find .env relative to this file (backend/app/)
+# Working directory might vary, so use absolute path
+_backend_dir = Path(__file__).parent.parent
+_env_file = _backend_dir / ".env"
 
 
 class Settings(BaseSettings):
@@ -18,14 +24,18 @@ class Settings(BaseSettings):
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 0
 
-    # LangSmith observability (required from .env)
-    LANGSMITH_API_KEY: str
-    LANGSMITH_ENDPOINT: str
-    LANGSMITH_PROJECT: str
+    # LangSmith observability (optional, for .env)
+    LANGSMITH_API_KEY: str = ""
+    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
+    LANGSMITH_PROJECT: str = ""
     LANGSMITH_TRACING: bool = False
 
-    # Firecrawl API configuration (optional, for curriculum extraction)
-    FIRECRAWL_API_KEY: OptionalType[str] = None
+    # Hugging Face API configuration (required for topic generation via OpenAI-compatible endpoint)
+    HUGGINGFACE_API_KEY: str
+    HUGGINGFACE_API_URL: str = "https://api-inference.huggingface.co/v1"
+
+    # Firecrawl API configuration (required for curriculum extraction)
+    FIRECRAWL_API_KEY: str
 
     # JWT configuration (required from .env)
     JWT_SECRET: str
@@ -35,11 +45,7 @@ class Settings(BaseSettings):
     # Debug flag (optional, defaults to False)
     DEBUG: bool = False
 
-    # DATABASE INTEGRATION - Phase 4: PostgreSQL Configuration
-    # Connection string for PostgreSQL database
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/auralearn_db"
-
-    # Individual database credentials (for flexibility)
+    # Individual database credentials (for flexibility, optional)
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DB_USER: str = "postgres"
@@ -47,7 +53,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "auralearn_db"
 
     class Config:
-        env_file = ".env"
+        env_file = str(_env_file)
         env_file_encoding = "utf-8"
         extra = "ignore"
 

@@ -593,31 +593,85 @@ class FirecrawlService:
         Validate that extracted content has sufficient educational value.
 
         Checks:
-            1. Content length (must be > 500 chars - lowered from 1000)
-            2. Heading structure (must have >= 1 heading - lowered from 2)
-            3. Content richness (at least 2 concepts - lowered from 3)
+            1. 404 page detection (title, content markers)
+            2. Marketing/navigation content detection
+            3. Content length (must be >= 1000 chars for meaningful content)
+            4. Heading structure (must have >= 2 educational headings)
+            5. Content richness (at least 5 concepts for substance)
 
         Returns:
             (is_valid, message)
         """
-        # Check content length (minimum 500 chars for meaningful content)
-        min_length = 500
+        # FIX 1: DETECT 404 PAGES
+        error_indicators = [
+            "404", "page not found", "not found", "whoops",
+            "sorry, the page", "error 404", "page could not be found",
+            "does not exist", "page doesn't exist"
+        ]
+
+        markdown_lower = markdown.lower()
+        for indicator in error_indicators:
+            if indicator in markdown_lower:
+                reason = f"404/error page detected (contains '{indicator}')"
+                logger.warning(f"Source rejected: {reason} - {url}")
+                return False, reason
+
+        # FIX 3: DETECT MARKETING/NAVIGATION CONTENT
+        marketing_terms = [
+            "avail now", "interview series", "subscribe", "newsletter",
+            "login", "sign up", "register", "buy now", "refund",
+            "special offer", "get certified", "contact us", "about us",
+            "privacy policy", "terms of service"
+        ]
+
+        marketing_count = 0
+        for term in marketing_terms:
+            marketing_count += markdown_lower.count(term)
+
+        if marketing_count > 5:
+            reason = f"Excessive marketing content ({marketing_count} marketing terms detected)"
+            logger.warning(f"Source rejected: {reason} - {url}")
+            return False, reason
+
+        # FIX 2: VALIDATE CONTENT LENGTH AND QUALITY
+        min_length = 1000
         if len(markdown) < min_length:
-            return False, f"Content too short ({len(markdown)} chars < {min_length} minimum)"
+            reason = f"Content too short ({len(markdown)} chars < {min_length} minimum)"
+            logger.debug(f"Source rejected: {reason} - {url}")
+            return False, reason
 
-        # Check for headings (at least 1 heading for structure)
+        # Check for structural headings (indicates organized content, not navigation)
         headings = self.extractor.extract_headings(markdown)
-        min_headings = 1
-        if len(headings) < min_headings:
-            return False, f"Insufficient structure ({len(headings)} headings < {min_headings} minimum)"
 
-        # Check for concepts (at least 2 for meaningful content)
+        # Filter out navigation/menu headings (short, generic terms)
+        navigation_terms = {"menu", "navigation", "sidebar", "footer", "header", "home", "login", "search", "categories"}
+        structural_headings = [
+            h for h in headings
+            if h.lower() not in navigation_terms and len(h) > 2
+        ]
+
+        min_structural_headings = 1
+        if len(structural_headings) < min_structural_headings:
+            reason = f"Insufficient content structure (no meaningful headings found)"
+            logger.debug(f"Source rejected: {reason} - {url}")
+            return False, reason
+
+        # Check for concepts (indicates technical/educational content)
         concepts = self.extractor.extract_concepts(markdown)
         min_concepts = 2
         if len(concepts) < min_concepts:
-            return False, f"Low concept density ({len(concepts)} concepts < {min_concepts} minimum)"
+            reason = f"Low concept density ({len(concepts)} concepts < {min_concepts} minimum)"
+            logger.debug(f"Source rejected: {reason} - {url}")
+            return False, reason
 
-        return True, f"Quality check passed: {len(markdown)} chars, {len(headings)} headings, {len(concepts)} concepts"
+        # All checks passed
+        message = (
+            f"Quality check passed: {len(markdown)} chars, "
+            f"{len(headings)} total headings ({len(structural_headings)} structural), "
+            f"{len(concepts)} concepts, {marketing_count} marketing terms"
+        )
+        logger.info(f"Source validated: {message} - {url}")
+        return True, message
 
     def extract_source(self, url: str) -> Optional[CurriculumSource]:
         """

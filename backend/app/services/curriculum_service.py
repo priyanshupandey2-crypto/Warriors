@@ -2,12 +2,12 @@
 Curriculum Service - Production Version
 ========================================
 
-Real curriculum generation using Claude LLM + Firecrawl.
+Real curriculum generation using Hugging Face LLM + Firecrawl.
 
 Architecture:
     Routes (routers/curriculum.py)
         ↓
-    Service (curriculum_service.py + Claude LLM)
+    Service (curriculum_service.py + Hugging Face LLM)
         ↓
     Firecrawl (extract real web content)
         ↓
@@ -22,8 +22,9 @@ import re
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
-from anthropic import Anthropic
+from openai import OpenAI
 
+from app.config import settings
 from app.services.firecrawl_service import FirecrawlService, ContentSourceType
 from app.repositories.curriculum_repository import CurriculumRepository
 from app.schemas.curriculum import (
@@ -34,8 +35,11 @@ from app.schemas.curriculum import (
 
 logger = logging.getLogger(__name__)
 
-# Initialize Claude client
-anthropic = Anthropic()
+# Initialize Hugging Face client with OpenAI-compatible API
+hf_client = OpenAI(
+    api_key=settings.HUGGINGFACE_API_KEY,
+    base_url=settings.HUGGINGFACE_API_URL
+)
 
 
 class CurriculumService:
@@ -53,7 +57,7 @@ class CurriculumService:
         self.db = db
         self.repo = CurriculumRepository(db)
         self.firecrawl = FirecrawlService(db)
-        self.model = "claude-3-5-sonnet-20241022"
+        self.model = "meta-llama/Llama-2-7b-chat-hf"
 
     # ============================================================================
     # CURRICULUM DISCOVERY
@@ -100,7 +104,14 @@ class CurriculumService:
         # Extract content with Firecrawl (required, no fallback)
         extraction_result = self.firecrawl.extract_and_chunk_urls(urls)
 
-        # Require successful extraction
+        # FIX 4: REQUIRE SUFFICIENT EDUCATIONAL CONTENT
+        sources = extraction_result["sources"]
+        chunks = extraction_result["chunks"]
+
+        # Enforce strict thresholds to prevent invalid content
+        min_valid_sources = 1
+        min_total_chunks = 3
+
         if extraction_result["successful"] == 0:
             logger.error(f"Failed to extract any sources for {request.topic}")
             logger.error(f"Failed URLs: {extraction_result.get('errors', [])}")
@@ -109,10 +120,32 @@ class CurriculumService:
                 "Ensure FIRECRAWL_API_KEY is set and accessible."
             )
 
-        sources = extraction_result["sources"]
-        chunks = extraction_result["chunks"]
+        if len(sources) < min_valid_sources:
+            logger.error(
+                f"Insufficient sources: {len(sources)} < {min_valid_sources} required. "
+                f"Errors: {extraction_result.get('errors', [])}"
+            )
+            raise Exception(
+                f"Insufficient educational content found. "
+                f"Topic '{request.topic}' has no valid sources. "
+                f"Please try a different topic."
+            )
 
-        logger.info(f"Using {len(chunks)} chunks from {len(sources)} sources")
+        if len(chunks) < min_total_chunks:
+            logger.error(
+                f"Insufficient chunks: {len(chunks)} < {min_total_chunks} required. "
+                f"Sources extracted: {len(sources)}"
+            )
+            raise Exception(
+                f"Insufficient educational content extracted for topic '{request.topic}'. "
+                f"Content must have at least {min_total_chunks} sections. "
+                f"Please try a different topic."
+            )
+
+        logger.info(
+            f"Content validation passed: {len(sources)} valid sources, "
+            f"{len(chunks)} chunks extracted for topic '{request.topic}'"
+        )
 
         # Save and return
         curriculum = self._save_curriculum_to_db(
@@ -129,51 +162,67 @@ class CurriculumService:
 
     def _generate_source_urls(self, topic: str, tags: List[str]) -> List[str]:
         """
-        Generate URLs for curriculum extraction.
+        FIX 1: Semantic URL generation using Claude.
 
-        Prioritizes reliable sources that usually have the topic.
-        Avoids generating URLs that commonly return 404s.
+        Instead of blind slug guessing, ask Claude to generate the most likely
+        real URLs for this topic across trusted educational sources.
+        Falls back to deterministic patterns only as a last resort.
         """
-        urls = []
+        logger.info(f"Generating semantic source URLs for topic '{topic}' via Claude")
+
+        prompt = f"""You are a curriculum researcher. Generate the most likely real, working URLs for educational content about "{topic}".
+
+Use ONLY these trusted domains:
+- geeksforgeeks.org  (e.g. https://www.geeksforgeeks.org/python-tutorial/)
+- w3schools.com      (e.g. https://www.w3schools.com/python/)
+- developer.mozilla.org (e.g. https://developer.mozilla.org/en-US/docs/Learn/JavaScript)
+- javatpoint.com     (e.g. https://www.javatpoint.com/python-tutorial)
+- roadmap.sh         (e.g. https://roadmap.sh/python)
+
+Rules:
+- Generate 6-10 URLs that most likely EXIST (not 404)
+- Prefer index/overview pages (not deep sub-pages)
+- Match the exact URL patterns used by each site
+- Include the canonical tutorial page for this topic on each site
+- For "{topic}", think about what the actual page slug would be
+
+Return ONLY a JSON array of URLs:
+["https://...", "https://..."]
+
+No explanations. Only the JSON array."""
+
+        try:
+            response = hf_client.chat.completions.create(
+                model=self.model,
+                max_tokens=600,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            response_text = response.choices[0].message.content.strip()
+            json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+            if json_match:
+                urls = json.loads(json_match.group())
+                urls = [u.strip() for u in urls if isinstance(u, str) and u.startswith("http")]
+                logger.info(f"Hugging Face generated {len(urls)} semantic URLs for '{topic}'")
+                # Deduplicate preserving order
+                seen = set()
+                unique_urls = [u for u in urls if not (u in seen or seen.add(u))]
+                return unique_urls
+        except Exception as e:
+            logger.warning(f"Hugging Face URL generation failed: {e}, falling back to patterns")
+
+        # Deterministic fallback (improved - fewer, higher-confidence patterns)
         topic_slug = "-".join(topic.lower().split())
-        topic_clean = topic_slug.replace("-tutorial", "").replace("-guide", "")
-
-        # GeeksForGeeks - very reliable for programming/CS topics
-        gfg_urls = [
+        topic_single = topic.lower().split()[0]
+        urls = [
             f"https://www.geeksforgeeks.org/{topic_slug}/",
-            f"https://www.geeksforgeeks.org/{topic_clean}/",
+            f"https://www.geeksforgeeks.org/{topic_single}-tutorial/",
+            f"https://www.w3schools.com/{topic_single}/",
+            f"https://www.javatpoint.com/{topic_slug}.html",
+            f"https://roadmap.sh/{topic_single}",
         ]
-        urls.extend(gfg_urls)
-
-        # W3Schools - excellent for web/database topics
-        w3_urls = [
-            f"https://www.w3schools.com/{topic_slug}/",
-            # Skip whatis URL - often returns 404
-        ]
-        urls.extend(w3_urls)
-
-        # MDN - only add if topic looks like web/JavaScript related
-        # Avoid for general topics like "SQL" or "Database"
-        web_related_keywords = {"javascript", "css", "html", "dom", "web", "react", "vue", "angular"}
-        if any(kw in topic.lower() for kw in web_related_keywords):
-            mdn_urls = [
-                f"https://developer.mozilla.org/en-US/docs/Learn/{topic_slug}/",
-                f"https://developer.mozilla.org/en-US/docs/Web/{topic_slug}/",
-            ]
-            urls.extend(mdn_urls)
-
-        # Roadmap.sh - great for learning paths
-        urls.append(f"https://roadmap.sh/{topic_slug}")
-
-        # Remove duplicates while preserving order
         seen = set()
-        unique_urls = []
-        for url in urls:
-            if url not in seen:
-                seen.add(url)
-                unique_urls.append(url)
-
-        logger.info(f"Generated {len(unique_urls)} source URLs for topic '{topic}'")
+        unique_urls = [u for u in urls if not (u in seen or seen.add(u))]
+        logger.info(f"Fallback generated {len(unique_urls)} URLs for '{topic}'")
         return unique_urls
 
     def _save_curriculum_to_db(
@@ -251,119 +300,305 @@ class CurriculumService:
         return curriculum
 
     def _extract_curriculum_topics(self, chunks: List[Any], main_topic: str, difficulty: str) -> List[str]:
-        """Generate meaningful learning topics using Claude."""
+        """
+        Semantic topic extraction — robust against thin/ToC-only sources.
+        Detects thin content and falls back to knowledge-based generation.
+        """
         if not chunks:
-            return []
+            return self._generate_topics_from_knowledge(main_topic, difficulty)
 
-        logger.info(f"Generating topics for '{main_topic}' using Claude")
+        logger.info(f"Generating semantically rich topics for '{main_topic}' using Claude")
 
-        # Prepare chunk summaries
-        chunk_summaries = []
-        for chunk in chunks[:10]:
-            summary = {
-                "heading": getattr(chunk, 'heading_path', ''),
-                "preview": getattr(chunk, 'content', '')[:200],
-                "concepts": getattr(chunk, 'concepts', [])[:5],
-            }
-            chunk_summaries.append(summary)
+        # Curate: deduplicate by heading, skip thin noise chunks
+        seen_headings = set()
+        curated_chunks = []
+        for chunk in chunks:
+            heading = getattr(chunk, 'heading_path', '') or ''
+            token_count = getattr(chunk, 'token_count', 0)
+            if token_count < 20:
+                continue
+            heading_key = heading.lower().strip()
+            if heading_key and heading_key in seen_headings:
+                continue
+            if heading_key:
+                seen_headings.add(heading_key)
+            curated_chunks.append(chunk)
 
-        prompt = f"""
-Analyze this educational content about "{main_topic}" at {difficulty} level.
+        curated_chunks = sorted(curated_chunks, key=lambda c: getattr(c, 'token_count', 0), reverse=True)[:12]
 
-Extract the REAL learning topics - not document headings, but actual teaching topics.
+        # If average tokens < 80, chunks are likely just ToC headings — use knowledge instead
+        avg_tokens = sum(getattr(c, 'token_count', 0) for c in curated_chunks) / max(len(curated_chunks), 1)
+        if avg_tokens < 80:
+            logger.info(f"Chunks are thin (avg {avg_tokens:.0f} tokens) — switching to knowledge-based generation")
+            return self._generate_topics_from_knowledge(main_topic, difficulty)
 
-Content preview:
-{json.dumps(chunk_summaries, indent=2)}
+        # Build context from actual content
+        chunk_contexts = []
+        for chunk in curated_chunks:
+            heading_path = getattr(chunk, 'heading_path', '') or 'Root'
+            content = getattr(chunk, 'content', '') or ''
+            concepts = getattr(chunk, 'concepts', []) or []
+            content_preview = content[:400].replace('\n', ' ').strip()
+            chunk_contexts.append(
+                f"[Section: {heading_path}]\n"
+                f"Content: {content_preview}\n"
+                f"Key terms: {', '.join(concepts[:8]) if concepts else 'none'}"
+            )
 
-For {difficulty} level, identify 4-6 core learning topics.
+        context_text = "\n\n".join(chunk_contexts)
+        n_topics = 4 if difficulty.lower() in ('beginner', 'intermediate') else 6
 
-Return ONLY a JSON array of topic names:
-["Topic 1", "Topic 2", "Topic 3", "Topic 4"]
-
-Rules:
-- Topics should be specific and teachable
-- Progress from basic to advanced
-- Avoid generic words like "Tutorial", "Guide"
-- No single-word topics
-- No off-topic terms
-
-Return ONLY the JSON array.
-"""
+        prompt = (
+            f'You are a curriculum designer creating a {difficulty}-level course on "{main_topic}".\n\n'
+            f'EXTRACTED EDUCATIONAL CONTENT:\n{context_text}\n\n'
+            f'TASK: Identify exactly {n_topics} core LEARNING TOPICS for this course.\n\n'
+            f'CRITICAL RULES:\n'
+            f'- A learning topic is a TEACHABLE SKILL/CONCEPT, not a document section title\n'
+            f'- GOOD: "Pod Lifecycle and Health Checks", "Services and Load Balancing", "Rolling Deployments"\n'
+            f'- BAD (FORBIDDEN): "Basics of {main_topic}", "Advanced {main_topic}", "{main_topic} Tutorial"\n'
+            f'- NEVER copy section headings verbatim from the content above\n'
+            f'- NEVER include "{main_topic}" in the topic name\n'
+            f'- Each topic must be 2-6 words, specific, and independently teachable\n'
+            f'- Order: foundational first, advanced last\n\n'
+            f'Return ONLY a JSON array of exactly {n_topics} topics:\n'
+            f'["Topic 1", "Topic 2", "Topic 3", "Topic 4"]'
+        )
 
         try:
-            response = anthropic.messages.create(
+            response = hf_client.chat.completions.create(
+                model=self.model,
+                max_tokens=600,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            response_text = response.choices[0].message.content.strip()
+            json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+            if json_match:
+                topics = json.loads(json_match.group())
+                bad_patterns = ["basics of", "advanced", "tutorial", "overview",
+                                "introduction", "getting started", main_topic.lower()]
+                topics = [
+                    t.strip() for t in topics
+                    if isinstance(t, str) and t.strip() and len(t.split()) >= 2
+                    and not any(t.lower().startswith(p) for p in bad_patterns)
+                ]
+                if topics:
+                    logger.info(f"Hugging Face generated {len(topics)} semantic topics for '{main_topic}'")
+                    return topics
+        except Exception as e:
+            logger.warning(f"Hugging Face topic generation failed: {e}")
+
+        return self._generate_topics_from_knowledge(main_topic, difficulty)
+
+    def _generate_topics_from_knowledge(self, main_topic: str, difficulty: str) -> List[str]:
+        """
+        Generate high-quality topics from Claude's own knowledge.
+        Used when extracted content is thin, ToC-only, or unavailable.
+        """
+        logger.info(f"Generating topics from Claude knowledge for '{main_topic}' ({difficulty})")
+        n_topics = 4 if difficulty.lower() in ('beginner', 'intermediate') else 6
+
+        prompt = (
+            f'You are a senior software engineering educator designing a {difficulty}-level course on "{main_topic}".\n\n'
+            f'Generate exactly {n_topics} core learning topics for this course.\n\n'
+            f'Requirements:\n'
+            f'- Each topic is a specific, teachable skill/concept (not a vague category)\n'
+            f'- Topics progress from foundational to advanced\n'
+            f'- Each topic is 2-6 words\n'
+            f'- NEVER include "{main_topic}" in the topic name\n'
+            f'- NEVER use: "Introduction", "Overview", "Basics", "Advanced {main_topic}", "Tutorial"\n'
+            f'- Think: what must a student actually learn and practice to become competent?\n\n'
+            f'Example for "Kubernetes" beginner: ["Container Orchestration Concepts", '
+            f'"Pod Lifecycle and Health Checks", "Services and Load Balancing", '
+            f'"ConfigMaps and Environment Variables"]\n\n'
+            f'Now generate {n_topics} topics for "{main_topic}" at {difficulty} level.\n'
+            f'Return ONLY a JSON array: ["Topic 1", "Topic 2", ...]'
+        )
+
+        try:
+            response = hf_client.chat.completions.create(
                 model=self.model,
                 max_tokens=500,
                 messages=[{"role": "user", "content": prompt}]
             )
-
-            response_text = response.content[0].text.strip()
+            response_text = response.choices[0].message.content.strip()
             json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
             if json_match:
                 topics = json.loads(json_match.group())
-                topics = [t.strip() for t in topics if isinstance(t, str) and t.strip()]
-                logger.info(f"Generated {len(topics)} topics with Claude")
-                return topics
-
+                topics = [t.strip() for t in topics if isinstance(t, str) and t.strip() and len(t.split()) >= 2]
+                if topics:
+                    logger.info(f"Knowledge-based: {len(topics)} topics for '{main_topic}'")
+                    return topics
         except Exception as e:
-            logger.warning(f"Claude generation failed: {e}, using fallback")
+            logger.warning(f"Knowledge-based topic generation failed: {e}")
 
-        return self._extract_topics_heuristic(chunks)
+        return self._extract_topics_heuristic([])
 
     def _extract_topics_heuristic(self, chunks: List[Any]) -> List[str]:
-        """Fallback topic extraction."""
+        """
+        Heuristic fallback: derive topics from heading hierarchy (not raw concept words).
+        Uses H1/H2 heading paths as proxies for actual learning topics.
+        """
         from collections import Counter
 
-        concept_freq = Counter()
+        # Collect heading segments at depth 1-2 (most meaningful structural topics)
+        heading_freq: Counter = Counter()
         for chunk in chunks:
-            concepts = getattr(chunk, 'concepts', [])
+            heading_path = getattr(chunk, 'heading_path', '') or ''
+            if ' > ' in heading_path:
+                # Take the second-level heading (most likely a real topic)
+                parts = heading_path.split(' > ')
+                candidate = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+            else:
+                candidate = heading_path.strip()
+
+            if candidate and len(candidate.split()) >= 2 and len(candidate) > 5:
+                # Filter obvious navigation
+                if not any(g in candidate.lower() for g in ["introduction", "overview", "tutorial", "home", "login"]):
+                    heading_freq[candidate] += 1
+
+        top_topics = [h for h, _ in heading_freq.most_common(6)]
+        if top_topics:
+            return top_topics
+
+        # Last resort concept fallback
+        concept_freq: Counter = Counter()
+        for chunk in chunks:
+            concepts = getattr(chunk, 'concepts', []) or []
             for concept in concepts:
-                if concept and len(concept) > 3:
+                if concept and len(concept.split()) >= 2:
                     concept_freq[concept] += 1
 
-        top_topics = [c for c, _ in concept_freq.most_common(6)]
-        return top_topics if top_topics else ["Fundamentals", "Core Concepts", "Advanced Topics"]
+        top_concepts = [c for c, _ in concept_freq.most_common(6)]
+        return top_concepts if top_concepts else ["Core Concepts", "Practical Application", "Advanced Patterns"]
 
     def _extract_curriculum_subtopics(self, chunks: List[Any], topics: List[str]) -> Dict[str, List[str]]:
-        """Generate subtopics for each topic."""
+        """
+        Real subtopic discovery. Uses content-grounded approach when chunks are rich,
+        falls back to Claude knowledge-based generation when content is thin.
+        """
         subtopics = {}
 
+        # Build lookup: chunk data for relevance matching
+        chunk_data = []
+        for chunk in chunks:
+            heading = getattr(chunk, 'heading_path', '') or ''
+            content = getattr(chunk, 'content', '') or ''
+            concepts = getattr(chunk, 'concepts', []) or []
+            token_count = getattr(chunk, 'token_count', 0)
+            if token_count >= 20:
+                chunk_data.append({
+                    "heading": heading,
+                    "content_preview": content[:300],
+                    "concepts": concepts[:6],
+                    "tokens": token_count,
+                })
+
+        # Determine if we have real content or just ToC
+        avg_tokens = sum(cd["tokens"] for cd in chunk_data) / max(len(chunk_data), 1) if chunk_data else 0
+        use_knowledge_mode = avg_tokens < 80
+
+        if use_knowledge_mode:
+            logger.info(f"Thin content (avg {avg_tokens:.0f} tokens) — using knowledge-based subtopics")
+
         for topic in topics:
-            prompt = f"""
-For the learning topic "{topic}", generate 3-4 subtopics that break it into teachable units.
+            if use_knowledge_mode or not chunk_data:
+                # Knowledge-based: ask Claude to generate subtopics from its training
+                subtopics[topic] = self._generate_subtopics_from_knowledge(topic)
+                continue
 
-Return ONLY a JSON array:
-["Subtopic 1", "Subtopic 2", "Subtopic 3"]
+            # Find chunks relevant to this topic
+            topic_words = set(topic.lower().split())
+            relevant = []
+            for cd in chunk_data:
+                heading_words = set(cd["heading"].lower().split())
+                concept_words = set(w.lower() for c in cd["concepts"] for w in c.split())
+                overlap = len(topic_words & (heading_words | concept_words))
+                if overlap > 0:
+                    relevant.append((overlap, cd))
 
-Make subtopics specific, progressive, and teachable.
-Return ONLY the JSON array.
-"""
+            relevant.sort(key=lambda x: x[0], reverse=True)
+            top_chunks = [cd for _, cd in relevant[:5]] or chunk_data[:5]
+
+            context = "\n".join(
+                f"[{cd['heading']}]: {cd['content_preview']} | terms: {', '.join(cd['concepts'])}"
+                for cd in top_chunks
+            )
+
+            prompt = (
+                f'You are a curriculum designer breaking down the learning topic "{topic}" into subtopics.\n\n'
+                f'Relevant content:\n{context}\n\n'
+                f'TASK: Generate 3-4 specific subtopics for "{topic}".\n'
+                f'Each subtopic must be a concrete, teachable unit — NOT a generic label.\n'
+                f'FORBIDDEN: "Introduction", "Basics", "Advanced", "Overview", any heading copied verbatim.\n'
+                f'Return ONLY a JSON array: ["Subtopic 1", "Subtopic 2", "Subtopic 3"]'
+            )
 
             try:
-                response = anthropic.messages.create(
+                response = hf_client.chat.completions.create(
                     model=self.model,
                     max_tokens=300,
                     messages=[{"role": "user", "content": prompt}]
                 )
-
-                response_text = response.content[0].text.strip()
+                response_text = response.choices[0].message.content.strip()
                 json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
                 if json_match:
                     subs = json.loads(json_match.group())
-                    subtopics[topic] = [s.strip() for s in subs if isinstance(s, str) and s.strip()]
-                    continue
-
+                    bad = ["fundamentals of", "core concepts", "advanced topics",
+                           "introduction to", "basics of", "overview of"]
+                    filtered = [
+                        s.strip() for s in subs
+                        if isinstance(s, str) and s.strip()
+                        and len(s.split()) >= 2
+                        and not any(s.lower().startswith(b) for b in bad)
+                    ]
+                    if filtered:
+                        subtopics[topic] = filtered
+                        logger.info(f"Content-grounded subtopics for '{topic}': {filtered}")
+                        continue
             except Exception as e:
-                logger.debug(f"Subtopic generation failed for {topic}: {e}")
+                logger.debug(f"Subtopic generation failed for '{topic}': {e}")
 
-            # Fallback
-            subtopics[topic] = [
-                f"Fundamentals of {topic}",
-                f"Core Concepts",
-                f"Advanced Topics"
-            ]
+            # Fallback to knowledge
+            subtopics[topic] = self._generate_subtopics_from_knowledge(topic)
 
         return subtopics
+
+    def _generate_subtopics_from_knowledge(self, topic: str) -> List[str]:
+        """Generate subtopics from Claude knowledge when content is unavailable."""
+        prompt = (
+            f'Break down the learning topic "{topic}" into 3-4 concrete, teachable subtopics.\n\n'
+            f'Requirements:\n'
+            f'- Each subtopic is a specific skill or concept, not a vague category\n'
+            f'- FORBIDDEN: "Introduction to X", "Basics of X", "Advanced X", "Overview"\n'
+            f'- Each subtopic should be 3-7 words\n'
+            f'- Order: fundamental mechanics first, application/edge-cases last\n\n'
+            f'Return ONLY a JSON array: ["Subtopic 1", "Subtopic 2", "Subtopic 3"]'
+        )
+        try:
+            response = hf_client.chat.completions.create(
+                model=self.model,
+                max_tokens=300,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            response_text = response.choices[0].message.content.strip()
+            json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+            if json_match:
+                subs = json.loads(json_match.group())
+                result = [s.strip() for s in subs if isinstance(s, str) and s.strip() and len(s.split()) >= 2]
+                if result:
+                    logger.info(f"Knowledge subtopics for '{topic}': {result}")
+                    return result
+        except Exception as e:
+            logger.debug(f"Knowledge subtopic gen failed for '{topic}': {e}")
+
+        # Absolute last resort — derive from topic words, not generic placeholders
+        words = topic.split()
+        main_concept = words[-1] if len(words) > 1 else topic
+        return [
+            f"{main_concept} Architecture and Design",
+            f"Configuring and Managing {main_concept}",
+            f"{main_concept} Troubleshooting and Debugging",
+        ]
 
     def _determine_learning_order(self, topics: List[str]) -> List[str]:
         """Determine learning order for topics."""
@@ -400,12 +635,18 @@ Return ONLY the JSON array.
         sources = self.repo.get_sources_for_curriculum(curriculum.id) if hasattr(curriculum, 'id') else []
         source_breakdown = []
         if sources:
+            # FIX: get all chunks once and group by source_id (not source_url which doesn't exist on DB model)
+            all_chunks = self.repo.get_chunks_for_curriculum(curriculum.id)
+            chunks_by_source_id = {}
+            for c in all_chunks:
+                chunks_by_source_id.setdefault(c.source_id, 0)
+                chunks_by_source_id[c.source_id] += 1
+
             for source in sources[:curriculum.sources_count]:
                 source_breakdown.append({
                     "url": getattr(source, 'url', ''),
                     "type": getattr(source, 'source_type', 'Unknown'),
-                    "chunks_count": len([c for c in self.repo.get_chunks_for_curriculum(curriculum.id)
-                                        if getattr(c, 'source_url', '') == getattr(source, 'url', '')]),
+                    "chunks_count": chunks_by_source_id.get(source.id, 0),  # FIX: use source.id not source_url
                     "content_quality": "high" if len(concept_summary) > 0 else "medium"
                 })
 
