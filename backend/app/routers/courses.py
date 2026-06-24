@@ -46,10 +46,17 @@ def get_featured_courses(db: Session = Depends(get_db)) -> List[FeaturedCourse]:
 
 
 @router.get("/", response_model=PaginatedCoursesResponse)
-def browse_courses(skip: int = 0, limit: int = 9, difficulty: str = None, categories: str = None, sort_by: str = "newest", db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
-    """Browse all courses with pagination and optional difficulty and category filters."""
+def browse_courses(skip: int = 0, limit: int = 9, search: str = None, difficulty: str = None, categories: str = None, sort_by: str = "newest", db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
+    """Browse all courses with pagination and optional filters."""
     # Build base query
     query = db.query(Course).filter(Course.status == "published")
+
+    # Apply search filter if provided
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            (Course.title.ilike(search_term)) | (Course.description.ilike(search_term))
+        )
 
     # Apply difficulty filter if provided
     if difficulty:

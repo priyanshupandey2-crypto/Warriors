@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -30,6 +30,7 @@ export default function CoursesPage() {
   const [totalCourses, setTotalCourses] = useState(0);
   const itemsPerPage = 9;
   const apiCall = useApiCall();
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -39,6 +40,9 @@ export default function CoursesPage() {
         let url = `/api/courses?skip=${skip}&limit=${itemsPerPage}`;
 
 
+        if (search) {
+          url += `&search=${encodeURIComponent(search)}`;
+        }
         if (selectedDiff) {
           url += `&difficulty=${encodeURIComponent(selectedDiff)}`;
         }
@@ -72,12 +76,22 @@ export default function CoursesPage() {
     };
 
     fetchCourses();
-  }, [currentPage, selectedDiff, selectedCats, sortBy, apiCall, itemsPerPage]);
+  }, [currentPage, search, selectedDiff, selectedCats, sortBy, apiCall, itemsPerPage]);
 
-  const filtered = courses && courses.length > 0 ? courses.filter((c) => {
-    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
-    return matchSearch;
-  }) : [];
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      // The useEffect will automatically run after search state updates
+    }, 500);
+  };
+
+  const filtered = courses;
 
   const totalPages = Math.ceil(totalCourses / itemsPerPage);
 
@@ -97,7 +111,8 @@ export default function CoursesPage() {
               <input
                 className="w-full pl-12 pr-6 py-4 rounded-xl border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-base shadow-sm"
                 placeholder="Search for courses, skills, or authors..."
-                value={search} onChange={(e) => setSearch(e.target.value)}
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
           </div>
