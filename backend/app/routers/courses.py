@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Body, Request
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.database import get_db
 from app.models.course import Course
 from app.models.user_course import UserCourse
@@ -74,7 +75,7 @@ def browse_courses(skip: int = 0, limit: int = 9, search: str = None, difficulty
     if sort_by == "popular":
         # Sort by enrollments (most popular first)
         query = query.outerjoin(UserCourse).group_by(Course.id).order_by(
-            db.func.count(UserCourse.id).desc()
+            func.count(UserCourse.id).desc()
         )
     elif sort_by == "duration":
         # Sort by duration (shortest first)
