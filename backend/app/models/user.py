@@ -14,6 +14,7 @@ class User(Base):
     courses_enrolled = Column(ARRAY(Integer), default=[], nullable=False)
 
     user_courses = relationship("UserCourse", back_populates="user")
+    lesson_progress = relationship("UserLessonProgress", back_populates="user")
     learning_activities = relationship("LearningActivity", back_populates="user")
     user_goals = relationship("UserGoal", back_populates="user")
     milestones = relationship("Milestone", back_populates="user")

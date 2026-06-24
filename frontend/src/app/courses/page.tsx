@@ -1,30 +1,116 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useApiCall } from "@/hooks/useApiCall";
 
-const allCourses = [
-  { id: 1, title: "UI/UX Design Fundamentals for Modern Products", cat: "Design", catColor: "bg-secondary text-on-secondary", level: "Intermediate", hours: "12h 30m", price: "$89.99", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBooGc5QJtuxOHshZMexrY_wyFLz5LL9N39tiT-WVVMw7tRNpDoIX-YPgEY8a4-5CtBAj8qP269EtqjgczzbuGyHyj6_j4hlRQrga8DATDrpH_2k4JKmA52zrXQPVm_j6AQMULxRvDytBsK46ch-osXUYV5WZAOBqy-Y4NyTQPekqTvDD2y9mvCLAfHpTrf4RQxv2raIMSxCucXzgpTj94hYbDUx_nN6rdkx-CJ-DlV6LamPvCwjduk8FguF_uCk4XUsBIJK4A3fWAI" },
-  { id: 2, title: "Advanced Python Algorithms & Data Structures", cat: "CS", catColor: "bg-tertiary-container text-on-tertiary-container", level: "Advanced", hours: "24h 15m", price: "$124.99", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAyAFTx27UIQBf_RCR806ZHhhswqxc9rOI6DOh8EOJ7cHYCZFy6wiOdsuTcdoIK0mqya4CoLm9SH_og-h1cThwFvFJ13qSYPBTO3-xLs02GPCSvhQ3FUrqrRVzzDmdXCOG_oxLT37mRiwbe6eqPXCUTxwS_QK7H3EbbQ71_0Mzs8LuEQlkfBYD3VG4uurnTE16l-6a2mD310h26NztRriTdaNXqkp-qBn0srJnOXRnO76NtxXZPajBOmdjd0ogI65avPvdtBdIN5VP2" },
-  { id: 3, title: "Mastering Digital Marketing & Growth Hacking", cat: "Business", catColor: "bg-primary-container text-on-primary-container", level: "Beginner", hours: "8h 45m", price: "Free", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAIrhWYbr5QO_CXNNRaUMqEVlbY6EBtzr7gsC5QGPOHPyFoJZ7T7T8G25Ga_HGlfNjgILFCq7gON9Cv5GU3f0FAw8oXLaqpLjnnF6pgfeI4yzlaOlkxwm4DAgxJUFER7sNM5Ks-QGqSbib5MzNqLt15BXyx7bKB1eg6JmRAJ1PbfCICbAo7OTSC2WKT2mAWYaqG-oILoyLHjuUe8NTOA4Kxh3Zir5Oz7qSNRXDL_4LW9x4n6KaH8ZmFMWS653b3SHCX33baDWnKMPOe" },
-  { id: 4, title: "Intro to Artificial Intelligence & Neural Networks", cat: "CS", catColor: "bg-tertiary-container text-on-tertiary-container", level: "Beginner", hours: "15h 00m", price: "$99.99", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDKkp4xkRkQ9Kn9mQ6RqsXSpK0niIqTzpE4spE1nVKFsoESnBL_tCqnPNWbezhx9SfiWy5GRBuK0g-lLH3J0mo_Ih9evuiJ4_sq8VwFO-ychH2CTYuu0CNe59ZuD40WVXuhgGu-D39QFk3APggYK1G5Iq0qdamPsKcYzdu8Ga1kKxOpc2ILmc0YfqwNH9yBDbL8k0IyKdoKFbBQiB3JGiOQIv2dBA-hbuvJl_Qb88Dcu8ZMoY1Way2KTh8mSzO1VakP16lQFEEaQtql" },
-  { id: 5, title: "Professional Brand Identity Design", cat: "Design", catColor: "bg-secondary text-on-secondary", level: "Intermediate", hours: "18h 20m", price: "$74.99", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCVCTfV0hAVREREPUKkUe5O8TBOP-zbWT_htIvnRphm9VgneJpWnLPgskc-zxDjeevBAotRVzYzEdFfnuvm6brwD7K5ZBDA4RhXAk-06rXBkUcSUDyeYC9qkG6VifREUCepyiVPyKsCXStXz_YqDHxJG0SUw-WeKM2j_wSsoIrVSia7RkrT7J_eH_XT4Fg-8oUmcUpJRHogpkQIRRkEFhpj20DnMgrM-OuzZiwV1UQ2z23Cu3dbwHzsd9Ovs12X39yf8Ks9A6Wmy5LW" },
-  { id: 6, title: "Strategic Leadership & Management 2024", cat: "Business", catColor: "bg-primary-container text-on-primary-container", level: "Advanced", hours: "10h 45m", price: "$149.99", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAWIBBBaUgZf421HNntuZMFNmuvQmYMTSasF_D73n8E3548iLzcGgHyQhHBPgSDZOHagL24uO1biXLt0EIAm_gw5xP4c_0wt0frCFZGWR1jCX4DQlEqfG3NUV6_Qtji1vLNMPUouTWlq5WO2TP6eYy_3k-l88I86YvfGIHb2o5xjc49focncXa-PREBO8I862SuHasH7ZxKTgPuNhxJmJAWZ2-I6kXAYtqQt6KY_ngx2oSnG9gZOrx1Ifggawyta82tze-EThvwyNTb" },
-];
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  difficulty_level: string;
+  duration_weeks: number;
+  thumbnail_url: string | null;
+  rating: number | null;
+  enrollments: number;
+  category?: string;
+}
 
 const categories = ["All Categories", "Computer Science", "Business & Strategy", "Creative Design", "Marketing"];
 
 export default function CoursesPage() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedCat, setSelectedCat] = useState("All Categories");
+  const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [selectedDiff, setSelectedDiff] = useState("");
+  const [sortBy, setSortBy] = useState("popular");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(new Set());
+  const itemsPerPage = 9;
+  const apiCall = useApiCall();
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const filtered = allCourses.filter((c) => {
-    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
-    const matchDiff = !selectedDiff || c.level === selectedDiff;
-    return matchSearch && matchDiff;
-  });
+  useEffect(() => {
+    const fetchEnrolledCourses = async () => {
+      try {
+        const response = await apiCall<any>("/api/progress/my-courses");
+        if (response && response.courses) {
+          const enrolledIds = new Set(response.courses.map((c: any) => c.course_id.toString()));
+          setEnrolledCourseIds(enrolledIds);
+        }
+      } catch (error) {
+        console.error("Failed to fetch enrolled courses:", error);
+      }
+    };
+
+    fetchEnrolledCourses();
+  }, [apiCall]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const skip = (currentPage - 1) * itemsPerPage;
+        let url = `/api/courses/?skip=${skip}&limit=${itemsPerPage}`;
+
+
+        if (search) {
+          url += `&search=${encodeURIComponent(search)}`;
+        }
+        if (selectedDiff) {
+          url += `&difficulty=${encodeURIComponent(selectedDiff)}`;
+        }
+        if (selectedCats.length > 0) {
+          const encodedCats = selectedCats.map(c => encodeURIComponent(c)).join(",");
+          url += `&categories=${encodedCats}`;
+        }
+        if (sortBy) {
+          url += `&sort_by=${sortBy}`;
+        }
+
+        const response = await apiCall<any>(url);
+
+        if (response && typeof response === 'object' && 'data' in response && 'total' in response) {
+          setCourses(response.data || []);
+          setTotalCourses(response.total || 0);
+        } else if (Array.isArray(response)) {
+          setCourses(response);
+          setTotalCourses(response.length);
+        } else {
+          setCourses([]);
+          setTotalCourses(0);
+        }
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
+        setCourses([]);
+        setTotalCourses(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, [currentPage, search, selectedDiff, selectedCats, sortBy, apiCall, itemsPerPage]);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      // The useEffect will automatically run after search state updates
+    }, 500);
+  };
+
+  const filtered = courses;
+
+  const totalPages = Math.ceil(totalCourses / itemsPerPage);
 
   return (
     <>
@@ -42,7 +128,8 @@ export default function CoursesPage() {
               <input
                 className="w-full pl-12 pr-6 py-4 rounded-xl border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-base shadow-sm"
                 placeholder="Search for courses, skills, or authors..."
-                value={search} onChange={(e) => setSearch(e.target.value)}
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
           </div>
@@ -56,87 +143,227 @@ export default function CoursesPage() {
               <div>
                 <h3 className="text-sm font-medium text-primary mb-4 uppercase tracking-wider">Categories</h3>
                 <div className="space-y-2">
-                  {categories.map((cat) => (
-                    <label key={cat} className="flex items-center gap-2 group cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary accent-primary"
-                        checked={selectedCat === cat}
-                        onChange={() => setSelectedCat(cat)}
-                      />
-                      <span className="text-base text-on-surface group-hover:text-primary transition-colors">{cat}</span>
-                    </label>
-                  ))}
+                  {categories.map((cat) => {
+                    const isAll = cat === "All Categories";
+                    const isChecked = isAll ? selectedCats.length === 0 : selectedCats.includes(cat);
+
+                    return (
+                      <label key={cat} className="flex items-center gap-2 group cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary accent-primary"
+                          checked={isChecked}
+                          onChange={() => {
+                            if (isAll) {
+                              setSelectedCats([]);
+                              setCurrentPage(1);
+                            } else {
+                              let newCats: string[];
+                              if (selectedCats.includes(cat)) {
+                                newCats = selectedCats.filter(c => c !== cat);
+                              } else {
+                                newCats = [...selectedCats, cat];
+                              }
+                              setSelectedCats(newCats);
+                              setCurrentPage(1);
+                            }
+                          }}
+                        />
+                        <span className="text-base text-on-surface group-hover:text-primary transition-colors">{cat}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
               <div className="pt-4 border-t border-outline-variant">
                 <h3 className="text-sm font-medium text-primary mb-4 uppercase tracking-wider">Difficulty</h3>
                 <div className="space-y-2">
-                  {["Beginner", "Intermediate", "Advanced"].map((diff) => (
-                    <label key={diff} className="flex items-center gap-2 group cursor-pointer">
-                      <input
-                        type="radio" name="difficulty"
-                        className="w-5 h-5 border-outline-variant text-primary focus:ring-primary accent-primary"
-                        checked={selectedDiff === diff}
-                        onChange={() => setSelectedDiff(selectedDiff === diff ? "" : diff)}
-                      />
-                      <span className="text-base text-on-surface">{diff}</span>
-                    </label>
-                  ))}
+                  {["All", "Beginner", "Intermediate", "Advanced"].map((diff) => {
+                    const isAll = diff === "All";
+                    const isChecked = isAll ? selectedDiff === "" : selectedDiff === diff;
+                    return (
+                      <label key={diff} className="flex items-center gap-2 group cursor-pointer">
+                        <input
+                          type="radio" name="difficulty"
+                          className="w-5 h-5 border-outline-variant text-primary focus:ring-primary accent-primary"
+                          checked={isChecked}
+                          onChange={() => {
+                            setSelectedDiff(isAll ? "" : diff);
+                            setCurrentPage(1);
+                          }}
+                        />
+                        <span className="text-base text-on-surface">{diff}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </aside>
 
             {/* Course Grid */}
             <div className="flex-grow">
-              <div className="flex justify-between items-center mb-8">
-                <p className="text-sm font-medium text-on-surface-variant">
-                  Showing <span className="font-bold text-on-surface">{filtered.length}</span> courses
-                </p>
-                <select className="bg-transparent border-none text-sm font-medium text-primary focus:ring-0 cursor-pointer">
-                  <option>Newest First</option>
-                  <option>Most Popular</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map((course) => (
-                  <div key={course.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img className="w-full h-full object-cover" src={course.img} alt={course.title} />
-                      <span className={`absolute top-4 left-4 ${course.catColor} px-2 py-1 rounded text-xs font-bold`}>{course.cat}</span>
-                    </div>
-                    <div className="p-6 flex-grow flex flex-col">
-                      <h3 className="text-lg font-bold text-on-surface line-clamp-2 mb-2">{course.title}</h3>
-                      <div className="flex items-center gap-4 mb-6 text-on-surface-variant text-sm">
-                        <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">bar_chart</span> {course.level}</span>
-                        <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">schedule</span> {course.hours}</span>
-                      </div>
-                      <div className="mt-auto flex items-center justify-between">
-                        <span className="text-2xl font-semibold text-primary">{course.price}</span>
-                        <Link href={`/course/${course.id}`} className="bg-primary text-on-primary px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-                          {course.price === "Free" ? "Enroll Now" : "View Course"}
-                        </Link>
-                      </div>
-                    </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-8 flex justify-between items-center">
+                    <p className="text-sm font-medium text-on-surface-variant">
+                      Total <span className="font-bold text-on-surface">{totalCourses}</span> courses • Showing <span className="font-bold text-on-surface">{filtered.length}</span> courses
+                    </p>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => {
+                        setSortBy(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="bg-surface-container border border-outline-variant rounded-lg px-4 py-2 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="popular">Most Popular</option>
+                      <option value="duration">Course Duration</option>
+                    </select>
                   </div>
-                ))}
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filtered.length > 0 ? (
+                      filtered.map((course) => {
+                        const isEnrolled = enrolledCourseIds.has(course.id);
+                        return (
+                          <div key={course.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm course-card-hover flex flex-col relative">
+                            {isEnrolled && (
+                              <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-tertiary text-on-primary px-3 py-1 rounded-full text-xs font-semibold">
+                                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                  check_circle
+                                </span>
+                                Enrolled
+                              </div>
+                            )}
+                            <div className="relative h-48 overflow-hidden bg-surface-container">
+                              {course.thumbnail_url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img className="w-full h-full object-cover" src={course.thumbnail_url} alt={course.title} />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="material-symbols-outlined text-4xl text-outline">image</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-6 flex-grow flex flex-col">
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="text-lg font-bold text-on-surface line-clamp-2 flex-1">{course.title}</h3>
+                                {course.category && (
+                                  <span className="ml-2 px-3 py-1 bg-primary text-on-primary text-xs font-medium rounded whitespace-nowrap">
+                                    {course.category}
+                                  </span>
+                                )}
+                              </div>
+                            <p className="text-sm text-on-surface-variant mb-4 line-clamp-2">{course.description}</p>
+                            <div className="flex items-center gap-4 mb-6 text-on-surface-variant text-sm">
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[18px]">bar_chart</span>
+                                {course.difficulty_level}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[18px]">schedule</span>
+                                {course.duration_weeks}w
+                              </span>
+                            </div>
+                            <div className="mt-auto flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span className="material-symbols-outlined text-[18px]">group</span>
+                                {course.enrollments} enrolled
+                              </div>
+                              <Link href={`/course/${course.id}`} className="bg-primary text-on-primary px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                                View Course
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                        );
+                      })
+                    ) : (
+                      <div className="col-span-full text-center py-12">
+                        <p className="text-on-surface-variant">No courses found matching your criteria</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
 
               {/* Pagination */}
-              <div className="mt-12 flex justify-center items-center gap-4">
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">
-                  <span className="material-symbols-outlined">chevron_left</span>
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold">1</button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">2</button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">3</button>
-                <span className="text-outline">...</span>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">12</button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">
-                  <span className="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
+              {totalPages > 1 && (
+                <div className="mt-12 flex justify-center items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+
+                  {/* Generate page numbers with smart pagination */}
+                  {(() => {
+                    const pagesToShow = 9;
+                    let pages: number[] = [];
+
+                    if (totalPages <= pagesToShow) {
+                      // Show all pages if 9 or fewer
+                      pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+                    } else {
+                      // Show 9 pages centered around current page
+                      let start = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+                      let end = start + pagesToShow - 1;
+
+                      if (end > totalPages) {
+                        end = totalPages;
+                        start = Math.max(1, end - pagesToShow + 1);
+                      }
+
+                      pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+                    }
+
+                    return pages.map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                          currentPage === page
+                            ? "bg-primary text-on-primary"
+                            : "border border-outline-variant text-on-surface hover:bg-surface-container"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ));
+                  })()}
+
+                  {/* Show last page with ellipsis if needed */}
+                  {totalPages > 9 && (() => {
+                    const start = Math.max(1, currentPage - 4);
+                    const end = Math.min(totalPages, start + 8);
+                    return end < totalPages;
+                  })() && (
+                    <>
+                      <span className="text-outline">...</span>
+                      <button
+                        onClick={() => setCurrentPage(totalPages)}
+                        className="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-outline-variant text-on-surface hover:bg-surface-container"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>

@@ -50,3 +50,4 @@ class FeaturedCourse(BaseModel):
     thumbnail_url: Optional[str] = None
     rating: Optional[float] = None
     enrollments: int = 0
+    category: Optional[str] = None

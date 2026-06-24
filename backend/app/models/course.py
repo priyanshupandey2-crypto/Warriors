@@ -82,6 +82,9 @@ class Course(Base):
     # archived: Old courses, no new enrollments
     status = Column(String(50), default="published", nullable=False)
 
+    # Course category (Computer Science, Business & Strategy, Creative Design, Marketing)
+    category = Column(String(100), nullable=True)
+
     # DATABASE INTEGRATION - Phase 3: Course Author
     # Foreign key to users table (who created this course)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)

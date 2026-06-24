@@ -1,13 +1,25 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Body, Request
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.database import get_db
 from app.models.course import Course
+from app.models.lesson import Lesson
 from app.models.user_course import UserCourse
 from app.schemas.course_schemas import CourseGenerateRequest, FeaturedCourse
 from typing import List, Dict, Any
 from datetime import datetime
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
+
+
+class PaginatedCoursesResponse(BaseModel):
+    """Response with courses and pagination info"""
+    data: List[FeaturedCourse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
 
 
 @router.get("/featured", response_model=List[FeaturedCourse])
@@ -28,20 +40,55 @@ def get_featured_courses(db: Session = Depends(get_db)) -> List[FeaturedCourse]:
             tags=[],
             thumbnail_url=course.thumbnail_url,
             rating=None,
-            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count()
+            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count(),
+            category=course.category
         )
         for course in courses
     ]
 
 
-@router.get("/", response_model=List[FeaturedCourse])
-def browse_courses(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)) -> List[FeaturedCourse]:
-    """Browse all courses with pagination."""
-    courses = db.query(Course).filter(
-        Course.status == "published"
-    ).offset(skip).limit(limit).all()
+@router.get("/", response_model=PaginatedCoursesResponse)
+def browse_courses(skip: int = 0, limit: int = 9, search: str = None, difficulty: str = None, categories: str = None, sort_by: str = "newest", db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
+    """Browse all courses with pagination and optional filters."""
+    # Build base query
+    query = db.query(Course).filter(Course.status == "published")
 
-    return [
+    # Apply search filter if provided
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            (Course.title.ilike(search_term)) | (Course.description.ilike(search_term))
+        )
+
+    # Apply difficulty filter if provided
+    if difficulty:
+        query = query.filter(Course.difficulty == difficulty)
+
+    # Apply category filter if provided
+    if categories:
+        category_list = [c.strip() for c in categories.split(",")]
+        query = query.filter(Course.category.in_(category_list))
+
+    # Get total count before sorting (for accurate pagination)
+    total = query.count()
+
+    # Apply sorting
+    if sort_by == "popular":
+        # Sort by enrollments (most popular first)
+        query = query.outerjoin(UserCourse).group_by(Course.id).order_by(
+            func.count(UserCourse.id).desc()
+        )
+    elif sort_by == "duration":
+        # Sort by duration (shortest first)
+        query = query.order_by(Course.duration_hours.asc())
+    else:
+        # Default: newest first (by creation date)
+        query = query.order_by(Course.created_at.desc())
+
+    # Get paginated courses
+    courses = query.offset(skip).limit(limit).all()
+
+    data = [
         FeaturedCourse(
             id=str(course.id),
             title=course.title,
@@ -52,10 +99,19 @@ def browse_courses(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
             tags=[],
             thumbnail_url=course.thumbnail_url,
             rating=None,
-            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count()
+            enrollments=db.query(UserCourse).filter(UserCourse.course_id == course.id).count(),
+            category=course.category
         )
         for course in courses
     ]
+
+    return PaginatedCoursesResponse(
+        data=data,
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=skip + limit < total
+    )
 
 
 @router.post("/generate", response_model=dict)
@@ -100,17 +156,58 @@ def get_course_preview(course_id: int, db: Session = Depends(get_db)):
             detail=f"Course {course_id} not found"
         )
 
+    # Get all lessons for this course
+    lessons = db.query(Lesson).filter(Lesson.course_id == course.id).order_by(Lesson.order).all()
+
+    # Group lessons by module (we'll create module structure from lessons)
+    # Since we don't have a Module model yet, we'll group lessons sequentially
+    modules = []
+    current_module_lessons = []
+    lessons_per_module = 3  # Group lessons into modules of 3
+
+    for idx, lesson in enumerate(lessons):
+        current_module_lessons.append({
+            "id": lesson.id,
+            "title": lesson.title,
+            "duration_minutes": lesson.duration_minutes,
+            "content_markdown": lesson.content_markdown,
+            "order": lesson.order,
+        })
+
+        # Create a new module every 3 lessons or at the end
+        if len(current_module_lessons) == lessons_per_module or idx == len(lessons) - 1:
+            module_num = len(modules) + 1
+            modules.append({
+                "title": f"Module {module_num}: {course.title.split()[0]} Module",
+                "description": f"Learn about {course.title.lower()}",
+                "lessons": current_module_lessons,
+            })
+            current_module_lessons = []
+
     return {
         "id": str(course.id),
         "title": course.title,
         "description": course.description,
         "difficulty_level": course.difficulty,
         "total_duration_hours": course.duration_hours,
-        "learning_objectives": [],
+        "learning_objectives": [
+            f"Master {course.title}",
+            f"Understand core concepts of {course.title}",
+            f"Apply {course.title} in real-world scenarios"
+        ],
         "overview": course.description,
-        "modules": [],
-        "lesson_sequence": [],
-        "learning_roadmap": ""
+        "modules": modules,
+        "lesson_sequence": [
+            {
+                "id": lesson.id,
+                "title": lesson.title,
+                "duration_minutes": lesson.duration_minutes,
+                "order": lesson.order,
+                "content_markdown": lesson.content_markdown,
+            }
+            for lesson in lessons
+        ],
+        "learning_roadmap": f"Complete all {len(lessons)} lessons to master {course.title}"
     }
 
 
