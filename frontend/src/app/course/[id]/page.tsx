@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import Navbar from "@/components/Navbar";
+import QuizInterface from "@/components/QuizInterface";
 import { useApiCall } from "@/hooks/useApiCall";
 
 interface Lesson {
@@ -14,11 +15,21 @@ interface Lesson {
   order: number;
 }
 
+interface Quiz {
+  id: number;
+  title: string;
+  description?: string;
+  passing_score: number;
+  total_points: number;
+  question_count: number;
+}
+
 interface Module {
   id?: number;
   title: string;
   description?: string;
   lessons?: Lesson[];
+  quizzes?: Quiz[];
 }
 
 interface CoursePreview {
@@ -48,6 +59,8 @@ export default function CourseLearningPage() {
   const [markedLessonIds, setMarkedLessonIds] = useState<Set<number>>(new Set());
   const [markedToRevisit, setMarkedToRevisit] = useState(false);
   const [revisitToggling, setRevisitToggling] = useState(false);
+  const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
+  const [passedQuizIds, setPassedQuizIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -113,6 +126,7 @@ export default function CourseLearningPage() {
     }
   }, [course, enrolled, completedLessonIds]);
 
+
   const checkEnrollmentStatus = async () => {
     try {
       const response = await apiCall<any>(`/api/progress/course/${courseId}`);
@@ -135,6 +149,20 @@ export default function CourseLearningPage() {
           );
           setCompletedLessonIds(completedIds);
           setMarkedLessonIds(markedIds);
+        }
+
+        // Fetch quiz submission status for all quizzes
+        if (course?.modules) {
+          const allQuizzes = course.modules.flatMap((mod) => mod.quizzes || []);
+          const passedIds = new Set<number>();
+
+          for (const quiz of allQuizzes) {
+            const submission = await apiCall<any>(`/api/quiz/${quiz.id}/my-submission`);
+            if (submission && submission.passed) {
+              passedIds.add(quiz.id);
+            }
+          }
+          setPassedQuizIds(passedIds);
         }
       }
     } catch (error) {
@@ -167,7 +195,65 @@ export default function CourseLearningPage() {
 
   const totalLessons = course?.lesson_sequence?.length || 0;
 
+  const totalQuizzes = useMemo(() => {
+    let count = 0;
+    if (course?.modules) {
+      course.modules.forEach((mod) => {
+        count += mod.quizzes?.length || 0;
+      });
+    }
+    return count;
+  }, [course]);
+
+  const allQuizzesCompleted = totalQuizzes > 0 && passedQuizIds.size === totalQuizzes;
+
+  // Calculate total sections (lessons + quizzes)
+  const totalSections = useMemo(() => {
+    let count = totalLessons;
+    if (course?.modules) {
+      course.modules.forEach((mod) => {
+        count += mod.quizzes?.length || 0;
+      });
+    }
+    return count;
+  }, [course, totalLessons]);
+
+  // Create unified section sequence (lessons + quizzes in module order)
+  const sectionSequence = useMemo(() => {
+    const sections: Array<{ type: 'lesson' | 'quiz'; id: number; lesson?: Lesson; quiz?: Quiz; module?: Module }> = [];
+
+    if (course?.modules) {
+      course.modules.forEach((module) => {
+        // Add lessons from this module
+        if (module.lessons) {
+          module.lessons.forEach((lesson) => {
+            sections.push({
+              type: 'lesson',
+              id: lesson.id,
+              lesson,
+              module,
+            });
+          });
+        }
+        // Add quizzes from this module
+        if (module.quizzes) {
+          module.quizzes.forEach((quiz) => {
+            sections.push({
+              type: 'quiz',
+              id: quiz.id,
+              quiz,
+              module,
+            });
+          });
+        }
+      });
+    }
+
+    return sections;
+  }, [course]);
+
   const handleLessonClick = (lesson: Lesson, module: Module) => {
+    setSelectedQuizId(null); // Clear quiz selection when clicking lesson
     setActiveLesson(lesson);
     setActiveModule(module);
     checkLessonRevisitStatus(lesson.id);
@@ -225,45 +311,58 @@ export default function CourseLearningPage() {
   };
 
   const handlePreviousLesson = () => {
-    if (!activeLesson || !course) return;
+    if (sectionSequence.length === 0) return;
 
-    const currentIndex = course.lesson_sequence.findIndex(
-      (l) => l.id === activeLesson.id
-    );
+    let currentIndex = -1;
+    if (activeLesson) {
+      currentIndex = sectionSequence.findIndex((s) => s.type === 'lesson' && s.id === activeLesson.id);
+    } else if (selectedQuizId) {
+      currentIndex = sectionSequence.findIndex((s) => s.type === 'quiz' && s.id === selectedQuizId);
+    }
 
     if (currentIndex > 0) {
-      const previousLesson = course.lesson_sequence[currentIndex - 1];
-      // Find the module that contains this lesson
-      const moduleWithLesson = course.modules?.find((mod) =>
-        mod.lessons?.some((l) => l.id === previousLesson.id)
-      );
-      if (moduleWithLesson) {
-        handleLessonClick(previousLesson, moduleWithLesson);
+      const prevSection = sectionSequence[currentIndex - 1];
+      if (prevSection.type === 'lesson' && prevSection.lesson && prevSection.module) {
+        handleLessonClick(prevSection.lesson, prevSection.module);
+      } else if (prevSection.type === 'quiz' && prevSection.quiz) {
+        setActiveLesson(null);
+        setSelectedQuizId(prevSection.quiz.id);
       }
     }
   };
 
   const handleNextLesson = () => {
-    if (!activeLesson || !course) return;
+    if (sectionSequence.length === 0) return;
 
-    const currentIndex = course.lesson_sequence.findIndex(
-      (l) => l.id === activeLesson.id
-    );
+    let currentIndex = -1;
+    if (activeLesson) {
+      currentIndex = sectionSequence.findIndex((s) => s.type === 'lesson' && s.id === activeLesson.id);
+    } else if (selectedQuizId) {
+      currentIndex = sectionSequence.findIndex((s) => s.type === 'quiz' && s.id === selectedQuizId);
+    }
 
-    if (currentIndex < course.lesson_sequence.length - 1) {
-      const nextLesson = course.lesson_sequence[currentIndex + 1];
-      // Find the module that contains this lesson
-      const moduleWithLesson = course.modules?.find((mod) =>
-        mod.lessons?.some((l) => l.id === nextLesson.id)
-      );
-      if (moduleWithLesson) {
-        handleLessonClick(nextLesson, moduleWithLesson);
+    if (currentIndex < sectionSequence.length - 1) {
+      const nextSection = sectionSequence[currentIndex + 1];
+      if (nextSection.type === 'lesson' && nextSection.lesson && nextSection.module) {
+        handleLessonClick(nextSection.lesson, nextSection.module);
+      } else if (nextSection.type === 'quiz' && nextSection.quiz) {
+        setActiveLesson(null);
+        setSelectedQuizId(nextSection.quiz.id);
       }
     }
   };
 
-  const isPreviousDisabled = !activeLesson || course?.lesson_sequence?.findIndex((l) => l.id === activeLesson.id) === 0;
-  const isNextDisabled = !activeLesson || course?.lesson_sequence?.findIndex((l) => l.id === activeLesson.id) === (totalLessons - 1);
+  const getCurrentSectionIndex = () => {
+    if (activeLesson) {
+      return sectionSequence.findIndex((s) => s.type === 'lesson' && s.id === activeLesson.id);
+    } else if (selectedQuizId) {
+      return sectionSequence.findIndex((s) => s.type === 'quiz' && s.id === selectedQuizId);
+    }
+    return -1;
+  };
+
+  const isPreviousDisabled = (activeLesson || selectedQuizId) ? getCurrentSectionIndex() <= 0 : true;
+  const isNextDisabled = (activeLesson || selectedQuizId) ? getCurrentSectionIndex() >= (sectionSequence.length - 1) : true;
 
   const handleCompleteLesson = async () => {
     if (!activeLesson) return;
@@ -347,49 +446,104 @@ export default function CourseLearningPage() {
 
           <nav className="flex-1 space-y-1 pb-8">
             {course?.modules && course.modules.map((module, moduleIdx) => (
-              <div key={moduleIdx} className="px-6 mb-4">
-                <div className="flex items-center justify-between py-2 cursor-pointer group">
-                  <h2 className="text-sm font-medium text-on-surface uppercase tracking-wider">{module.title}</h2>
+              <div key={moduleIdx} className="px-6 mb-6">
+                {/* Module Title */}
+                <div className="flex items-center justify-between py-3 cursor-pointer group">
+                  <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">{module.title}</h2>
+                  <span className="text-xs text-on-surface-variant font-medium">
+                    {(module.lessons?.length || 0) + (module.quizzes?.length || 0)} sections
+                  </span>
                 </div>
-                <div className="space-y-1 mt-2">
-                  {module.lessons && module.lessons.map((lesson, lessonIdx) => {
-                    const isCompleted = completedLessonIds.has(lesson.id);
-                    const isMarked = markedLessonIds.has(lesson.id);
-                    return (
-                      <button
-                        key={lessonIdx}
-                        onClick={() => handleLessonClick(lesson, module)}
-                        className={`flex items-center gap-2 p-2 rounded-lg w-full text-left transition-all ${
-                          activeLesson?.id === lesson.id
-                            ? "bg-primary-container text-on-primary-container shadow-sm border border-primary/10"
-                            : "hover:bg-surface-container-low text-on-surface-variant"
-                        }`}
-                      >
-                        <span
-                          className={`material-symbols-outlined ${
-                            activeLesson?.id === lesson.id ? "text-on-primary-container" : isCompleted ? "text-tertiary" : "text-outline"
+
+                {/* Lessons in this Module */}
+                <div className="space-y-1 mt-2 ml-2">
+                  {module.lessons && module.lessons.length > 0 ? (
+                    module.lessons.map((lesson, lessonIdx) => {
+                      const isCompleted = completedLessonIds.has(lesson.id);
+                      const isMarked = markedLessonIds.has(lesson.id);
+                      return (
+                        <button
+                          key={`lesson-${lessonIdx}`}
+                          onClick={() => handleLessonClick(lesson, module)}
+                          className={`flex items-center gap-2 p-2 rounded-lg w-full text-left transition-all ${
+                            activeLesson?.id === lesson.id
+                              ? "bg-primary-container text-on-primary-container shadow-sm border border-primary/10"
+                              : "hover:bg-surface-container-low text-on-surface-variant"
                           }`}
-                          style={{ fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0" }}
                         >
-                          {isCompleted ? "check_circle" : "play_circle"}
-                        </span>
-                        <span className={`flex-1 text-base ${activeLesson?.id === lesson.id ? "font-semibold" : ""}`}>
-                          {lesson.title}
-                        </span>
-                        {isMarked && (
                           <span
-                            className={`material-symbols-outlined text-sm ${
-                              activeLesson?.id === lesson.id ? "text-on-primary-container" : "text-tertiary"
+                            className={`material-symbols-outlined text-[20px] flex-shrink-0 ${
+                              activeLesson?.id === lesson.id ? "text-on-primary-container" : isCompleted ? "text-tertiary" : "text-outline"
                             }`}
-                            style={{ fontVariationSettings: "'FILL' 1" }}
+                            style={{ fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0" }}
                           >
-                            bookmark
+                            {isCompleted ? "check_circle" : "play_circle"}
                           </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm truncate ${activeLesson?.id === lesson.id ? "font-semibold" : ""}`}>
+                              {lesson.title}
+                            </p>
+                            <p className="text-xs text-on-surface-variant">
+                              {lesson.duration_minutes} min
+                            </p>
+                          </div>
+                          {isMarked && (
+                            <span
+                              className={`material-symbols-outlined text-sm flex-shrink-0 ${
+                                activeLesson?.id === lesson.id ? "text-on-primary-container" : "text-tertiary"
+                              }`}
+                              style={{ fontVariationSettings: "'FILL' 1" }}
+                            >
+                              bookmark
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p className="text-xs text-on-surface-variant italic py-2 px-2">No lessons</p>
+                  )}
                 </div>
+
+                {/* Quizzes in this Module */}
+                {module.quizzes && module.quizzes.length > 0 && (
+                  <div className="space-y-1 mt-1 ml-2">
+                    {module.quizzes.map((quiz, quizIdx) => {
+                      const isPassed = passedQuizIds.has(quiz.id);
+                      return (
+                        <button
+                          key={`quiz-${quizIdx}`}
+                          onClick={() => {
+                            setSelectedQuizId(quiz.id);
+                            setActiveLesson(null);
+                          }}
+                          className={`flex items-center gap-2 p-2 rounded-lg w-full text-left transition-all ${
+                            selectedQuizId === quiz.id
+                              ? "bg-primary-container text-on-primary-container shadow-sm border border-primary/10"
+                              : "hover:bg-surface-container-low text-on-surface-variant"
+                          }`}
+                        >
+                          <span
+                            className={`material-symbols-outlined text-[20px] flex-shrink-0 ${
+                              selectedQuizId === quiz.id ? "text-on-primary-container" : isPassed ? "text-tertiary" : "text-outline"
+                            }`}
+                            style={{ fontVariationSettings: isPassed ? "'FILL' 1" : "'FILL' 0" }}
+                          >
+                            {isPassed ? "check_circle" : "assignment"}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm truncate ${selectedQuizId === quiz.id ? "font-semibold" : ""}`}>
+                              {quiz.title}
+                            </p>
+                            <p className="text-xs text-on-surface-variant">
+                              {quiz.question_count} questions • {quiz.passing_score}% pass
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))}
           </nav>
@@ -401,36 +555,58 @@ export default function CourseLearningPage() {
           <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-surface-container flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-on-surface-variant">
-                {activeModule?.title} • {activeLesson?.title}
+                {selectedQuizId ? "Quiz" : activeModule?.title} {selectedQuizId ? "" : "•"} {selectedQuizId ? "" : activeLesson?.title}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleToggleRevisit}
-                disabled={revisitToggling}
-                className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium transition-all active:scale-95 ${
-                  markedToRevisit
-                    ? "border-tertiary bg-tertiary-container text-on-tertiary-container"
-                    : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: markedToRevisit ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
-                {markedToRevisit ? "Marked" : "Mark to Revisit"}
-              </button>
-              <button
-                onClick={handleCompleteLesson}
-                disabled={isNextDisabled && activeLesson?.order === totalLessons}
-                className="flex items-center gap-1 px-4 py-2 rounded-lg bg-tertiary text-on-primary text-sm font-medium hover:opacity-90 transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="material-symbols-outlined text-[18px]">check</span>
-                {activeLesson?.order === totalLessons ? "Course Complete!" : "Complete & Next"}
-              </button>
+              {!selectedQuizId && (
+                <>
+                  <button
+                    onClick={handleToggleRevisit}
+                    disabled={revisitToggling}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium transition-all active:scale-95 ${
+                      markedToRevisit
+                        ? "border-tertiary bg-tertiary-container text-on-tertiary-container"
+                        : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: markedToRevisit ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
+                    {markedToRevisit ? "Marked" : "Mark to Revisit"}
+                  </button>
+                  <button
+                    onClick={handleCompleteLesson}
+                    disabled={completedLessonIds.has(activeLesson.id)}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-on-primary text-sm font-medium transition-all active:scale-95 shadow-sm ${
+                      completedLessonIds.has(activeLesson.id)
+                        ? "bg-tertiary/50 cursor-not-allowed opacity-70"
+                        : "bg-tertiary hover:opacity-90"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">check</span>
+                    {completedLessonIds.has(activeLesson.id)
+                      ? "Completed"
+                      : getCurrentSectionIndex() >= (totalSections - 1) && allQuizzesCompleted ? "Complete Course" : "Complete Section"}
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           {/* Content */}
           <div className="flex-1 p-6 md:p-12 max-w-4xl mx-auto w-full space-y-8 pb-12 overflow-y-auto">
-            {activeLesson ? (
+            {selectedQuizId ? (
+              <QuizInterface
+                quizId={selectedQuizId}
+                courseId={parseInt(courseId as string)}
+                onComplete={(passed) => {
+                  if (passed) {
+                    setPassedQuizIds(prev => new Set([...prev, selectedQuizId]));
+                  }
+                  setSelectedQuizId(null);
+                  checkEnrollmentStatus();
+                }}
+              />
+            ) : activeLesson ? (
               <div className="space-y-6">
                 {/* Lesson Info */}
                 <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-surface-container-low rounded-lg border border-surface-container">
@@ -444,8 +620,8 @@ export default function CourseLearningPage() {
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-tertiary">check_circle</span>
                     <div>
-                      <p className="text-sm text-on-surface-variant">Lesson Progress</p>
-                      <p className="font-semibold text-on-surface">{activeLesson.order} of {totalLessons}</p>
+                      <p className="text-sm text-on-surface-variant">Section Progress</p>
+                      <p className="font-semibold text-on-surface">{sectionSequence.findIndex((s) => s.type === 'lesson' && s.id === activeLesson.id) + 1} of {totalSections}</p>
                     </div>
                   </div>
                 </div>
@@ -496,10 +672,10 @@ export default function CourseLearningPage() {
               }`}
             >
               <span className="material-symbols-outlined">arrow_back</span>
-              Previous Lesson
+              Previous Section
             </button>
             <span className="text-sm text-on-surface-variant">
-              Lesson {activeLesson?.order} of {totalLessons}
+              Section {getCurrentSectionIndex() + 1} of {totalSections}
             </span>
             <button
               onClick={handleNextLesson}
@@ -510,7 +686,7 @@ export default function CourseLearningPage() {
                   : "text-on-surface-variant hover:text-primary"
               }`}
             >
-              Next Lesson
+              Next Section
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>

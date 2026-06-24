@@ -11,9 +11,13 @@ from app.models.learning_activity import LearningActivity
 from app.models.milestone import Milestone
 from app.models.lesson import Lesson
 from app.models.quiz import Quiz
+from sqlalchemy import text
 
-print("[INFO] Dropping all tables...")
-Base.metadata.drop_all(bind=engine)
+print("[INFO] Dropping all tables with CASCADE...")
+with engine.connect() as connection:
+    connection.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+    connection.execute(text("CREATE SCHEMA public"))
+    connection.commit()
 
 print("[INFO] Creating all tables...")
 Base.metadata.create_all(bind=engine)

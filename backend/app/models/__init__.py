@@ -10,6 +10,7 @@ from app.models.user_lesson_progress import UserLessonProgress
 from app.models.learning_activity import LearningActivity
 from app.models.user_goal import UserGoal
 from app.models.milestone import Milestone
+from app.models.module import Module
 from app.models.lesson import Lesson
 from app.models.quiz import Quiz, QuizQuestion, QuestionOption, QuizSubmission
 
@@ -21,6 +22,7 @@ __all__ = [
     "LearningActivity",
     "UserGoal",
     "Milestone",
+    "Module",
     "Lesson",
     "Quiz",
     "QuizQuestion",

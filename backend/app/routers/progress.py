@@ -10,6 +10,7 @@ from app.models.user_course import UserCourse
 from app.models.lesson import Lesson
 from app.models.user_lesson_progress import UserLessonProgress
 from app.models.course import Course
+from app.models.quiz import Quiz, QuizSubmission
 from app.schemas.progress_schemas import (
     CourseEnrollRequest,
     CourseEnrollResponse,
@@ -53,8 +54,10 @@ def enroll_in_course(
     if existing:
         raise HTTPException(status_code=400, detail="Already enrolled in this course")
 
-    # Get total lessons in course
+    # Get total lessons and quizzes in course
     total_lessons = db.query(Lesson).filter(Lesson.course_id == course_id).count()
+    total_quizzes = db.query(Quiz).filter(Quiz.course_id == course_id).count()
+    total_sections = total_lessons + total_quizzes
 
     # Create enrollment
     enrollment = UserCourse(
@@ -63,7 +66,7 @@ def enroll_in_course(
         status="ENROLLED",
         progress_percentage=0,
         completed_lessons=0,
-        total_lessons=total_lessons,
+        total_lessons=total_sections,
         enrolled_at=datetime.utcnow(),
     )
 
@@ -207,15 +210,27 @@ def mark_lesson_complete(
 
     db.commit()
 
-    # Update course progress
+    # Update course progress (count lessons + passed quizzes)
     all_lessons = db.query(Lesson).filter(Lesson.course_id == lesson.course_id).all()
-    completed_count = db.query(UserLessonProgress).filter(
+    all_quizzes = db.query(Quiz).filter(Quiz.course_id == lesson.course_id).all()
+
+    # Count completed lessons
+    completed_lessons = db.query(UserLessonProgress).filter(
         UserLessonProgress.user_id == user_id,
         UserLessonProgress.course_id == lesson.course_id,
         UserLessonProgress.is_completed == True,
     ).count()
 
-    progress_percentage = (completed_count / len(all_lessons) * 100) if all_lessons else 0
+    # Count passed quizzes
+    completed_quizzes = db.query(QuizSubmission).filter(
+        QuizSubmission.user_id == user_id,
+        QuizSubmission.quiz_id.in_([q.id for q in all_quizzes]),
+        QuizSubmission.passed == True,
+    ).count()
+
+    total_sections = len(all_lessons) + len(all_quizzes)
+    completed_sections = completed_lessons + completed_quizzes
+    progress_percentage = (completed_sections / total_sections * 100) if total_sections > 0 else 0
 
     # Update enrollment
     enrollment = db.query(UserCourse).filter(
@@ -223,7 +238,8 @@ def mark_lesson_complete(
     ).first()
 
     if enrollment:
-        enrollment.completed_lessons = completed_count
+        enrollment.completed_lessons = completed_sections
+        enrollment.total_lessons = total_sections
         enrollment.progress_percentage = int(progress_percentage)
         enrollment.last_accessed_at = datetime.utcnow()
 
@@ -231,8 +247,8 @@ def mark_lesson_complete(
         if enrollment.status == "ENROLLED":
             enrollment.status = "IN_PROGRESS"
 
-        # Mark as completed if all lessons done
-        if completed_count == len(all_lessons):
+        # Mark as completed if all sections done
+        if completed_sections == total_sections:
             enrollment.status = "COMPLETED"
             enrollment.completed_at = datetime.utcnow()
 
@@ -242,8 +258,8 @@ def mark_lesson_complete(
         "status": "success",
         "message": "Lesson marked as complete",
         "progress_percentage": int(progress_percentage),
-        "completed_lessons": completed_count,
-        "total_lessons": len(all_lessons),
+        "completed_lessons": completed_sections,
+        "total_lessons": total_sections,
     }
 
 
