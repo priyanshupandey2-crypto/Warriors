@@ -58,7 +58,8 @@ export default function CourseLearningPage() {
         );
         if (response) {
           setCourse(response);
-          // Set first module and first lesson as active
+          // Will set active lesson after enrollment status is checked
+          // Default to first lesson for now
           if (response.modules && response.modules.length > 0) {
             setActiveModule(response.modules[0]);
             if (response.modules[0].lessons && response.modules[0].lessons.length > 0) {
@@ -79,11 +80,38 @@ export default function CourseLearningPage() {
     }
   }, [courseId, apiCall]);
 
+  const setFirstUncompletedLesson = (course: CoursePreview, completedLessonIds: Set<number>) => {
+    // Find first lesson that is NOT completed
+    if (course.lesson_sequence && course.lesson_sequence.length > 0) {
+      const firstIncomplete = course.lesson_sequence.find(
+        (lesson) => !completedLessonIds.has(lesson.id)
+      );
+
+      if (firstIncomplete) {
+        // Find the module containing this lesson
+        const moduleWithLesson = course.modules?.find((mod) =>
+          mod.lessons?.some((l) => l.id === firstIncomplete.id)
+        );
+        if (moduleWithLesson) {
+          setActiveModule(moduleWithLesson);
+          setActiveLesson(firstIncomplete);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     if (activeLesson) {
       checkLessonRevisitStatus(activeLesson.id);
     }
   }, [activeLesson]);
+
+  useEffect(() => {
+    // When both course and completed lessons are loaded, set first uncompleted lesson
+    if (course && enrolled && completedLessonIds.size >= 0) {
+      setFirstUncompletedLesson(course, completedLessonIds);
+    }
+  }, [course, enrolled, completedLessonIds]);
 
   const checkEnrollmentStatus = async () => {
     try {
