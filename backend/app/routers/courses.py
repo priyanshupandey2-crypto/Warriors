@@ -6,8 +6,18 @@ from app.models.user_course import UserCourse
 from app.schemas.course_schemas import CourseGenerateRequest, FeaturedCourse
 from typing import List, Dict, Any
 from datetime import datetime
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
+
+
+class PaginatedCoursesResponse(BaseModel):
+    """Response with courses and pagination info"""
+    data: List[FeaturedCourse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
 
 
 @router.get("/featured", response_model=List[FeaturedCourse])
@@ -34,14 +44,18 @@ def get_featured_courses(db: Session = Depends(get_db)) -> List[FeaturedCourse]:
     ]
 
 
-@router.get("/", response_model=List[FeaturedCourse])
-def browse_courses(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)) -> List[FeaturedCourse]:
+@router.get("/", response_model=PaginatedCoursesResponse)
+def browse_courses(skip: int = 0, limit: int = 9, db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
     """Browse all courses with pagination."""
+    # Get total count
+    total = db.query(Course).filter(Course.status == "published").count()
+
+    # Get paginated courses
     courses = db.query(Course).filter(
         Course.status == "published"
     ).offset(skip).limit(limit).all()
 
-    return [
+    data = [
         FeaturedCourse(
             id=str(course.id),
             title=course.title,
@@ -56,6 +70,14 @@ def browse_courses(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
         )
         for course in courses
     ]
+
+    return PaginatedCoursesResponse(
+        data=data,
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=skip + limit < total
+    )
 
 
 @router.post("/generate", response_model=dict)
