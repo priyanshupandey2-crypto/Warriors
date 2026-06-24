@@ -25,6 +25,7 @@ export default function CoursesPage() {
   const [search, setSearch] = useState("");
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [selectedDiff, setSelectedDiff] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
   const itemsPerPage = 9;
@@ -44,6 +45,9 @@ export default function CoursesPage() {
         if (selectedCats.length > 0) {
           const encodedCats = selectedCats.map(c => encodeURIComponent(c)).join(",");
           url += `&categories=${encodedCats}`;
+        }
+        if (sortBy) {
+          url += `&sort_by=${sortBy}`;
         }
 
         const response = await apiCall<any>(url);
@@ -68,7 +72,7 @@ export default function CoursesPage() {
     };
 
     fetchCourses();
-  }, [currentPage, selectedDiff, selectedCats, apiCall, itemsPerPage]);
+  }, [currentPage, selectedDiff, selectedCats, sortBy, apiCall, itemsPerPage]);
 
   const filtered = courses && courses.length > 0 ? courses.filter((c) => {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
@@ -172,10 +176,22 @@ export default function CoursesPage() {
                 </div>
               ) : (
                 <>
-                  <div className="mb-8">
+                  <div className="mb-8 flex justify-between items-center">
                     <p className="text-sm font-medium text-on-surface-variant">
                       Total <span className="font-bold text-on-surface">{totalCourses}</span> courses • Showing <span className="font-bold text-on-surface">{filtered.length}</span> courses
                     </p>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => {
+                        setSortBy(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="bg-surface-container border border-outline-variant rounded-lg px-4 py-2 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="popular">Most Popular</option>
+                      <option value="duration">Course Duration</option>
+                    </select>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filtered.length > 0 ? (

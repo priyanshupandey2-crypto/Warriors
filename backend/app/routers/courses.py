@@ -46,7 +46,7 @@ def get_featured_courses(db: Session = Depends(get_db)) -> List[FeaturedCourse]:
 
 
 @router.get("/", response_model=PaginatedCoursesResponse)
-def browse_courses(skip: int = 0, limit: int = 9, difficulty: str = None, categories: str = None, db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
+def browse_courses(skip: int = 0, limit: int = 9, difficulty: str = None, categories: str = None, sort_by: str = "newest", db: Session = Depends(get_db)) -> PaginatedCoursesResponse:
     """Browse all courses with pagination and optional difficulty and category filters."""
     # Build base query
     query = db.query(Course).filter(Course.status == "published")
@@ -60,8 +60,21 @@ def browse_courses(skip: int = 0, limit: int = 9, difficulty: str = None, catego
         category_list = [c.strip() for c in categories.split(",")]
         query = query.filter(Course.category.in_(category_list))
 
-    # Get total count
+    # Get total count before sorting (for accurate pagination)
     total = query.count()
+
+    # Apply sorting
+    if sort_by == "popular":
+        # Sort by enrollments (most popular first)
+        query = query.outerjoin(UserCourse).group_by(Course.id).order_by(
+            db.func.count(UserCourse.id).desc()
+        )
+    elif sort_by == "duration":
+        # Sort by duration (shortest first)
+        query = query.order_by(Course.duration_hours.asc())
+    else:
+        # Default: newest first (by creation date)
+        query = query.order_by(Course.created_at.desc())
 
     # Get paginated courses
     courses = query.offset(skip).limit(limit).all()
