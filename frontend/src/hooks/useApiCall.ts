@@ -14,7 +14,17 @@ export function useApiCall() {
 
         // Handle 401 - Token expired/invalid
         if (apiError.status === 401) {
-          logout();
+          // Check if token still exists in localStorage
+          const token = typeof window !== "undefined" ? localStorage.getItem("auralearn_token") : null;
+
+          // Only logout and show error if user was actually logged in
+          if (token) {
+            logout();
+          }
+          // If no token, user already logged out - silently ignore this error
+          else {
+            return undefined as T;
+          }
         }
 
         throw error;
