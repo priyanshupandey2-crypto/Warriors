@@ -25,6 +25,39 @@ export default function GeneratePage() {
   const [phase, setPhase] = useState<"form" | "generating" | "done">("form");
   const [currentStep, setCurrentStep] = useState(0);
   const [generationId, setGenerationId] = useState<number | null>(null);
+  const [status, setStatus] = useState<string>("");
+
+  const pollStatus = async (id: number) => {
+    try {
+      const response = await apiCall<any>(`/api/course-generation/status/${id}`, {
+        method: "GET",
+      });
+
+      if (response?.status && response.data) {
+        const queueStatus = response.data.queue_status;
+        setStatus(queueStatus);
+
+        // Update progress step based on status
+        if (queueStatus === "Awaiting Generation") {
+          setCurrentStep(0);
+        } else if (queueStatus === "Generating") {
+          setCurrentStep(Math.min(currentStep + 1, steps.length - 1));
+        } else if (queueStatus === "Awaiting Approval") {
+          setCurrentStep(steps.length - 1);
+          showToast("Course generated! Awaiting admin approval.", "success");
+          setTimeout(() => router.push("/dashboard"), 2000);
+        } else if (queueStatus === "Approved") {
+          showToast("Course approved and published!", "success");
+          setTimeout(() => router.push("/dashboard"), 2000);
+        } else if (queueStatus === "Rejected") {
+          showToast(`Course rejected: ${response.data.feedback || "No reason provided"}`, "error");
+          setPhase("form");
+        }
+      }
+    } catch (error) {
+      console.error("Error polling status:", error);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
@@ -47,19 +80,18 @@ export default function GeneratePage() {
 
       if (response && response.status) {
         setGenerationId(response.generation_id);
+        setStatus(response.queue_status);
         showToast("Course generation submitted successfully", "success");
 
-        // Simulate generation steps
+        // Start polling for status
         const interval = setInterval(() => {
-          setCurrentStep((prev) => {
-            if (prev >= steps.length - 1) {
-              clearInterval(interval);
-              setTimeout(() => router.push("/dashboard"), 1200);
-              return prev;
-            }
-            return prev + 1;
-          });
-        }, 1800);
+          if (response.generation_id) {
+            pollStatus(response.generation_id);
+          }
+        }, 2000); // Poll every 2 seconds
+
+        // Cleanup interval on unmount or phase change
+        return () => clearInterval(interval);
       } else {
         showToast(response?.error || "Failed to submit course generation", "error");
         setPhase("form");

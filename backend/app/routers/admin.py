@@ -19,6 +19,8 @@ class CourseUpdateRequest(BaseModel):
     thumbnail_url: str = ""
     modules: list = []
 
+    model_config = {"extra": "ignore"}
+
 
 class LessonRequest(BaseModel):
     title: str
@@ -526,7 +528,8 @@ def get_course_for_edit(
                 "difficulty": course.difficulty,
                 "duration_hours": course.duration_hours,
                 "category": course.category,
-                "thumbnail_url": course.thumbnail_url
+                "thumbnail_url": course.thumbnail_url,
+                "modules": []
             }
         }
     except Exception as e:

@@ -87,7 +87,7 @@ def create_course_generation(
     """
     Submit a course generation request.
     User provides topic, difficulty, duration, domain, and tags.
-    Request is stored with 'pending' status.
+    Request is stored with 'pending' status, awaiting queue processor to send to AI.
 
     Args:
         request_data: Course generation parameters
@@ -96,7 +96,7 @@ def create_course_generation(
     from app.models.course_generation import CourseGeneration
 
     try:
-        # Create course generation request
+        # Create course generation entry (initial status: pending)
         generation = CourseGeneration(
             user_id=current_user.get("sub"),
             topic=request_data.topic,
@@ -115,7 +115,8 @@ def create_course_generation(
         return {
             "status": True,
             "message": "Course generation request submitted successfully",
-            "generation_id": generation.id
+            "generation_id": generation.id,
+            "queue_status": "pending"
         }
 
     except Exception as e:
@@ -127,19 +128,18 @@ def create_course_generation(
         }
 
 
-@router.post("/process/{generation_id}")
-def process_course_generation(
+@router.get("/status/{generation_id}")
+def get_course_status(
     generation_id: int,
-    admin: dict = Depends(get_admin_user),
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Process (simulate AI generation) a pending course generation request.
-    This would call the AI layer in production.
-    Admin only endpoint.
+    Get the status of a course generation request.
+    Users can check their own courses, admins can check any.
 
     Args:
-        generation_id: ID of the generation request to process
+        generation_id: ID of the generation to check
     """
     from app.models.course_generation import CourseGeneration
 
@@ -148,52 +148,39 @@ def process_course_generation(
 
         if not generation:
             return {
-                "error": "Course generation request not found",
-                "status": False
+                "status": False,
+                "error": "Course not found"
             }
 
-        if generation.status != "pending":
+        # Check authorization: user can only see their own courses
+        if generation.user_id != current_user.get("sub") and current_user.get("role") != "admin":
             return {
-                "error": f"Cannot process generation with status '{generation.status}'",
-                "status": False
+                "status": False,
+                "error": "Unauthorized"
             }
-
-        # Update status to generating
-        generation.status = "generating"
-        generation.generation_started_at = datetime.utcnow()
-        db.commit()
-
-        # Simulate AI generation (call actual AI layer in production)
-        course_data = generate_mock_course_data(
-            generation.topic,
-            generation.difficulty_level,
-            generation.learning_duration,
-            generation.relevant_tags
-        )
-
-        # Store generated course data
-        generation.generated_course_data = json.dumps(course_data)
-        generation.status = "generated"
-        generation.generation_completed_at = datetime.utcnow()
-
-        db.commit()
-        db.refresh(generation)
-
-        logger.info(f"Admin {admin.get('email')} processed course generation {generation_id}")
 
         return {
             "status": True,
-            "message": "Course generation processed successfully",
-            "generation_id": generation.id,
-            "course_data": json.loads(generation.generated_course_data)
+            "data": {
+                "id": generation.id,
+                "topic": generation.topic,
+                "queue_status": generation.status,
+                "created_at": generation.created_at.isoformat(),
+                "generation_started_at": generation.generation_started_at.isoformat() if generation.generation_started_at else None,
+                "generation_completed_at": generation.generation_completed_at.isoformat() if generation.generation_completed_at else None,
+                "approved_at": generation.approved_at.isoformat() if generation.approved_at else None,
+                "error": generation.last_error,
+                "retry_count": generation.retry_count,
+                "created_course_id": generation.created_course_id,
+                "feedback": generation.reviewed_feedback
+            }
         }
 
     except Exception as e:
-        db.rollback()
-        logger.error(f"Error processing course generation {generation_id}: {str(e)}", exc_info=True)
+        logger.error(f"Error getting course status: {str(e)}")
         return {
-            "error": f"Failed to process course generation: {str(e)}",
-            "status": False
+            "status": False,
+            "error": str(e)
         }
 
 
@@ -205,7 +192,7 @@ def get_pending_generations(
     db: Session = Depends(get_db)
 ):
     """
-    Get all pending or generated course generation requests for admin review.
+    Get all courses awaiting admin approval (status='generated').
     Admin only endpoint.
 
     Args:
@@ -213,21 +200,17 @@ def get_pending_generations(
         limit: Number of records to return per page
     """
     from app.models.course_generation import CourseGeneration
-    from sqlalchemy import desc, or_
+    from sqlalchemy import desc
 
     try:
-        # Get pending and generated requests
+        # Get courses ready for admin approval
         base_query = db.query(CourseGeneration).filter(
-            or_(
-                CourseGeneration.status == "pending",
-                CourseGeneration.status == "generating",
-                CourseGeneration.status == "generated"
-            )
+            CourseGeneration.status == "generated"
         )
 
         total_count = base_query.count()
 
-        generations = base_query.order_by(desc(CourseGeneration.created_at)).offset(skip).limit(limit).all()
+        generations = base_query.order_by(desc(CourseGeneration.generation_completed_at)).offset(skip).limit(limit).all()
 
         generation_list = []
         for gen in generations:
@@ -249,7 +232,7 @@ def get_pending_generations(
                 gen_data["course_data"] = json.loads(gen.generated_course_data)
             generation_list.append(gen_data)
 
-        logger.info(f"Admin {admin.get('email')} accessed pending course generations")
+        logger.info(f"Admin {admin.get('email')} accessed pending course approvals")
 
         return {
             "generations": generation_list,
@@ -296,13 +279,13 @@ def publish_generated_course(
 
         if not generation:
             return {
-                "error": "Course generation request not found",
+                "error": "Course not found",
                 "status": False
             }
 
         if generation.status != "generated":
             return {
-                "error": f"Cannot publish generation with status '{generation.status}'",
+                "error": f"Cannot publish course with status '{generation.status}'",
                 "status": False
             }
 
@@ -367,20 +350,26 @@ def publish_generated_course(
 
                 generation.status = "published"
                 generation.created_course_id = created_course_id
+                generation.approved_at = datetime.utcnow()
+                generation.approved_by = admin.get("sub")
+                generation.reviewed_feedback = publish_data.feedback
 
-                logger.info(f"Admin {admin.get('email')} published course generation {generation_id} -> Course {created_course_id}")
+                logger.info(f"Admin {admin.get('email')} published course {generation_id} -> Course {created_course_id}")
 
             except Exception as e:
                 db.rollback()
-                logger.error(f"Error publishing course generation: {str(e)}", exc_info=True)
+                logger.error(f"Error publishing course: {str(e)}", exc_info=True)
                 return {
                     "error": f"Failed to publish course: {str(e)}",
                     "status": False
                 }
 
         else:
-            generation.status = "rejected"
-            logger.info(f"Admin {admin.get('email')} rejected course generation {generation_id}")
+            generation.status = "failed"
+            generation.reviewed_feedback = publish_data.feedback
+            generation.approved_at = datetime.utcnow()
+            generation.approved_by = admin.get("sub")
+            logger.info(f"Admin {admin.get('email')} rejected course {generation_id}")
 
         db.commit()
         db.refresh(generation)
@@ -395,20 +384,20 @@ def publish_generated_course(
             generation_id,
             generation.topic,
             "Success",
-            f"Course generation {'published as course ID ' + str(created_course_id) if publish_data.status == 'published' else 'rejected: ' + publish_data.feedback}"
+            f"Course {'published as course ID ' + str(created_course_id) if publish_data.status == 'published' else 'rejected: ' + publish_data.feedback}"
         )
 
         return {
             "status": True,
-            "message": f"Course generation {publish_data.status} successfully",
+            "message": f"Course {publish_data.status} successfully",
             "generation_id": generation_id,
             "created_course_id": created_course_id
         }
 
     except Exception as e:
         db.rollback()
-        logger.error(f"Error publishing course generation {generation_id}: {str(e)}", exc_info=True)
+        logger.error(f"Error publishing course {generation_id}: {str(e)}", exc_info=True)
         return {
-            "error": f"Failed to publish course generation: {str(e)}",
+            "error": f"Failed to publish course: {str(e)}",
             "status": False
         }

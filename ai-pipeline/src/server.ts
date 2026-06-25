@@ -12,6 +12,32 @@ import { logger } from './ai/logger';
 
 const log = logger.child({ component: 'server' });
 
+const BACKEND_URL = process.env['BACKEND_URL'] ?? 'http://localhost:8000';
+
+async function notifyBackend(
+  reviewQueueId: number,
+  success: boolean,
+  data: any
+) {
+  try {
+    const endpoint = success
+      ? `/api/queue/process-generated/${reviewQueueId}`
+      : `/api/queue/process-failed/${reviewQueueId}`;
+
+    const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(success ? data : { error: data.error || 'Unknown error' }),
+    });
+
+    if (!response.ok) {
+      log.warn({ reviewQueueId, status: response.status }, 'Backend notification failed');
+    }
+  } catch (err) {
+    log.error({ reviewQueueId, err }, 'Failed to notify backend');
+  }
+}
+
 (async () => {
   // Minimal HTTP server (no external dependencies)
   const PORT = process.env['PORT'] ?? 3001;
@@ -50,31 +76,71 @@ const log = logger.child({ component: 'server' });
 
     req.on('end', async () => {
       try {
-        const input: UserInput = JSON.parse(body);
-        log.info({ topic: input.topic }, 'Request received');
+        const payload = JSON.parse(body);
+        const input: UserInput = {
+          topic: payload.topic,
+          difficulty: payload.difficulty,
+          learningDuration: payload.learningDuration,
+          expertiseDomain: payload.expertiseDomain,
+          tags: payload.tags,
+        };
+        const reviewQueueId = payload.reviewQueueId;
+
+        log.info({ topic: input.topic, reviewQueueId }, 'Request received');
 
         const emitter = new PipelineEmitter();
         let progressCount = 0;
 
         emitter.on('stage_complete', ({ stage, progress }) => {
           progressCount += 1;
-          log.info({ stage, progress, stageNumber: progressCount }, 'Stage complete');
+          log.info(
+            { reviewQueueId, stage, progress, stageNumber: progressCount },
+            'Stage complete'
+          );
         });
 
         const result = await runCoursePipeline(input, { emitter });
+
+        if (!result.valid) {
+          log.error(
+            { reviewQueueId, errors: result.errors },
+            'Course generation failed'
+          );
+          // Notify backend of failure
+          await notifyBackend(reviewQueueId, false, {
+            error: result.errors?.join('; ') || 'Course generation failed',
+          });
+
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              valid: false,
+              errors: result.errors?.map((e) => String(e)),
+              partialCourse: result.partialCourse,
+            })
+          );
+          return;
+        }
+
+        log.info(
+          { reviewQueueId, title: result.course.course.title },
+          'Course generation successful'
+        );
+
+        // Notify backend of success
+        await notifyBackend(reviewQueueId, true, result.course);
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(
           JSON.stringify(
             {
-              valid: result.valid,
-              course: result.valid ? result.course : undefined,
-              errors: !result.valid ? result.errors?.map((e) => String(e)) : undefined,
-              partialCourse: !result.valid ? result.partialCourse : undefined,
+              valid: true,
+              course: result.course,
+              reviewQueueId,
             },
             null,
-            2,
-          ),
+            2
+          )
         );
       } catch (err) {
         log.error({ err }, 'Request failed');
@@ -82,7 +148,7 @@ const log = logger.child({ component: 'server' });
         res.end(
           JSON.stringify({
             error: err instanceof Error ? err.message : String(err),
-          }),
+          })
         );
       }
     });
