@@ -16,7 +16,8 @@ class CourseUpdateRequest(BaseModel):
     difficulty: str
     duration_hours: int
     category: str
-    thumbnail_url: str
+    thumbnail_url: str = ""
+    modules: list = []
 
 
 class LessonRequest(BaseModel):
@@ -40,13 +41,8 @@ class SubmissionReviewRequest(BaseModel):
     feedback: str
 
 
-class CourseUpdateRequest(BaseModel):
-    title: str
-    description: str
-    difficulty: str
-    duration_hours: int
-    category: str
-    modules: list = []
+class DeletionRequest(BaseModel):
+    feedback: str = ""
 
 
 class AdminAction(BaseModel):
@@ -796,7 +792,7 @@ def get_pending_submissions(
 @router.delete("/submissions/{submission_id}")
 def delete_course_generation(
     submission_id: int,
-    request: SubmissionReviewRequest,
+    request: DeletionRequest,
     admin: dict = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
@@ -820,7 +816,7 @@ def delete_course_generation(
                 "status": False
             }
 
-        if generation.status != "pending":
+        if generation.status not in ["pending", "generated"]:
             return {
                 "error": f"Cannot delete course with status '{generation.status}'",
                 "status": False
