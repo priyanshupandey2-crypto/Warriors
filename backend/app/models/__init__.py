@@ -14,6 +14,7 @@ from app.models.module import Module
 from app.models.lesson import Lesson
 from app.models.quiz import Quiz, QuizQuestion, QuestionOption, QuizSubmission
 from app.models.course_generation import CourseGeneration
+
 __all__ = [
     "User",
     "Course",

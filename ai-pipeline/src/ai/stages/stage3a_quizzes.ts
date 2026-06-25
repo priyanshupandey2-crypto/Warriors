@@ -65,7 +65,7 @@ export async function generateQuizzes(
           
           let combinedBodyText = '';
           for (const l of moduleOutline.lessons) {
-            if (contentMap[l.id]) combinedBodyText += contentMap[l.id]!.body + ' ';
+            if (contentMap[l.id]) combinedBodyText += contentMap[l.id]!.content + ' ';
           }
 
           for (const q of moduleQuiz.questions) {
@@ -80,24 +80,9 @@ export async function generateQuizzes(
       { maxAttempts: 3, baseDelayMs: 1000, label: 'stage3a_quizzes' },
     );
   } catch (err) {
-    log.error({ err }, 'Quiz generation failed after all retries — using fallback quizzes');
     const errMsg = err instanceof Error ? err.message : String(err);
-    
-    // Return empty stubs with validation warning
-    const fallbackMap: QuizMap = {};
-    for (const mod of outline.modules) {
-      fallbackMap[mod.id] = {
-        moduleId: mod.id,
-        questions: [{
-          question: 'Quiz generation failed.',
-          options: ['Option A', 'Option B', 'Option C', 'Option D'],
-          correctIndex: 0,
-          explanation: 'Please regenerate this quiz.',
-          _validationWarnings: [`Quiz generation failed: ${errMsg}`]
-        }]
-      };
-    }
-    return fallbackMap;
+    log.error({ err }, 'Quiz generation failed — failing course generation');
+    throw new Error(`Quiz generation failed: ${errMsg}`);
   }
 }
 
@@ -193,8 +178,8 @@ function buildUserPrompt(
       const lessonDigests = mod.lessons
         .map((l) => {
           const content = contentMap[l.id];
-          // Use full body up to 1200 chars (vs old 400) — sufficient for consistency check
-          const body = content ? content.body.slice(0, 1200) : 'Content pending';
+          // Use full content up to 1200 chars — sufficient for consistency check
+          const body = content ? content.content.slice(0, 1200) : 'Content pending';
           return `  Lesson "${l.title}" (${l.id}):\n  ${body}`;
         })
         .join('\n\n');

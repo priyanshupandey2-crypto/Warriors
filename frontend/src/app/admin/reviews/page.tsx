@@ -38,6 +38,8 @@ const getTypeColor = (type: string) => {
 const getStatusLabel = (status: string) => {
   if (status === "pending") {
     return "Awaiting Course Generation";
+  } else if (status === "generating") {
+    return "Generating Course";
   } else if (status === "generated") {
     return "Awaiting for Approval";
   }
@@ -47,6 +49,8 @@ const getStatusLabel = (status: string) => {
 const getStatusColor = (status: string) => {
   if (status === "pending") {
     return "bg-warning-container/20 text-warning border-warning/20";
+  } else if (status === "generating") {
+    return "bg-tertiary-container/20 text-tertiary border-tertiary/20";
   } else if (status === "generated") {
     return "bg-primary-container/20 text-primary border-primary/20";
   }
@@ -445,6 +449,10 @@ export default function ReviewQueuePage() {
                               {submission.status === "pending" ? (
                                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-warning-container/30">
                                   <span className="material-symbols-outlined text-sm text-warning">schedule</span>
+                                </div>
+                              ) : submission.status === "generating" ? (
+                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-tertiary-container/30 animate-spin">
+                                  <span className="material-symbols-outlined text-sm text-tertiary">smart_toy</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary-container/30">

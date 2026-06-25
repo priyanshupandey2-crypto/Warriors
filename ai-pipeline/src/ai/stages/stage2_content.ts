@@ -100,15 +100,6 @@ export async function generateLessonContent(
             }
             
             const lessonContent = validated.data as LessonContent;
-            
-            // Post-generation deterministic checks
-            for (const snippet of lessonContent.codeSnippets) {
-              if (snippet.language.toLowerCase() === 'python' || snippet.language.toLowerCase() === 'py') {
-                validatePythonCode(snippet.code);
-              }
-              validateStaticPatterns(snippet.code);
-            }
-
             batchMap[lesson.id] = lessonContent;
           }
 
@@ -116,14 +107,6 @@ export async function generateLessonContent(
         },
         { maxAttempts: 3, baseDelayMs: 1000, label: `stage2_batch_${batchIdx}` },
       );
-
-      // Register code hashes from this batch to detect duplicates in future batches
-      for (const lessonContent of Object.values(batchResult)) {
-        for (const snippet of lessonContent.codeSnippets) {
-          const normalized = snippet.code.replace(/\s+/g, ' ').trim();
-          usedCodeHashes.add(normalized);
-        }
-      }
 
       Object.assign(contentMap, batchResult);
     } catch (err) {
@@ -170,23 +153,15 @@ NO PADDING:
 - No generic advice like "Make sure you understand the basics before proceeding"
 
 OUTPUT CONTRACT:
-Return ONLY a valid JSON object where each key is a lessonId and each value matches the lesson content schema.
-No markdown fences. No preamble. No explanation outside the JSON.
+Return ONLY a valid JSON object where each key is a lessonId and each value contains the lesson content as MARKDOWN.
+No markdown fences around the entire response. No preamble. No explanation outside the JSON.
 
 REQUIRED FORMAT per lessonId:
 {
-  "body": "800–1500 characters of concrete technical explanation. Must reference domain analogy at least once.",
-  "realWorldExample": "Specific named example — company, project, open-source repo, or public dataset",
-  "codeSnippets": [
-    {
-      "language": "python",
-      "code": "# Complete, runnable with all imports at top\nimport ...",
-      "caption": "What this demonstrates"
-    }
-  ],
-  "commonPitfalls": ["Specific real mistake practitioners make"],
-  "keyTakeaways": ["Actionable statement the learner can apply immediately"],
-  "estimatedReadMinutes": 10
+  "lessonId": {
+    "content": "Complete markdown string (800–1500 characters minimum) with all of the following sections:\\n\\n1. Main explanation with headers (##, ###), **bold**, *italics*, and lists. Must reference domain analogy at least once.\\n2. ## Real-World Example\\n<specific named company, project, or dataset>\\n3. ## Code Examples\\n<complete, runnable code blocks with language markers>\\n4. ## Common Pitfalls\\n<bulleted list>\\n5. ## Key Takeaways\\n<bulleted list>",
+    "estimatedReadMinutes": 10
+  }
 }`;
 }
 
@@ -236,11 +211,7 @@ NOW generate the full JSON with all lessons. Each key must be a lessonId from th
 function buildFallbackContent(title: string, topic: string, err?: unknown): LessonContent {
   const errMsg = err instanceof Error ? err.message : String(err);
   return {
-    body: `This lesson covers ${title} in the context of ${topic}. Content generation failed due to service limits or validation exhaustion — this is a placeholder to prevent pipeline failure.`,
-    realWorldExample: `A practical application of ${title} in real-world ${topic} scenarios.`,
-    codeSnippets: [],
-    commonPitfalls: ['Content generation failed for this lesson'],
-    keyTakeaways: ['Please regenerate this lesson for accurate content'],
+    content: `# ${title}\n\nThis lesson covers ${title} in the context of ${topic}. Content generation failed due to service limits or validation exhaustion — this is a placeholder to prevent pipeline failure.\n\n## Real-World Example\n\nA practical application of ${title} in real-world ${topic} scenarios.\n\n## Common Pitfalls\n\n- Content generation failed for this lesson\n\n## Key Takeaways\n\n- Please regenerate this lesson for accurate content`,
     estimatedReadMinutes: 10,
     _validationWarnings: [`Content generation failed: ${errMsg}`]
   };

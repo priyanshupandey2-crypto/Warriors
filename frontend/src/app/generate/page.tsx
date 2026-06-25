@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 import { useApiCall } from "@/hooks/useApiCall";
@@ -19,13 +19,24 @@ export default function GeneratePage() {
   const apiCall = useApiCall();
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("Beginner");
-  const [duration, setDuration] = useState("1 Week");
+  const [duration, setDuration] = useState("1w");
   const [audience, setAudience] = useState("");
   const [tags, setTags] = useState("");
   const [phase, setPhase] = useState<"form" | "generating" | "done">("form");
   const [currentStep, setCurrentStep] = useState(0);
   const [generationId, setGenerationId] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("");
+
+  // Duration options mapping display text to API format
+  const durationOptions = [
+    { label: "2 Hours", value: "2h" },
+    { label: "1 Day", value: "1d" },
+    { label: "1 Week", value: "1w" },
+    { label: "2 Weeks", value: "2w" },
+    { label: "4 Weeks", value: "4w" },
+    { label: "1 Month", value: "1m" },
+    { label: "3 Months", value: "3m" },
+  ];
 
   const pollStatus = async (id: number) => {
     try {
@@ -59,6 +70,17 @@ export default function GeneratePage() {
     }
   };
 
+  // Setup polling when generation starts
+  useEffect(() => {
+    if (generationId && phase === "generating") {
+      const interval = setInterval(() => {
+        pollStatus(generationId);
+      }, 3000); // Poll every 3 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [generationId, phase, apiCall, router, showToast, currentStep]);
+
   const handleGenerate = async () => {
     if (!topic.trim()) return;
 
@@ -82,16 +104,7 @@ export default function GeneratePage() {
         setGenerationId(response.generation_id);
         setStatus(response.queue_status);
         showToast("Course generation submitted successfully", "success");
-
-        // Start polling for status
-        const interval = setInterval(() => {
-          if (response.generation_id) {
-            pollStatus(response.generation_id);
-          }
-        }, 2000); // Poll every 2 seconds
-
-        // Cleanup interval on unmount or phase change
-        return () => clearInterval(interval);
+        // Polling will be handled by useEffect
       } else {
         showToast(response?.error || "Failed to submit course generation", "error");
         setPhase("form");
@@ -154,10 +167,9 @@ export default function GeneratePage() {
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-on-surface-variant">Learning Duration</label>
                     <select className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" value={duration} onChange={(e) => setDuration(e.target.value)}>
-                      <option>1 Week</option>
-                      <option>2 Weeks</option>
-                      <option>1 Month</option>
-                      <option>Custom</option>
+                      {durationOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -196,7 +208,7 @@ export default function GeneratePage() {
                 <p className="text-lg text-on-surface mb-8">
                   I understand that you need a course on <span className="font-bold text-primary">{topic}</span> with{" "}
                   <span className="font-bold text-primary">{difficulty}</span> level of a duration of{" "}
-                  <span className="font-bold text-primary">{duration}</span>
+                  <span className="font-bold text-primary">{durationOptions.find(d => d.value === duration)?.label || duration}</span>
                   {tags && <> with <span className="font-bold text-primary">{tags}</span></>}.
                 </p>
                 <div className="flex flex-col gap-6 text-left max-w-md mx-auto">

@@ -165,10 +165,10 @@ export default function CourseLearningPage() {
           const markedIds = new Set(
             response.lesson_progress
               .filter((lp: any) => lp.marked_to_revisit)
-              .map((lp: any) => lp.lesson_id)
+              .map((lp: any) => lp.lesson_id as number)
           );
-          setCompletedLessonIds(completedIds);
-          setMarkedLessonIds(markedIds);
+          setCompletedLessonIds(completedIds as Set<number>);
+          setMarkedLessonIds(markedIds as Set<number>);
         }
 
       }

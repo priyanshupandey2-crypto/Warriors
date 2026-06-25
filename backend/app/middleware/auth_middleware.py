@@ -21,6 +21,7 @@ PUBLIC_ENDPOINTS = [
     "/api/courses/generate",
     "/api/courses/preview",
     "/api/classroom/",
+    "/api/course-generation/callback/",  # AI pipeline callbacks
     "/health",
     "/test-trace",
     "/docs",

@@ -77,18 +77,8 @@ export interface CourseOutline {
 
 // ─── Stage 2 – Lesson Content ─────────────────────────────────────────────────
 
-export interface CodeSnippet {
-  language: string;
-  code: string;
-  caption: string;
-}
-
 export interface LessonContent {
-  body: string;
-  realWorldExample: string;
-  codeSnippets: CodeSnippet[];
-  commonPitfalls: string[];
-  keyTakeaways: string[];
+  content: string; // Full markdown string with all sections (explanation, examples, code, pitfalls, takeaways)
   estimatedReadMinutes: number;
   _validationWarnings?: string[];
 }
@@ -177,7 +167,8 @@ export interface FullLesson {
   id: string;
   title: string;
   type: LessonType;
-  content: LessonContent;
+  content: string; // Markdown string directly
+  estimatedReadMinutes: number;
 }
 
 export interface FullModule {

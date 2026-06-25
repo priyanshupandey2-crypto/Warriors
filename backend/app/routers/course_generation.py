@@ -87,18 +87,19 @@ def create_course_generation(
     """
     Submit a course generation request.
     User provides topic, difficulty, duration, domain, and tags.
-    Request is stored with 'pending' status, awaiting queue processor to send to AI.
+    Request is sent directly to AI pipeline.
 
     Args:
         request_data: Course generation parameters
         current_user: Authenticated user
     """
     from app.models.course_generation import CourseGeneration
+    import requests
 
     try:
         # Create course generation entry (initial status: pending)
         generation = CourseGeneration(
-            user_id=current_user.get("sub"),
+            user_id=int(current_user.get("sub")),
             topic=request_data.topic,
             difficulty_level=request_data.difficulty_level,
             learning_duration=request_data.learning_duration,
@@ -109,6 +110,47 @@ def create_course_generation(
         db.add(generation)
         db.commit()
         db.refresh(generation)
+
+        # Send directly to AI pipeline
+        ai_pipeline_url = "http://localhost:3001"
+        # Parse tags from comma-separated string to array
+        tags = [tag.strip() for tag in (request_data.relevant_tags or "").split(",") if tag.strip()]
+
+        payload = {
+            "id": str(generation.id),
+            "topic": request_data.topic,
+            "difficulty": request_data.difficulty_level,
+            "learningDuration": request_data.learning_duration,
+            "expertiseDomain": request_data.expertise_domain or "General",
+            "tags": tags,
+            "callback_url": f"http://localhost:8000/api/course-generation/callback/process-generated/{generation.id}"
+        }
+
+        try:
+            response = requests.post(
+                f"{ai_pipeline_url}/generate",
+                json=payload,
+                timeout=120
+            )
+
+            if response.status_code == 200:
+                logger.info(f"Course generation {generation.id} sent to AI pipeline")
+            else:
+                logger.error(f"AI pipeline error {response.status_code}: {response.text}")
+                return {
+                    "status": True,
+                    "message": "Course generation request submitted. Processing in background.",
+                    "generation_id": generation.id,
+                    "queue_status": "pending"
+                }
+        except Exception as api_error:
+            logger.warning(f"Could not reach AI pipeline: {str(api_error)}. Request queued for later.")
+            return {
+                "status": True,
+                "message": "Course generation request submitted. Processing in background.",
+                "generation_id": generation.id,
+                "queue_status": "pending"
+            }
 
         logger.info(f"User {current_user.get('email')} created course generation request {generation.id}: {request_data.topic}")
 
@@ -203,9 +245,9 @@ def get_pending_generations(
     from sqlalchemy import desc
 
     try:
-        # Get courses ready for admin approval
+        # Get courses ready for admin approval (both generating and generated)
         base_query = db.query(CourseGeneration).filter(
-            CourseGeneration.status == "generated"
+            CourseGeneration.status.in_(["generating", "generated"])
         )
 
         total_count = base_query.count()
@@ -400,4 +442,86 @@ def publish_generated_course(
         return {
             "error": f"Failed to publish course: {str(e)}",
             "status": False
+        }
+
+
+@router.post("/callback/process-generated/{generation_id}")
+def process_generated_callback(
+    generation_id: int,
+    course_data: dict,
+    db: Session = Depends(get_db)
+):
+    """
+    Callback from AI pipeline when course generation completes successfully.
+    Updates generation status to 'generated' and stores the course data.
+    """
+    from app.models.course_generation import CourseGeneration
+
+    try:
+        generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
+
+        if not generation:
+            logger.error(f"Generation {generation_id} not found")
+            return {"status": False, "error": "Generation not found"}
+
+        generation.status = "generated"
+        generation.generation_completed_at = datetime.utcnow()
+        generation.generated_course_data = json.dumps(course_data)
+        db.commit()
+
+        logger.info(f"Course generation {generation_id} completed successfully")
+
+        return {
+            "status": True,
+            "message": "Course generation completed",
+            "generation_id": generation_id
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error processing generated callback {generation_id}: {str(e)}", exc_info=True)
+        return {
+            "status": False,
+            "error": str(e)
+        }
+
+
+@router.post("/callback/process-failed/{generation_id}")
+def process_failed_callback(
+    generation_id: int,
+    error_data: dict,
+    db: Session = Depends(get_db)
+):
+    """
+    Callback from AI pipeline when course generation fails.
+    Updates generation status to 'failed' and stores error message.
+    """
+    from app.models.course_generation import CourseGeneration
+
+    try:
+        generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
+
+        if not generation:
+            logger.error(f"Generation {generation_id} not found")
+            return {"status": False, "error": "Generation not found"}
+
+        generation.status = "failed"
+        generation.generation_completed_at = datetime.utcnow()
+        generation.error_message = error_data.get("error", "Unknown error")
+        db.commit()
+
+        logger.error(f"Course generation {generation_id} failed: {error_data.get('error')}")
+
+        return {
+            "status": True,
+            "message": "Course generation failed",
+            "generation_id": generation_id
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error processing failed callback {generation_id}: {str(e)}", exc_info=True)
+        return {
+            "status": False,
+            "error": str(e)
         }

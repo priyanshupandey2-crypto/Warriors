@@ -59,12 +59,12 @@ export function assembleCourse(
   const fullModules: FullModule[] = outline.modules.map((mod) => {
     const lessons: FullLesson[] = mod.lessons.map((lessonOutline) => {
       const rawContent = contentMap[lessonOutline.id];
-      const content = rawContent ?? buildEmptyContent(lessonOutline.title);
+      const contentObj = rawContent ?? buildEmptyContent(lessonOutline.title);
 
       // Apply analogy injections from the personalization patch
-      const patchedContent = applyAnalogyInjections(
+      const patchedMarkdown = applyAnalogyInjections(
         lessonOutline.id,
-        content,
+        contentObj.content,
         patch,
       );
 
@@ -72,7 +72,8 @@ export function assembleCourse(
         id: lessonOutline.id,
         title: lessonOutline.title,
         type: lessonOutline.type,
-        content: patchedContent,
+        content: patchedMarkdown,
+        estimatedReadMinutes: contentObj.estimatedReadMinutes,
       };
     });
 
@@ -147,11 +148,7 @@ export function assembleCourse(
 
 function buildEmptyContent(title: string) {
   return {
-    body: `Content for "${title}" will be generated shortly. This is a temporary placeholder to satisfy schema validation until the module is properly requested or retried during generation.`,
-    realWorldExample: 'No real world example is currently available for this module.',
-    codeSnippets: [],
-    commonPitfalls: ['Pending generation of actual pitfalls.'],
-    keyTakeaways: ['Please trigger regeneration to retrieve accurate takeaways for this module.'],
+    content: `# ${title}\n\nContent for this lesson will be generated shortly. This is a temporary placeholder to satisfy schema validation until the module is properly requested or retried during generation.`,
     estimatedReadMinutes: 5,
   };
 }
@@ -161,57 +158,57 @@ function buildEmptyQuiz(moduleId: string): ModuleQuiz {
     moduleId,
     questions: [
       {
-        question: 'Quiz question 1',
+        question: 'Quiz placeholder question 1 - to be regenerated',
         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
         correctIndex: 0 as const,
-        explanation: 'Explanation placeholder',
+        explanation: 'This is a placeholder. Please regenerate this quiz.',
       },
       {
-        question: 'Quiz question 2',
+        question: 'Quiz placeholder question 2 - to be regenerated',
         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
         correctIndex: 1 as const,
-        explanation: 'Explanation placeholder',
+        explanation: 'This is a placeholder. Please regenerate this quiz.',
       },
       {
-        question: 'Quiz question 3',
+        question: 'Quiz placeholder question 3 - to be regenerated',
         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
         correctIndex: 2 as const,
-        explanation: 'Explanation placeholder',
+        explanation: 'This is a placeholder. Please regenerate this quiz.',
       },
       {
-        question: 'Quiz question 4',
+        question: 'Quiz placeholder question 4 - to be regenerated',
         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
         correctIndex: 3 as const,
-        explanation: 'Explanation placeholder',
+        explanation: 'This is a placeholder. Please regenerate this quiz.',
       },
     ],
   };
 }
 
-function applyAnalogyInjections(lessonId: string, content: any, patch: PersonalizationPatch) {
+function applyAnalogyInjections(lessonId: string, content: string, patch: PersonalizationPatch): string {
   const injections = patch.analogyInjections.filter((inj) => inj.lessonId === lessonId);
 
   if (injections.length === 0) {
     return content;
   }
 
-  let body = content.body || '';
+  let markdown = content;
   for (const injection of injections) {
-    const paragraphs = body.split('\n\n');
+    const paragraphs = markdown.split('\n\n');
     if (injection.insertAfterParagraph < paragraphs.length) {
       paragraphs.splice(injection.insertAfterParagraph + 1, 0, injection.analogyText);
-      body = paragraphs.join('\n\n');
+      markdown = paragraphs.join('\n\n');
     }
   }
 
-  return { ...content, body };
+  return markdown;
 }
 
 function computeEstimatedHours(modules: FullModule[]): number {
   let totalMinutes = 0;
   for (const mod of modules) {
     for (const lesson of mod.lessons) {
-      totalMinutes += lesson.content.estimatedReadMinutes || 0;
+      totalMinutes += lesson.estimatedReadMinutes || 0;
     }
   }
   return Math.ceil(totalMinutes / 60);

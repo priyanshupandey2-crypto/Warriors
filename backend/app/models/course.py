@@ -82,7 +82,7 @@ class Course(Base):
     # archived: Old courses, no new enrollments
     status = Column(String(50), default="published", nullable=False)
 
-    # Course category (Computer Science, Business & Strategy, Creative Design, Marketing)
+    # Course category (Technology, Business & Strategy, Creative Design, Marketing, etc)
     category = Column(String(100), nullable=True)
 
     # DATABASE INTEGRATION - Phase 3: Course Author
@@ -92,11 +92,6 @@ class Course(Base):
     # DATABASE INTEGRATION - Phase 3: Timestamps
     # When this course was created
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    # Admin Dashboard - Category and Instructor Tracking
-    category = Column(String(100), nullable=True)
-    # Course category: "Engineering", "Design", "AI & Data", "Management"
-    # Used to organize and filter courses in admin dashboard
 
     lead_instructor = Column(String(100), nullable=True)
     # Primary instructor name who created/teaches this course

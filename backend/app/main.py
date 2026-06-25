@@ -2,14 +2,13 @@ import asyncio
 import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from threading import Thread
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from app.config import settings
 from app.logger import configure_logging, get_logger
-from app.routers import analytics, classroom, courses, admin, dashboard, admin_courses, progress, quiz, course_generation, queue
+from app.routers import analytics, classroom, courses, admin, dashboard, admin_courses, progress, quiz, course_generation
 from app.routers.auth import signup_router, login_router, verify_router
 from app.routes import health, test_trace
 from app.tracing import configure_langsmith
@@ -62,16 +61,6 @@ def create_app() -> FastAPI:
     app.include_router(admin.router)  # Admin routes (protected)
     app.include_router(admin_courses.router)  # Admin courses & submissions
     app.include_router(course_generation.router)  # Course generation requests
-    app.include_router(queue.router)  # Queue management
-
-    def start_queue_processor():
-        """Start queue processor in background thread."""
-        try:
-            from app.services.queue_processor import run_queue_processor
-            loop = asyncio.new_event_loop()
-            loop.run_until_complete(run_queue_processor())
-        except Exception as e:
-            logger.error(f"Error starting queue processor: {str(e)}")
 
     @app.on_event("startup")
     def startup_event():
@@ -80,14 +69,6 @@ def create_app() -> FastAPI:
         logger.info(f"LangSmith tracing enabled: {settings.is_tracing_enabled()}")
         init_db()
         logger.info("Database initialized successfully")
-
-        # Start queue processor in background thread
-        try:
-            queue_processor_thread = Thread(target=start_queue_processor, daemon=True)
-            queue_processor_thread.start()
-            logger.info("Queue processor started in background")
-        except Exception as e:
-            logger.warning(f"Could not start queue processor: {str(e)}")
 
     @app.on_event("shutdown")
     def shutdown_event():

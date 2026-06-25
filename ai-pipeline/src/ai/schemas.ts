@@ -80,13 +80,9 @@ export const CodeSnippetSchema = z.object({
 });
 
 export const LessonContentSchema = z.object({
-  body: z
+  content: z
     .string()
-    .min(50, 'Lesson body must be at least 50 characters'),
-  realWorldExample: z.string().min(10),
-  codeSnippets: z.array(CodeSnippetSchema),
-  commonPitfalls: z.array(z.string().min(5)).min(1),
-  keyTakeaways: z.array(z.string().min(5)).min(1),
+    .min(100, 'Lesson content must be at least 100 characters in markdown format'),
   estimatedReadMinutes: z.number().int().min(1).max(60),
   _validationWarnings: z.array(z.string()).optional(),
 });
@@ -192,7 +188,8 @@ const FullLessonSchema = z.object({
   id: z.string(),
   title: z.string().min(5),
   type: LessonTypeSchema,
-  content: LessonContentSchema,
+  content: z.string().min(100, 'Lesson content must be at least 100 characters in markdown format'),
+  estimatedReadMinutes: z.number().int().min(1).max(60),
 });
 
 const FullModuleSchema = z.object({

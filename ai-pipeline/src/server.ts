@@ -14,27 +14,53 @@ const log = logger.child({ component: 'server' });
 
 const BACKEND_URL = process.env['BACKEND_URL'] ?? 'http://localhost:8000';
 
+function transformCourseForBackend(courseJson: any, expertiseDomain: string = 'Computer Science') {
+  // Transform CourseJSON format to backend-expected format
+  // lesson.content is now a markdown string directly
+  const course = courseJson.course || courseJson;
+
+  return {
+    title: course.title,
+    description: course.description,
+    difficulty: course.difficulty,
+    duration_hours: course.estimatedHours || 30,
+    category: expertiseDomain,
+    modules: course.modules.map((module: any) => ({
+      title: module.title,
+      description: module.description,
+      lessons: module.lessons.map((lesson: any) => ({
+        title: lesson.title,
+        content_markdown: lesson.content,
+        duration_minutes: lesson.estimatedReadMinutes,
+      })),
+      quizzes: module.quiz ? [{
+        title: `${module.title} Quiz`,
+        description: `Assessment for ${module.title}`,
+        passing_score: 70,
+        total_points: 100,
+        duration_minutes: 15,
+      }] : [],
+    })),
+  };
+}
+
 async function notifyBackend(
-  reviewQueueId: number,
+  callbackUrl: string,
   success: boolean,
   data: any
 ) {
   try {
-    const endpoint = success
-      ? `/api/queue/process-generated/${reviewQueueId}`
-      : `/api/queue/process-failed/${reviewQueueId}`;
-
-    const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+    const response = await fetch(callbackUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(success ? data : { error: data.error || 'Unknown error' }),
     });
 
     if (!response.ok) {
-      log.warn({ reviewQueueId, status: response.status }, 'Backend notification failed');
+      log.warn({ callbackUrl, status: response.status }, 'Backend notification failed');
     }
   } catch (err) {
-    log.error({ reviewQueueId, err }, 'Failed to notify backend');
+    log.error({ callbackUrl, err }, 'Failed to notify backend');
   }
 }
 
@@ -84,32 +110,38 @@ async function notifyBackend(
           expertiseDomain: payload.expertiseDomain,
           tags: payload.tags,
         };
-        const reviewQueueId = payload.reviewQueueId;
+        const callbackUrl = payload.callback_url;
+        const generationId = payload.id;
 
-        log.info({ topic: input.topic, reviewQueueId }, 'Request received');
+        log.info({ topic: input.topic, generationId, callbackUrl }, 'Request received');
 
+        let result;
+
+        // Use actual AI pipeline for course generation
         const emitter = new PipelineEmitter();
         let progressCount = 0;
 
         emitter.on('stage_complete', ({ stage, progress }) => {
           progressCount += 1;
           log.info(
-            { reviewQueueId, stage, progress, stageNumber: progressCount },
+            { generationId, stage, progress, stageNumber: progressCount },
             'Stage complete'
           );
         });
 
-        const result = await runCoursePipeline(input, { emitter });
+        result = await runCoursePipeline(input, { emitter });
 
         if (!result.valid) {
           log.error(
-            { reviewQueueId, errors: result.errors },
+            { generationId, errors: result.errors },
             'Course generation failed'
           );
           // Notify backend of failure
-          await notifyBackend(reviewQueueId, false, {
-            error: result.errors?.join('; ') || 'Course generation failed',
-          });
+          if (callbackUrl) {
+            await notifyBackend(callbackUrl.replace('process-generated', 'process-failed'), false, {
+              error: result.errors?.join('; ') || 'Course generation failed',
+            });
+          }
 
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(
@@ -123,12 +155,15 @@ async function notifyBackend(
         }
 
         log.info(
-          { reviewQueueId, title: result.course.course.title },
+          { generationId, title: (result.course as any).title },
           'Course generation successful'
         );
 
-        // Notify backend of success
-        await notifyBackend(reviewQueueId, true, result.course);
+        // Notify backend of success - transform to backend format
+        if (callbackUrl) {
+          const transformedCourse = transformCourseForBackend(result.course, input.expertiseDomain);
+          await notifyBackend(callbackUrl, true, transformedCourse);
+        }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(
@@ -136,7 +171,7 @@ async function notifyBackend(
             {
               valid: true,
               course: result.course,
-              reviewQueueId,
+              generationId,
             },
             null,
             2
