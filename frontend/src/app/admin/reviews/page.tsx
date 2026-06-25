@@ -225,8 +225,8 @@ export default function ReviewQueuePage() {
     try {
       setReviewing(true);
 
-      // Handle deletion for pending courses
-      if (selectedReview.status === "pending" && reviewAction === "reject") {
+      // Handle deletion for pending or generated courses
+      if ((selectedReview.status === "pending" || selectedReview.status === "generated") && reviewAction === "reject") {
         const response = await apiCall<any>(`/api/admin/submissions/${selectedReview.id}`, {
           method: "DELETE",
           body: JSON.stringify({
