@@ -148,7 +148,7 @@ export default function ReviewQueuePage() {
   };
 
   const handleSaveCourseEdits = async () => {
-    if (!selectedReview || selectedReview.status !== "generated") return;
+    if (!selectedReview || (selectedReview.status !== "generated" && selectedReview.status !== "user_submitted")) return;
 
     try {
       setEditLoading(true);
@@ -611,7 +611,7 @@ export default function ReviewQueuePage() {
                 <div className="border-t border-outline-variant/20 pt-4">
                   <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-3">Review Action</span>
                   <div className="flex flex-col gap-2">
-                    {selectedReview.status === "generated" && (
+                    {(selectedReview.status === "generated" || selectedReview.status === "user_submitted") && (
                       <>
                         <button
                           onClick={() => handleOpenEditModal(selectedReview.course_data)}
@@ -655,7 +655,7 @@ export default function ReviewQueuePage() {
 
                 {reviewAction && (
                   <div className="border-t border-outline-variant/20 pt-4 flex flex-col gap-3">
-                    {selectedReview.status === "generated" && (
+                    {(selectedReview.status === "generated" || selectedReview.status === "user_submitted") && (
                       <>
                         <label className="text-xs font-semibold text-on-surface-variant uppercase">Feedback</label>
                         <textarea

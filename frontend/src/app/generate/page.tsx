@@ -7,10 +7,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const steps = [
-  "Analyzing requirements...",
-  "Architecting syllabus structure...",
-  "Sourcing relevant resources and case studies...",
-  "Finalizing schedule and learning path...",
+  { label: "Analyzing requirements...", successMessage: "Requirements Validated" },
+  { label: "Waiting in Course Generation Queue...", successMessage: "Sent the requirements to AI" },
+  { label: "Generating Course...", successMessage: "Course Generated" },
+  { label: "Ready for Your Review", successMessage: "Review & Submit to Admin" },
 ];
 
 export default function GeneratePage() {
@@ -210,9 +210,6 @@ export default function GeneratePage() {
             <div className="w-full py-12 flex flex-col items-center text-center flex-grow justify-center">
               <div className="glass-card rounded-2xl border border-outline-variant/50 shadow-xl p-8 max-w-2xl w-full">
                 <h3 className="text-2xl font-semibold text-on-surface mb-4">Generating Your Course</h3>
-                <div className="inline-block bg-primary-container/20 text-primary px-3 py-1 rounded-full text-xs font-medium mb-4">
-                  Status: {status || "Starting..."}
-                </div>
                 <p className="text-lg text-on-surface mb-8">
                   I understand that you need a course on <span className="font-bold text-primary">{topic}</span> with{" "}
                   <span className="font-bold text-primary">{difficulty}</span> level of a duration of{" "}
@@ -221,30 +218,37 @@ export default function GeneratePage() {
                 </p>
                 <div className="flex flex-col gap-6 text-left max-w-md mx-auto">
                   {steps.map((step, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      {i < currentStep ? (
-                        <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
-                          <span className="material-symbols-outlined text-on-primary-container text-xl">check</span>
-                        </div>
-                      ) : i === currentStep ? (
-                        <div className="w-8 h-8 rounded-full border-2 border-primary-container flex items-center justify-center flex-shrink-0 animate-pulse">
-                          <div className="w-3 h-3 bg-primary-container rounded-full" />
-                        </div>
-                      ) : (
-                        <div className="w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center flex-shrink-0 opacity-40">
-                          <div className="w-3 h-3 bg-outline-variant rounded-full" />
+                    <div key={i} className="flex flex-col gap-1">
+                      <div className="flex items-center gap-4">
+                        {i < currentStep ? (
+                          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+                            <span className="material-symbols-outlined text-on-primary-container text-xl">check</span>
+                          </div>
+                        ) : i === currentStep ? (
+                          <div className="w-8 h-8 rounded-full border-2 border-primary-container flex items-center justify-center flex-shrink-0 animate-pulse">
+                            <div className="w-3 h-3 bg-primary-container rounded-full" />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center flex-shrink-0 opacity-40">
+                            <div className="w-3 h-3 bg-outline-variant rounded-full" />
+                          </div>
+                        )}
+                        <span className={`text-base ${i === currentStep ? "text-primary font-bold" : i < currentStep ? "text-on-surface" : "text-on-surface-variant opacity-40"}`}>
+                          {step.label}
+                        </span>
+                      </div>
+                      {i < currentStep && (
+                        <div className="flex items-center gap-4 ml-12">
+                          <span className="text-sm text-primary font-medium">{step.successMessage}</span>
                         </div>
                       )}
-                      <span className={`text-base ${i === currentStep ? "text-primary font-bold" : i < currentStep ? "text-on-surface" : "text-on-surface-variant opacity-40"}`}>
-                        {step}
-                      </span>
                     </div>
                   ))}
                 </div>
                 <div className="mt-8 pt-8 border-t border-outline-variant/30">
                   <div className="flex items-center justify-center gap-2 text-primary animate-pulse">
                     <span className="material-symbols-outlined">auto_awesome</span>
-                    <span className="text-sm font-medium">{steps[Math.min(currentStep, steps.length - 1)]}</span>
+                    <span className="text-sm font-medium">{steps[Math.min(currentStep, steps.length - 1)].label}</span>
                   </div>
                 </div>
               </div>
@@ -259,36 +263,36 @@ export default function GeneratePage() {
             <div className="w-full py-12 flex flex-col items-center text-center flex-grow justify-center">
               <div className="glass-card rounded-2xl border border-outline-variant/50 shadow-xl p-8 max-w-2xl w-full">
                 <div className="mb-6">
-                  <div className="w-16 h-16 bg-primary-container/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="material-symbols-outlined text-primary text-4xl animate-pulse">schedule</span>
+                  <div className="w-16 h-16 bg-secondary-container/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-outlined text-secondary text-4xl animate-pulse">rate_review</span>
                   </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-on-surface mb-4">Waiting for Admin Approval</h3>
+                <h3 className="text-2xl font-semibold text-on-surface mb-4">Your Course is Ready for Review</h3>
                 <p className="text-lg text-on-surface-variant mb-8">
-                  Your course has been generated successfully! Our admin team is reviewing it to ensure quality standards.
+                  Great! The AI has generated your course. Now it's your turn to review and make any edits before submitting it to our admin team for final approval.
                 </p>
-                <div className="bg-primary-container/10 border border-primary-container/30 rounded-lg p-6 mb-8">
+                <div className="bg-secondary-container/10 border border-secondary-container/30 rounded-lg p-6 mb-8">
                   <p className="text-base text-on-surface mb-3">
-                    <span className="font-semibold">Status:</span> Pending Admin Approval
+                    <span className="font-semibold">Next Step:</span> Review Your Course
                   </p>
                   <p className="text-sm text-on-surface-variant">
-                    Please come back after some time to check if your course has been approved.
+                    You can view, edit, and customize your course before submitting it for admin approval. Once you're satisfied, submit it and our team will review it.
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.push("/my-courses")}
                     className="bg-primary text-on-primary text-sm font-medium px-8 py-4 rounded-lg shadow-md hover:shadow-xl hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">rate_review</span>
+                    Go to My Courses
+                  </button>
+                  <button
+                    onClick={() => router.push("/dashboard")}
+                    className="border-2 border-primary text-primary text-sm font-medium px-8 py-4 rounded-lg hover:bg-primary/5 transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
                     <span className="material-symbols-outlined">arrow_forward</span>
                     Go to Dashboard
-                  </button>
-                  <button
-                    onClick={() => pollStatus(generationId!)}
-                    className="border-2 border-primary text-primary text-sm font-medium px-8 py-4 rounded-lg hover:bg-primary/5 transition-all active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined">refresh</span>
-                    Check Status
                   </button>
                 </div>
               </div>

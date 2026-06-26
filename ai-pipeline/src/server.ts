@@ -280,6 +280,7 @@ async function notifyBackend(
 
         if (USE_MOCK_DATA) {
           log.info({ generationId }, 'Using mock data for course generation');
+          await new Promise(resolve => setTimeout(resolve, 200));
           result = { valid: true, course: getMockCourse(input) };
         } else {
           // Use actual AI pipeline for course generation

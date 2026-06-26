@@ -246,6 +246,7 @@ def get_course_status(
         generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
 
         if not generation:
+            logger.warn(f"Course generation status request for non-existent generation: {generation_id} | User: {current_user.get('email')}")
             return {
                 "status": False,
                 "error": "Course not found"
@@ -253,12 +254,13 @@ def get_course_status(
 
         # Check authorization: user can only see their own courses
         if generation.user_id != current_user.get("sub") and current_user.get("role") != "admin":
+            logger.warn(f"Unauthorized course generation status request for generation {generation_id} | User: {current_user.get('email')} | Owner: {generation.user_id}")
             return {
                 "status": False,
                 "error": "Unauthorized"
             }
 
-        return {
+        status_response = {
             "status": True,
             "data": {
                 "id": generation.id,
@@ -275,8 +277,18 @@ def get_course_status(
             }
         }
 
+        logger.info(
+            f"Course generation status retrieved | Generation ID: {generation_id} | "
+            f"Topic: {generation.topic} | Status: {generation.status} | "
+            f"User: {current_user.get('email')} | "
+            f"Created Course ID: {generation.created_course_id} | "
+            f"Retry Count: {generation.retry_count}"
+        )
+
+        return status_response
+
     except Exception as e:
-        logger.error(f"Error getting course status: {str(e)}")
+        logger.error(f"Error getting course status for generation {generation_id}: {str(e)}", exc_info=True)
         return {
             "status": False,
             "error": str(e)
@@ -291,7 +303,7 @@ def get_pending_generations(
     db: Session = Depends(get_db)
 ):
     """
-    Get all courses awaiting admin approval (status='generated').
+    Get all courses awaiting admin approval (status='user_submitted').
     Admin only endpoint.
 
     Args:
@@ -302,9 +314,9 @@ def get_pending_generations(
     from sqlalchemy import desc
 
     try:
-        # Get courses ready for admin approval (both generating and generated)
+        # Get courses submitted by users for admin approval
         base_query = db.query(CourseGeneration).filter(
-            CourseGeneration.status.in_(["generating", "generated"])
+            CourseGeneration.status == "user_submitted"
         )
 
         total_count = base_query.count()
@@ -624,4 +636,271 @@ def process_failed_callback(
         return {
             "status": False,
             "error": str(e)
+        }
+
+
+@router.get("/my-generations")
+def get_user_generations(
+    skip: int = 0,
+    limit: int = 10,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all course generations for the current user.
+    Includes courses in all stages: pending, generating, generated (user_review), submitted, published, failed.
+
+    Args:
+        skip: Number of records to skip
+        limit: Number of records to return per page
+    """
+    from app.models.course_generation import CourseGeneration
+    from sqlalchemy import desc
+
+    try:
+        user_id = int(current_user.get("sub"))
+        base_query = db.query(CourseGeneration).filter(CourseGeneration.user_id == user_id)
+
+        total_count = base_query.count()
+
+        generations = base_query.order_by(desc(CourseGeneration.created_at)).offset(skip).limit(limit).all()
+
+        generation_list = []
+        for gen in generations:
+            gen_data = {
+                "id": gen.id,
+                "topic": gen.topic,
+                "difficulty_level": gen.difficulty_level,
+                "learning_duration": gen.learning_duration,
+                "expertise_domain": gen.expertise_domain,
+                "relevant_tags": gen.relevant_tags,
+                "status": gen.status,
+                "created_at": gen.created_at.isoformat() if gen.created_at else None,
+                "generation_completed_at": gen.generation_completed_at.isoformat() if gen.generation_completed_at else None,
+                "user_submitted_at": gen.user_submitted_at.isoformat() if gen.user_submitted_at else None,
+                "created_course_id": gen.created_course_id,
+            }
+            if gen.generated_course_data:
+                gen_data["course_data"] = json.loads(gen.generated_course_data)
+            generation_list.append(gen_data)
+
+        logger.info(f"User {current_user.get('email')} retrieved {len(generation_list)} course generations")
+
+        return {
+            "status": True,
+            "generations": generation_list,
+            "total": total_count,
+            "skip": skip,
+            "limit": limit
+        }
+
+    except Exception as e:
+        logger.error(f"Error getting user generations: {str(e)}", exc_info=True)
+        return {
+            "status": False,
+            "error": "Failed to get generations",
+            "generations": [],
+            "total": 0,
+            "skip": skip,
+            "limit": limit
+        }
+
+
+@router.put("/user-save/{generation_id}")
+def user_save_course_edits(
+    generation_id: int,
+    save_data: dict,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    User saves their edits to a course before submission.
+    Stores edited course data without changing status.
+
+    Args:
+        generation_id: ID of the generation to save
+        save_data: Updated course data
+    """
+    from app.models.course_generation import CourseGeneration
+
+    try:
+        generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
+
+        if not generation:
+            logger.warn(f"User {current_user.get('email')} tried to save non-existent generation {generation_id}")
+            return {
+                "status": False,
+                "error": "Course not found"
+            }
+
+        # Check authorization: user can only save their own courses
+        if generation.user_id != int(current_user.get("sub")):
+            logger.warn(f"Unauthorized save attempt for generation {generation_id} by user {current_user.get('email')}")
+            return {
+                "status": False,
+                "error": "Unauthorized"
+            }
+
+        # Only allow saving from generated or user_review status
+        if generation.status not in ["generated", "user_review"]:
+            logger.warn(f"Cannot save course {generation_id} with status '{generation.status}'")
+            return {
+                "status": False,
+                "error": f"Cannot edit course with status '{generation.status}'"
+            }
+
+        # Update with edited course data if provided
+        if "course_data" in save_data and save_data["course_data"]:
+            generation.generated_course_data = json.dumps(save_data["course_data"])
+            generation.status = "user_review"
+
+            # Update topic from course title if provided
+            if save_data["course_data"].get("title"):
+                generation.topic = save_data["course_data"]["title"]
+
+        db.commit()
+        db.refresh(generation)
+
+        logger.info(f"User {current_user.get('email')} saved edits to course generation {generation_id}")
+
+        return {
+            "status": True,
+            "message": "Course edits saved successfully",
+            "generation_id": generation_id
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error saving course {generation_id}: {str(e)}", exc_info=True)
+        return {
+            "status": False,
+            "error": f"Failed to save course: {str(e)}"
+        }
+
+
+@router.put("/user-submit/{generation_id}")
+def user_submit_course(
+    generation_id: int,
+    submit_data: dict,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    User submits their reviewed/edited course to admin for approval.
+    Updates status from 'generated' to 'user_submitted' and stores edited course data.
+
+    Args:
+        generation_id: ID of the generation to submit
+        submit_data: Updated course data and optional user feedback
+    """
+    from app.models.course_generation import CourseGeneration
+
+    try:
+        generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
+
+        if not generation:
+            logger.warn(f"User {current_user.get('email')} tried to submit non-existent generation {generation_id}")
+            return {
+                "status": False,
+                "error": "Course not found"
+            }
+
+        # Check authorization: user can only submit their own courses
+        if generation.user_id != int(current_user.get("sub")):
+            logger.warn(f"Unauthorized submission attempt for generation {generation_id} by user {current_user.get('email')}")
+            return {
+                "status": False,
+                "error": "Unauthorized"
+            }
+
+        # Only allow submission from generated status
+        if generation.status not in ["generated", "user_review"]:
+            logger.warn(f"Cannot submit course {generation_id} with status '{generation.status}'")
+            return {
+                "status": False,
+                "error": f"Cannot submit course with status '{generation.status}'"
+            }
+
+        # Update with edited course data if provided
+        if "course_data" in submit_data and submit_data["course_data"]:
+            generation.generated_course_data = json.dumps(submit_data["course_data"])
+
+        generation.status = "user_submitted"
+        generation.user_submitted_at = datetime.utcnow()
+        generation.user_feedback = submit_data.get("feedback", "")
+
+        db.commit()
+        db.refresh(generation)
+
+        logger.info(f"User {current_user.get('email')} submitted course generation {generation_id} for admin approval")
+
+        return {
+            "status": True,
+            "message": "Course submitted for admin approval",
+            "generation_id": generation_id
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error submitting course {generation_id}: {str(e)}", exc_info=True)
+        return {
+            "status": False,
+            "error": f"Failed to submit course: {str(e)}"
+        }
+
+
+@router.delete("/{generation_id}")
+def delete_course_generation(
+    generation_id: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Delete a user's course generation.
+    Only allows deletion of courses in 'generated' or 'user_review' status.
+    """
+    from app.models.course_generation import CourseGeneration
+
+    try:
+        generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
+
+        if not generation:
+            logger.warn(f"User {current_user.get('email')} tried to delete non-existent generation {generation_id}")
+            return {
+                "status": False,
+                "error": "Course not found"
+            }
+
+        # Check authorization: user can only delete their own courses
+        if generation.user_id != int(current_user.get("sub")):
+            logger.warn(f"Unauthorized delete attempt for generation {generation_id} by user {current_user.get('email')}")
+            return {
+                "status": False,
+                "error": "Unauthorized"
+            }
+
+        # Only allow deletion from generated or user_review status
+        if generation.status not in ["generated", "user_review"]:
+            logger.warn(f"Cannot delete course {generation_id} with status '{generation.status}'")
+            return {
+                "status": False,
+                "error": f"Cannot delete course with status '{generation.status}'"
+            }
+
+        db.delete(generation)
+        db.commit()
+
+        logger.info(f"User {current_user.get('email')} deleted course generation {generation_id}")
+
+        return {
+            "status": True,
+            "message": "Course deleted successfully"
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error deleting course {generation_id}: {str(e)}", exc_info=True)
+        return {
+            "status": False,
+            "error": f"Failed to delete course: {str(e)}"
         }

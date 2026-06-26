@@ -293,6 +293,36 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <section className="mt-12 mb-12">
+          <h2 className="text-xl font-semibold text-on-background mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link href="/generate" className="bg-gradient-to-br from-primary-container to-primary/20 border border-primary/30 rounded-xl p-6 hover:shadow-lg transition-all group">
+              <div className="flex items-start justify-between mb-4">
+                <span className="material-symbols-outlined text-4xl text-primary group-hover:scale-110 transition-transform">auto_awesome</span>
+              </div>
+              <h3 className="text-lg font-bold text-on-surface mb-2">Generate New Course</h3>
+              <p className="text-sm text-on-surface-variant">Create a new course using our AI-powered generator</p>
+            </Link>
+
+            <Link href="/my-courses" className="bg-gradient-to-br from-secondary-container to-secondary/20 border border-secondary/30 rounded-xl p-6 hover:shadow-lg transition-all group">
+              <div className="flex items-start justify-between mb-4">
+                <span className="material-symbols-outlined text-4xl text-secondary group-hover:scale-110 transition-transform">rate_review</span>
+              </div>
+              <h3 className="text-lg font-bold text-on-surface mb-2">My Course Generations</h3>
+              <p className="text-sm text-on-surface-variant">Review, edit, and submit your generated courses</p>
+            </Link>
+
+            <Link href="/courses" className="bg-gradient-to-br from-tertiary-container to-tertiary/20 border border-tertiary/30 rounded-xl p-6 hover:shadow-lg transition-all group">
+              <div className="flex items-start justify-between mb-4">
+                <span className="material-symbols-outlined text-4xl text-tertiary group-hover:scale-110 transition-transform">explore</span>
+              </div>
+              <h3 className="text-lg font-bold text-on-surface mb-2">Browse All Courses</h3>
+              <p className="text-sm text-on-surface-variant">Explore published courses available on the platform</p>
+            </Link>
+          </div>
+        </section>
+
         {/* Enrolled Courses */}
         <section className="mt-12">
           <div className="flex justify-between items-end mb-6">
