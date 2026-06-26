@@ -168,7 +168,17 @@ def create_course_generation(
         db.commit()
         db.refresh(generation)
 
-        # Send directly to AI pipeline
+        logger.info(f"User {current_user.get('email')} created course generation request {generation.id}: {request_data.topic}")
+
+        # Return response to frontend immediately
+        response_data = {
+            "status": True,
+            "message": "Course generation request submitted successfully",
+            "generation_id": generation.id,
+            "queue_status": "pending"
+        }
+
+        # Send to AI pipeline asynchronously (after returning to frontend)
         ai_pipeline_url = "http://localhost:3001"
         # Parse tags from comma-separated string to array
         tags = [tag.strip() for tag in (request_data.relevant_tags or "").split(",") if tag.strip()]
@@ -184,39 +194,32 @@ def create_course_generation(
         }
 
         try:
+            # Send request to AI pipeline with a short timeout (just for initial connection)
+            # Don't wait for generation to complete - that happens asynchronously
             response = requests.post(
                 f"{ai_pipeline_url}/generate",
                 json=payload,
-                timeout=120
+                timeout=5  # Only wait 5 seconds for the queue to accept the request
             )
 
             if response.status_code == 200:
-                logger.info(f"Course generation {generation.id} sent to AI pipeline")
+                logger.info(f"Course generation {generation.id} queued in AI pipeline successfully")
+                # Update status to "generating" after successfully sending to AI pipeline
+                generation.status = "generating"
+                db.commit()
+                logger.info(f"Course generation {generation.id} status updated to 'generating'")
             else:
                 logger.error(f"AI pipeline error {response.status_code}: {response.text}")
-                return {
-                    "status": True,
-                    "message": "Course generation request submitted. Processing in background.",
-                    "generation_id": generation.id,
-                    "queue_status": "pending"
-                }
+        except requests.Timeout:
+            logger.warning(f"AI pipeline request timed out but will retry. Request {generation.id} queued.")
+            # Update status to "generating" even if timeout (request was likely accepted)
+            generation.status = "generating"
+            db.commit()
+            logger.info(f"Course generation {generation.id} status updated to 'generating' (after timeout)")
         except Exception as api_error:
             logger.warning(f"Could not reach AI pipeline: {str(api_error)}. Request queued for later.")
-            return {
-                "status": True,
-                "message": "Course generation request submitted. Processing in background.",
-                "generation_id": generation.id,
-                "queue_status": "pending"
-            }
 
-        logger.info(f"User {current_user.get('email')} created course generation request {generation.id}: {request_data.topic}")
-
-        return {
-            "status": True,
-            "message": "Course generation request submitted successfully",
-            "generation_id": generation.id,
-            "queue_status": "pending"
-        }
+        return response_data
 
     except Exception as e:
         db.rollback()

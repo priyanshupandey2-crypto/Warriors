@@ -41,38 +41,60 @@ export default function GeneratePage() {
 
   const pollStatus = async (id: number) => {
     try {
+      console.log(`[POLL] 🔄 Polling course generation status for ID: ${id} at ${new Date().toLocaleTimeString()}`);
+
       const response = await apiCall<any>(`/api/course-generation/status/${id}`, {
         method: "GET",
       });
 
       if (response?.status && response.data) {
         const queueStatus = response.data.queue_status;
+        console.log(`[POLL] ✅ Response received:`, {
+          generationId: id,
+          queueStatus: queueStatus,
+          timestamp: new Date().toLocaleTimeString(),
+          fullResponse: response.data,
+        });
+
         setStatus(queueStatus);
 
         if (queueStatus === "pending" || queueStatus === "Awaiting Generation") {
-          setCurrentStep(0);
+          console.log(`[POLL] ⏳ Status: PENDING - Waiting for AI pipeline to start generation`);
+          // Keep current step, don't reset to 0
+          // Step already set to 1 when request was accepted
         } else if (queueStatus === "generating" || queueStatus === "Generating") {
-          // Animate through steps - cycle through all steps while generating
-          setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+          console.log(`[POLL] ⚙️  Status: GENERATING - AI is actively generating course content`);
+          // Move to step 2: "Generating Course..."
+          setCurrentStep(2);
         } else if (queueStatus === "generated" || queueStatus === "Generated") {
+          console.log(`[POLL] ✨ Status: GENERATED - Course generation complete! Moving to approval phase`);
           setCurrentStep(steps.length - 1);
           setPhase("approval");
         } else if (queueStatus === "published") {
+          console.log(`[POLL] 🎉 Status: PUBLISHED - Course has been approved and published!`);
           showToast("Course approved and published!", "success");
           setTimeout(() => router.push("/dashboard"), 2000);
         } else if (queueStatus === "failed") {
+          console.error(`[POLL] ❌ Status: FAILED - Course generation failed with error:`, response.data.error);
           showToast(`Course generation failed: ${response.data.error || "No reason provided"}`, "error");
           setPhase("form");
+        } else {
+          console.warn(`[POLL] ⚠️  Unknown status received: ${queueStatus}`);
         }
+      } else {
+        console.warn(`[POLL] ⚠️  No response data or status error:`, response);
       }
     } catch (error) {
-      console.error("Error polling status:", error);
+      console.error(`[POLL] 💥 Error polling status for ID ${id}:`, error);
     }
   };
 
   // Setup polling when generation starts
   useEffect(() => {
-    if (generationId && (phase === "generating" || phase === "approval")) {
+    if (generationId && phase === "generating") {
+      console.log(`[INIT] 🚀 Starting polling for generation ID: ${generationId}`);
+      console.log(`[INIT] ⏱️  Polling interval: 3000ms (every 3 seconds)`);
+
       // Poll immediately on first load
       pollStatus(generationId);
 
@@ -81,8 +103,11 @@ export default function GeneratePage() {
       }, 3000); // Poll every 3 seconds
 
       return () => {
+        console.log(`[CLEANUP] 🛑 Stopping polling for generation ID: ${generationId}`);
         clearInterval(pollInterval);
       };
+    } else if (phase === "approval") {
+      console.log(`[STOP] ⏸️  Polling stopped - phase changed to "approval"`);
     }
   }, [generationId, phase, apiCall, router, showToast]);
 
@@ -90,10 +115,21 @@ export default function GeneratePage() {
     if (!topic.trim()) return;
 
     try {
+      console.log(`[START] 📝 Starting course generation request`);
+      console.log(`[START] 📋 Course Details:`, {
+        topic,
+        difficulty,
+        duration,
+        audience,
+        tags,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+
       setPhase("generating");
       setCurrentStep(0);
 
       // Send course generation request to backend
+      console.log(`[REQUEST] 🌐 Sending POST request to /api/course-generation/create`);
       const response = await apiCall<any>("/api/course-generation/create", {
         method: "POST",
         body: JSON.stringify({
@@ -106,16 +142,25 @@ export default function GeneratePage() {
       });
 
       if (response && response.status) {
+        console.log(`[SUCCESS] ✅ Course generation request accepted!`, {
+          generationId: response.generation_id,
+          queueStatus: response.queue_status,
+          timestamp: new Date().toLocaleTimeString(),
+        });
+
         setGenerationId(response.generation_id);
         setStatus(response.queue_status);
+        setCurrentStep(1); // Move to next step: "Waiting in Course Generation Queue..."
         showToast("Course generation submitted successfully", "success");
+        console.log(`[STEP] 📍 Step progression: "Requirements Validated" ✓ → "Waiting in Course Generation Queue..." ⏳`);
         // Polling will be handled by useEffect
       } else {
+        console.error(`[ERROR] ❌ Course generation request failed:`, response?.error);
         showToast(response?.error || "Failed to submit course generation", "error");
         setPhase("form");
       }
     } catch (error) {
-      console.error("Failed to generate course:", error);
+      console.error(`[ERROR] 💥 Exception in handleGenerate:`, error);
       showToast("Failed to submit course generation", "error");
       setPhase("form");
     }

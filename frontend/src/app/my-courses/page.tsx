@@ -292,9 +292,9 @@ export default function MyCoursesPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-24 pb-12 px-6 max-w-[1280px] mx-auto">
+      <main className="pt-24 pb-12 px-8 w-full">
         {/* Header */}
-        <section className="mb-8">
+        <section className="mb-8 max-w-[1600px] mx-auto">
           <div className="flex justify-between items-start mb-2">
             <div>
               <h1 className="text-4xl font-bold text-on-background">My Course Generations</h1>
@@ -311,7 +311,7 @@ export default function MyCoursesPage() {
         </section>
 
         {/* Courses Grid/List */}
-        <section className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container p-6">
+        <section className="bg-surface-container-lowest rounded-2xl shadow-sm border border-surface-container p-8 max-w-[1600px] mx-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -330,51 +330,57 @@ export default function MyCoursesPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {generations.map((gen) => (
                 <div
                   key={gen.id}
                   onClick={() => setSelectedGeneration(gen)}
-                  className="bg-surface-container-lowest border border-surface-container rounded-xl p-6 cursor-pointer hover:shadow-md hover:border-primary/50 transition-all group"
+                  className="bg-surface-container-lowest border border-surface-container rounded-2xl p-8 cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group min-h-[320px] flex flex-col"
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-6">
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-on-surface line-clamp-2">{gen.topic}</h3>
-                      <p className="text-xs text-on-surface-variant mt-1">
+                      <h3 className="text-xl font-bold text-on-surface line-clamp-2">{gen.topic}</h3>
+                      <p className="text-sm text-on-surface-variant mt-2">
                         {new Date(gen.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={`material-symbols-outlined text-2xl ${gen.status === "published" ? "text-tertiary" : "text-on-surface-variant/40"} group-hover:text-primary transition-colors`}>
+                    <span className={`material-symbols-outlined text-4xl ${gen.status === "published" ? "text-tertiary" : "text-on-surface-variant/40"} group-hover:text-primary transition-colors flex-shrink-0 ml-4`}>
                       {getStatusIcon(gen.status)}
                     </span>
                   </div>
 
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-on-surface-variant">Level:</span>
-                      <span className="text-on-surface font-medium">{gen.difficulty_level}</span>
+                  <div className="space-y-3 mb-6 flex-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-on-surface-variant font-medium">Level:</span>
+                      <span className="text-on-surface font-bold">{gen.difficulty_level}</span>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-on-surface-variant">Duration:</span>
-                      <span className="text-on-surface font-medium">{gen.learning_duration}</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-on-surface-variant font-medium">Duration:</span>
+                      <span className="text-on-surface font-bold">{gen.learning_duration}</span>
                     </div>
+                    {gen.expertise_domain && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-on-surface-variant font-medium">Domain:</span>
+                        <span className="text-on-surface font-bold text-right">{gen.expertise_domain}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="mb-4">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(gen.status)}`}>
+                  <div className="mb-6">
+                    <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getStatusColor(gen.status)}`}>
                       {getStatusLabel(gen.status)}
                     </span>
                   </div>
 
                   {(gen.status === "generated" || gen.status === "user_review") && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-auto">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedGeneration(gen);
                           handleOpenEditModal(gen.course_data);
                         }}
-                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg bg-primary-container/20 text-primary hover:bg-primary-container/40 transition-all"
+                        className="flex-1 text-sm font-bold px-4 py-3 rounded-lg bg-primary-container/20 text-primary hover:bg-primary-container/40 transition-all"
                       >
                         Review & Edit
                       </button>
@@ -385,7 +391,7 @@ export default function MyCoursesPage() {
                     <Link
                       href={`/course/${gen.created_course_id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="block w-full text-xs font-medium px-3 py-2 rounded-lg bg-tertiary-container/20 text-tertiary hover:bg-tertiary-container/40 transition-all text-center"
+                      className="block w-full text-sm font-bold px-4 py-3 rounded-lg bg-tertiary-container/20 text-tertiary hover:bg-tertiary-container/40 transition-all text-center mt-auto"
                     >
                       View Course
                     </Link>
@@ -507,6 +513,15 @@ export default function MyCoursesPage() {
               <div className="border-t border-outline-variant/20 pt-4">
                 <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-3">Actions</span>
                 <div className="flex flex-col gap-3">
+                  {(selectedGeneration.status === "pending" || selectedGeneration.status === "generating") && (
+                    <div className="text-center py-4">
+                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-warning-container/30 mx-auto mb-3 animate-spin">
+                        <span className="material-symbols-outlined text-warning text-2xl">smart_toy</span>
+                      </div>
+                      <p className="text-sm font-medium text-on-surface mb-1">Generating Your Course</p>
+                      <p className="text-xs text-on-surface-variant">AI is processing your course structure. Please wait...</p>
+                    </div>
+                  )}
                   {(selectedGeneration.status === "generated" || selectedGeneration.status === "user_review") && (
                     <>
                       <button
@@ -564,6 +579,26 @@ export default function MyCoursesPage() {
                       <span className="material-symbols-outlined text-[18px]">check_circle</span>
                       View Published Course
                     </Link>
+                  )}
+                  {selectedGeneration.status === "failed" && (
+                    <div className="text-center py-4">
+                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-error-container/30 mx-auto mb-3">
+                        <span className="material-symbols-outlined text-error text-2xl">error</span>
+                      </div>
+                      <p className="text-sm font-medium text-on-surface mb-1">Generation Failed</p>
+                      <p className="text-xs text-on-surface-variant">There was an error generating your course. Please try again.</p>
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this failed generation and try again?")) {
+                            handleDeleteCourse(selectedGeneration.id);
+                          }
+                        }}
+                        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-xs transition-all bg-error text-on-error hover:shadow-lg hover:shadow-error/30"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                        Delete & Retry
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
