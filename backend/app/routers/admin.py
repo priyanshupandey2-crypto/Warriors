@@ -662,20 +662,37 @@ def delete_course(
         lesson_count = db.query(Lesson).filter(Lesson.course_id == course_id).count()
         quiz_count = db.query(Quiz).filter(Quiz.course_id == course_id).count()
 
-        # Delete all related data in proper order
-        # 1. Delete lessons
+        # Delete all related data in proper order (respecting FK constraints)
+        from app.models.course_generation import CourseGeneration
+        from app.models.learning_activity import LearningActivity
+        from app.models.milestone import Milestone
+        from app.models.user_lesson_progress import UserLessonProgress
+
+        # 0. Delete course generation records
+        db.query(CourseGeneration).filter(CourseGeneration.created_course_id == course_id).delete()
+
+        # 1. Delete user lesson progress (depends on lessons)
+        db.query(UserLessonProgress).filter(UserLessonProgress.course_id == course_id).delete()
+
+        # 2. Delete learning activities
+        db.query(LearningActivity).filter(LearningActivity.course_id == course_id).delete()
+
+        # 3. Delete milestones
+        db.query(Milestone).filter(Milestone.course_id == course_id).delete()
+
+        # 4. Delete lessons
         db.query(Lesson).filter(Lesson.course_id == course_id).delete()
 
-        # 2. Delete quizzes
+        # 5. Delete quizzes
         db.query(Quiz).filter(Quiz.course_id == course_id).delete()
 
-        # 3. Delete modules
+        # 6. Delete modules
         db.query(Module).filter(Module.course_id == course_id).delete()
 
-        # 4. Delete user enrollments
+        # 7. Delete user enrollments
         db.query(UserCourse).filter(UserCourse.course_id == course_id).delete()
 
-        # 5. Delete the course itself
+        # 8. Delete the course itself
         db.delete(course)
         db.commit()
 

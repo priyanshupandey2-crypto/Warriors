@@ -103,11 +103,11 @@ export default function HomePage() {
               <div className="flex items-center gap-8 pt-6 border-t border-outline-variant/20">
                 <div className="flex -space-x-3">
                   <div className="w-10 h-10 rounded-full border-2 border-surface bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">
-                    50k+
+                    10+
                   </div>
                 </div>
                 <p className="text-xs font-semibold text-on-surface-variant">
-                  Joined by <span className="font-bold text-on-surface underline decoration-primary/30">50,000+ students</span> worldwide
+                  Joined by <span className="font-bold text-on-surface underline decoration-primary/30">10+ learners</span> worldwide
                 </p>
               </div>
             </div>
@@ -125,8 +125,8 @@ export default function HomePage() {
                     <div className="w-2 h-2 bg-tertiary rounded-full animate-pulse" />
                     <span className="text-xs font-semibold text-on-surface">Live Now</span>
                   </div>
-                  <p className="text-sm font-bold text-on-surface">Modern Architecture Principles</p>
-                  <p className="text-xs text-on-surface-variant">2.4k viewers participating</p>
+                  <p className="text-sm font-bold text-on-surface">Forward Deployed Engineer Course</p>
+                  <p className="text-xs text-on-surface-variant">1 learner enrolled</p>
                 </div>
               </div>
               <div className="absolute -z-10 -bottom-8 -right-8 w-64 h-64 border-4 border-primary-container/20 rounded-xl" />

@@ -22,10 +22,11 @@ export default function GeneratePage() {
   const [duration, setDuration] = useState("1w");
   const [audience, setAudience] = useState("");
   const [tags, setTags] = useState("");
-  const [phase, setPhase] = useState<"form" | "generating" | "done">("form");
+  const [phase, setPhase] = useState<"form" | "generating" | "approval" | "done">("form");
   const [currentStep, setCurrentStep] = useState(0);
   const [generationId, setGenerationId] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("");
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   // Duration options mapping display text to API format
   const durationOptions = [
@@ -48,20 +49,19 @@ export default function GeneratePage() {
         const queueStatus = response.data.queue_status;
         setStatus(queueStatus);
 
-        // Update progress step based on status
-        if (queueStatus === "Awaiting Generation") {
+        if (queueStatus === "pending" || queueStatus === "Awaiting Generation") {
           setCurrentStep(0);
-        } else if (queueStatus === "Generating") {
-          setCurrentStep(Math.min(currentStep + 1, steps.length - 1));
-        } else if (queueStatus === "Awaiting Approval") {
+        } else if (queueStatus === "generating" || queueStatus === "Generating") {
+          // Animate through steps - cycle through all steps while generating
+          setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+        } else if (queueStatus === "generated" || queueStatus === "Generated") {
           setCurrentStep(steps.length - 1);
-          showToast("Course generated! Awaiting admin approval.", "success");
-          setTimeout(() => router.push("/dashboard"), 2000);
-        } else if (queueStatus === "Approved") {
+          setPhase("approval");
+        } else if (queueStatus === "published") {
           showToast("Course approved and published!", "success");
           setTimeout(() => router.push("/dashboard"), 2000);
-        } else if (queueStatus === "Rejected") {
-          showToast(`Course rejected: ${response.data.feedback || "No reason provided"}`, "error");
+        } else if (queueStatus === "failed") {
+          showToast(`Course generation failed: ${response.data.error || "No reason provided"}`, "error");
           setPhase("form");
         }
       }
@@ -72,14 +72,19 @@ export default function GeneratePage() {
 
   // Setup polling when generation starts
   useEffect(() => {
-    if (generationId && phase === "generating") {
-      const interval = setInterval(() => {
+    if (generationId && (phase === "generating" || phase === "approval")) {
+      // Poll immediately on first load
+      pollStatus(generationId);
+
+      const pollInterval = setInterval(() => {
         pollStatus(generationId);
       }, 3000); // Poll every 3 seconds
 
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(pollInterval);
+      };
     }
-  }, [generationId, phase, apiCall, router, showToast, currentStep]);
+  }, [generationId, phase, apiCall, router, showToast]);
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
@@ -205,6 +210,9 @@ export default function GeneratePage() {
             <div className="w-full py-12 flex flex-col items-center text-center flex-grow justify-center">
               <div className="glass-card rounded-2xl border border-outline-variant/50 shadow-xl p-8 max-w-2xl w-full">
                 <h3 className="text-2xl font-semibold text-on-surface mb-4">Generating Your Course</h3>
+                <div className="inline-block bg-primary-container/20 text-primary px-3 py-1 rounded-full text-xs font-medium mb-4">
+                  Status: {status || "Starting..."}
+                </div>
                 <p className="text-lg text-on-surface mb-8">
                   I understand that you need a course on <span className="font-bold text-primary">{topic}</span> with{" "}
                   <span className="font-bold text-primary">{difficulty}</span> level of a duration of{" "}
@@ -236,8 +244,52 @@ export default function GeneratePage() {
                 <div className="mt-8 pt-8 border-t border-outline-variant/30">
                   <div className="flex items-center justify-center gap-2 text-primary animate-pulse">
                     <span className="material-symbols-outlined">auto_awesome</span>
-                    <span className="text-sm font-medium">Architecting your syllabus...</span>
+                    <span className="text-sm font-medium">{steps[Math.min(currentStep, steps.length - 1)]}</span>
                   </div>
+                </div>
+              </div>
+              <p className="text-xs text-on-surface-variant opacity-60 mt-4">
+                AuraLearn AI can make mistakes. Verify important information.
+              </p>
+            </div>
+          )}
+
+          {/* Approval Waiting State */}
+          {phase === "approval" && (
+            <div className="w-full py-12 flex flex-col items-center text-center flex-grow justify-center">
+              <div className="glass-card rounded-2xl border border-outline-variant/50 shadow-xl p-8 max-w-2xl w-full">
+                <div className="mb-6">
+                  <div className="w-16 h-16 bg-primary-container/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-outlined text-primary text-4xl animate-pulse">schedule</span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-semibold text-on-surface mb-4">Waiting for Admin Approval</h3>
+                <p className="text-lg text-on-surface-variant mb-8">
+                  Your course has been generated successfully! Our admin team is reviewing it to ensure quality standards.
+                </p>
+                <div className="bg-primary-container/10 border border-primary-container/30 rounded-lg p-6 mb-8">
+                  <p className="text-base text-on-surface mb-3">
+                    <span className="font-semibold">Status:</span> Pending Admin Approval
+                  </p>
+                  <p className="text-sm text-on-surface-variant">
+                    Please come back after some time to check if your course has been approved.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => router.push("/dashboard")}
+                    className="bg-primary text-on-primary text-sm font-medium px-8 py-4 rounded-lg shadow-md hover:shadow-xl hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                    Go to Dashboard
+                  </button>
+                  <button
+                    onClick={() => pollStatus(generationId!)}
+                    className="border-2 border-primary text-primary text-sm font-medium px-8 py-4 rounded-lg hover:bg-primary/5 transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">refresh</span>
+                    Check Status
+                  </button>
                 </div>
               </div>
               <p className="text-xs text-on-surface-variant opacity-60 mt-4">
