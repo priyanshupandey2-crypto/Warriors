@@ -60,7 +60,7 @@ export default function SignupPage() {
           </div>
           <h1 className="text-5xl font-bold mb-4 leading-tight">Master the skills of tomorrow, today.</h1>
           <p className="text-lg text-on-primary/80 mb-8">
-            Join 500,000+ learners who are accelerating their careers with AI-driven personalized paths and
+            Join learners who are accelerating their careers with AI-driven personalized paths and
             hands-on projects.
           </p>
           <div className="glass-effect rounded-xl p-6 border border-white/20 shadow-xl max-w-sm">
@@ -70,11 +70,11 @@ export default function SignupPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-on-surface">Momentum Gained</p>
-                <p className="text-2xl font-semibold text-primary">+84% Proficiency</p>
+                <p className="text-2xl font-semibold text-primary">+78% Proficiency <span className="text-sm font-medium text-on-surface">(As tested)</span></p>
               </div>
             </div>
             <div className="w-full bg-outline-variant/30 h-2 rounded-full overflow-hidden">
-              <div className="bg-primary h-full w-[84%] rounded-full shadow-[0_0_8px_rgba(0,97,167,0.4)]" />
+              <div className="bg-primary h-full w-[78%] rounded-full shadow-[0_0_8px_rgba(0,97,167,0.4)]" />
             </div>
           </div>
         </div>

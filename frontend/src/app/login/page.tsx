@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="relative z-10 glass-panel p-8 rounded-xl max-w-lg text-white">
           <h1 className="text-3xl font-semibold mb-4">Master Tomorrow&apos;s Skills Today</h1>
           <p className="text-lg opacity-90 mb-8">
-            Join over 2 million learners worldwide and accelerate your momentum with AuraLearn&apos;s AI-powered
+            Join over 10 learners worldwide and accelerate your momentum with AuraLearn&apos;s AI-powered
             education engine.
           </p>
           <div className="flex items-center gap-4">
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 </div>
               ))}
             </div>
-            <span className="text-sm font-medium">+14k joined this week</span>
+            <span className="text-sm font-medium">+10 joined this week</span>
           </div>
         </div>
         <div className="absolute bottom-8 left-8 z-10">

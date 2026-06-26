@@ -250,9 +250,21 @@ export default function AdminPage() {
 
     try {
       setEditLoading(true);
+      const { id, ...courseDataToSend } = editFormData;
+      // Ensure all required fields are present
+      const payload = {
+        title: courseDataToSend.title || "",
+        description: courseDataToSend.description || "",
+        difficulty: courseDataToSend.difficulty || "Beginner",
+        duration_hours: courseDataToSend.duration_hours || 0,
+        category: courseDataToSend.category || "",
+        thumbnail_url: courseDataToSend.thumbnail_url || "",
+        modules: courseDataToSend.modules || []
+      };
+      console.log("Sending course update:", payload);
       const response = await apiCall<any>(`/api/admin/courses/${editModal.courseId}`, {
         method: "PUT",
-        body: JSON.stringify(editFormData),
+        body: JSON.stringify(payload),
       });
 
       if (response && response.status) {

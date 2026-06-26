@@ -5,7 +5,7 @@ from app.database import get_db
 from app.models.course import Course
 from app.models.lesson import Lesson
 from app.models.module import Module
-from app.models.quiz import Quiz
+from app.models.quiz import Quiz, QuizQuestion, QuestionOption
 from app.models.user_course import UserCourse
 from app.schemas.course_schemas import CourseGenerateRequest, FeaturedCourse
 from typing import List, Dict, Any
@@ -176,6 +176,45 @@ def get_course_preview(course_id: int, db: Session = Depends(get_db)):
             Quiz.module_id == module.id
         ).order_by(Quiz.order).all()
 
+        # Build quiz structures with questions
+        quizzes_data = []
+        print(f"DEBUG preview: Module '{module.title}' has {len(module_quizzes)} quizzes")
+        for quiz in module_quizzes:
+            quiz_questions = db.query(QuizQuestion).filter(
+                QuizQuestion.quiz_id == quiz.id
+            ).all()
+
+            print(f"DEBUG preview: Quiz '{quiz.title}' (ID: {quiz.id}) has {len(quiz_questions)} questions")
+
+            # Skip quizzes with no questions
+            if not quiz_questions:
+                print(f"DEBUG preview: Skipping quiz {quiz.id} - no questions")
+                continue
+
+            questions_data = []
+            for q in quiz_questions:
+                options_data = db.query(QuestionOption).filter(
+                    QuestionOption.question_id == q.id
+                ).all()
+
+                questions_data.append({
+                    "id": str(q.id),
+                    "question": q.question_text,
+                    "explanation": q.explanation or "",
+                    "options": [opt.text for opt in options_data],
+                    "correctIndex": next((i for i, opt in enumerate(options_data) if opt.is_correct), 0),
+                })
+
+            quizzes_data.append({
+                "id": quiz.id,
+                "title": quiz.title,
+                "description": quiz.description,
+                "passing_score": quiz.passing_score,
+                "total_points": quiz.total_points,
+                "question_count": len(questions_data),
+                "questions": questions_data,
+            })
+
         modules.append({
             "title": module.title,
             "description": module.description or f"Learn {module.title.lower()}",
@@ -189,17 +228,7 @@ def get_course_preview(course_id: int, db: Session = Depends(get_db)):
                 }
                 for lesson in module_lessons
             ],
-            "quizzes": [
-                {
-                    "id": quiz.id,
-                    "title": quiz.title,
-                    "description": quiz.description,
-                    "passing_score": quiz.passing_score,
-                    "total_points": quiz.total_points,
-                    "question_count": len(quiz.questions),
-                }
-                for quiz in module_quizzes
-            ],
+            "quizzes": quizzes_data,
         })
 
     return {

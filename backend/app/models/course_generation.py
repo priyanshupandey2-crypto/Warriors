@@ -58,7 +58,8 @@ class CourseGeneration(Base):
     # Generation Pipeline Status
     status = Column(String(50), default="pending", nullable=False, index=True)
     # Values: pending (awaiting AI generation), generating (in progress),
-    #         generated (ready for review), published (approved by admin),
+    #         generated (AI generated, awaiting user review), user_review (user reviewing/editing),
+    #         user_submitted (awaiting admin approval), published (approved by admin),
     #         failed (generation error)
 
     # Generated Course Data
@@ -74,9 +75,26 @@ class CourseGeneration(Base):
     # Error Tracking
     error_message = Column(Text, nullable=True)
 
+    # Queue Processing (for workflow: pending -> generating -> generated -> published/rejected)
+    retry_count = Column(Integer, default=0)
+    last_error = Column(Text, nullable=True)
+    next_retry_at = Column(DateTime, nullable=True)
+    attempt_number = Column(Integer, default=1)
+    max_attempts = Column(Integer, default=3)
+
+    # User Review & Editing
+    user_submitted_at = Column(DateTime, nullable=True)
+    user_feedback = Column(Text, nullable=True)
+
+    # Admin Review
+    approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    approved_at = Column(DateTime, nullable=True)
+    reviewed_feedback = Column(Text, nullable=True)
+
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
     created_course = relationship("Course", foreign_keys=[created_course_id])
+    admin = relationship("User", foreign_keys=[approved_by])
 
     # Index for common queries
     __table_args__ = (

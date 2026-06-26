@@ -124,9 +124,9 @@ export default function QuizInterface({ quizId, courseId, onComplete }: QuizInte
           setTimeout(() => onComplete(true), 2000);
         }
       }
-    } catch (error) {
-      console.error("Failed to submit quiz:", error);
-      showToast("Failed to submit quiz", "error");
+    } catch (error: any) {
+      const errorMessage = error?.message || error?.detail || "Failed to submit quiz";
+      showToast(errorMessage, "error");
     } finally {
       setSubmitting(false);
     }
