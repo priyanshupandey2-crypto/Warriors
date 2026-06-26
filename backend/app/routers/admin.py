@@ -1034,6 +1034,30 @@ def review_submission(
                             order=1
                         )
                         db.add(quiz)
+                        db.flush()
+
+                        # Add questions to quiz
+                        from app.models.quiz import QuizQuestion, QuestionOption
+                        for q_idx, question_data in enumerate(quiz_data.get("questions", [])):
+                            question = QuizQuestion(
+                                quiz_id=quiz.id,
+                                question_text=question_data.get("question", ""),
+                                explanation=question_data.get("explanation", ""),
+                                question_type="multiple_choice",
+                                difficulty="medium"
+                            )
+                            db.add(question)
+                            db.flush()
+
+                            # Add options for this question
+                            for opt_idx, option_text in enumerate(question_data.get("options", [])):
+                                is_correct = (opt_idx == question_data.get("correctIndex", -1))
+                                option = QuestionOption(
+                                    question_id=question.id,
+                                    text=option_text,
+                                    is_correct=is_correct
+                                )
+                                db.add(option)
 
                 generation.status = "published"
                 generation.created_course_id = created_course_id

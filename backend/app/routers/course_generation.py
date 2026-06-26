@@ -70,7 +70,64 @@ def generate_mock_course_data(topic: str, difficulty: str, duration: str, tags: 
                         "description": f"Test your knowledge of {topic} basics",
                         "passing_score": 70,
                         "total_points": 100,
-                        "duration_minutes": 15
+                        "duration_minutes": 15,
+                        "questions": [
+                            {
+                                "question": f"What is the primary purpose of {topic}?",
+                                "options": [
+                                    "To enhance learning and understanding",
+                                    "To provide a structured approach",
+                                    "Both of the above",
+                                    "Neither of the above"
+                                ],
+                                "correctIndex": 2,
+                                "explanation": f"{topic} serves both to enhance learning and provide a structured approach to the subject matter."
+                            },
+                            {
+                                "question": f"Which of these is a key principle of {topic}?",
+                                "options": [
+                                    "Consistency",
+                                    "Clarity",
+                                    "Practical application",
+                                    "All of the above"
+                                ],
+                                "correctIndex": 3,
+                                "explanation": f"All of these are fundamental principles of {topic}."
+                            },
+                            {
+                                "question": f"How would you apply {topic} in a real-world scenario?",
+                                "options": [
+                                    "By following best practices",
+                                    "By adapting to your specific context",
+                                    "By continuous learning and improvement",
+                                    "All of the above"
+                                ],
+                                "correctIndex": 3,
+                                "explanation": f"Effective application of {topic} requires all three approaches combined."
+                            },
+                            {
+                                "question": f"What is the main challenge when learning {topic}?",
+                                "options": [
+                                    "Understanding the theory",
+                                    "Practical implementation",
+                                    "Finding real-world examples",
+                                    "Bridging the gap between theory and practice"
+                                ],
+                                "correctIndex": 3,
+                                "explanation": f"The main challenge is often bridging the gap between understanding the theory and successfully implementing it in practice."
+                            },
+                            {
+                                "question": f"Which statement best describes {topic}?",
+                                "options": [
+                                    "It is only theoretical",
+                                    "It is a practical skill that can be learned and improved",
+                                    "It is not relevant in modern times",
+                                    "It requires no prior knowledge"
+                                ],
+                                "correctIndex": 1,
+                                "explanation": f"{topic} is a practical skill that can be learned, practiced, and continuously improved over time."
+                            }
+                        ]
                     }
                 ]
             }
@@ -314,7 +371,7 @@ def publish_generated_course(
     from app.models.course import Course
     from app.models.module import Module
     from app.models.lesson import Lesson
-    from app.models.quiz import Quiz
+    from app.models.quiz import Quiz, QuizQuestion, QuestionOption
 
     try:
         generation = db.query(CourseGeneration).filter(CourseGeneration.id == generation_id).first()
@@ -337,6 +394,12 @@ def publish_generated_course(
             try:
                 # Parse generated course data
                 course_data = json.loads(generation.generated_course_data)
+                logger.info(f"DEBUG: Parsed course data has {len(course_data.get('modules', []))} modules")
+                if course_data.get('modules'):
+                    first_module = course_data['modules'][0]
+                    logger.info(f"DEBUG: First module has {len(first_module.get('quizzes', []))} quizzes")
+                    if first_module.get('quizzes'):
+                        logger.info(f"DEBUG: First quiz has {len(first_module['quizzes'][0].get('questions', []))} questions")
 
                 # Create the course
                 new_course = Course(
@@ -378,6 +441,8 @@ def publish_generated_course(
 
                     # Add quizzes to module
                     for quiz_data in module_data.get("quizzes", []):
+                        q_count = len(quiz_data.get('questions', []))
+                        logger.info(f"DEBUG publish: Quiz '{quiz_data.get('title', 'N/A')}' from module '{module_data.get('title')}' has {q_count} questions")
                         quiz = Quiz(
                             course_id=new_course.id,
                             module_id=module.id,
@@ -389,6 +454,32 @@ def publish_generated_course(
                             order=1
                         )
                         db.add(quiz)
+                        db.flush()
+
+                        # Add questions to quiz
+                        questions_added = 0
+                        for q_idx, question_data in enumerate(quiz_data.get("questions", [])):
+                            question = QuizQuestion(
+                                quiz_id=quiz.id,
+                                question_text=question_data.get("question", ""),
+                                explanation=question_data.get("explanation", ""),
+                                question_type="multiple_choice",
+                                difficulty="medium"
+                            )
+                            db.add(question)
+                            db.flush()
+                            questions_added += 1
+
+                            # Add options for this question
+                            for opt_idx, option_text in enumerate(question_data.get("options", [])):
+                                is_correct = (opt_idx == question_data.get("correctIndex", -1))
+                                option = QuestionOption(
+                                    question_id=question.id,
+                                    text=option_text,
+                                    is_correct=is_correct
+                                )
+                                db.add(option)
+                        logger.info(f"DEBUG: Added {questions_added} questions to quiz '{quiz.title}' (Quiz ID: {quiz.id})")
 
                 generation.status = "published"
                 generation.created_course_id = created_course_id
@@ -467,6 +558,15 @@ def process_generated_callback(
         generation.status = "generated"
         generation.generation_completed_at = datetime.utcnow()
         generation.generated_course_data = json.dumps(course_data)
+
+        # Debug: Log the course data structure
+        for mod_idx, mod in enumerate(course_data.get('modules', [])):
+            quizzes = mod.get('quizzes', [])
+            logger.info(f"DEBUG callback: Module {mod_idx} '{mod.get('title')}' has {len(quizzes)} quizzes")
+            for quiz_idx, quiz in enumerate(quizzes):
+                questions = quiz.get('questions', [])
+                logger.info(f"  DEBUG: Quiz {quiz_idx} '{quiz.get('title')}' has {len(questions)} questions")
+
         db.commit()
 
         logger.info(f"Course generation {generation_id} completed successfully")
