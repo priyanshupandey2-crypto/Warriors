@@ -1,0 +1,535 @@
+{
+  "meta": {
+    "schemaVersion": "1.0.0",
+    "generatedAt": "2026-06-27T11:21:07.251Z",
+    "models": {
+      "outline": "llama-3.3-70b-versatile",
+      "content": "llama-3.3-70b-versatile",
+      "quizzes": "llama-3.3-70b-versatile",
+      "capstone": "llama-3.3-70b-versatile"
+    },
+    "tavilySources": [
+      "https://interactions.acm.org/archive/view/march-april-2026/a-ux-3.0-paradigm-framework-designing-for-human-centered-ai-experiences",
+      "https://www.figma.com/resource-library/ai-tools-for-ux-designers",
+      "https://aivancity.ai/en/blog/ui-ux-notre-selection-des-meilleurs-outils-ia-generatives-de-2026",
+      "https://www.linkedin.com/posts/cloudbees-technology_uiux-uxdesign-aidesign-activity-7425067637413556224-QvIz"
+    ],
+    "generationDurationMs": 72467
+  },
+  "course": {
+    "title": "AI for UI/UX Design",
+    "subtitle": "Intermediate Course on Human-Centered AI Experiences",
+    "description": "Designing ethical and human-centered UI/UX experiences with AI tools and frameworks",
+    "difficulty": "Intermediate",
+    "estimatedHours": 3,
+    "tags": [
+      "AI Ethics",
+      "UI/UX Design",
+      "Responsible AI",
+      "Human-Computer Interaction"
+    ],
+    "learningOutcomes": [
+      "Design human-centered AI experiences using Figma and Adobe Firefly",
+      "Implement trust and model integrity in AI-powered UI/UX design",
+      "Analyze user trust in AI behavior and address model drift",
+      "Build continuous learning and improvement loops in AI-driven design processes",
+      "Implement AI-powered prompt-to-code generation for efficient design",
+      "Integrate AI design tools with existing design systems",
+      "Evaluate AI market research tools for informed design decisions"
+    ],
+    "modules": [
+      {
+        "id": "m1",
+        "title": "Introduction to Human-Centered AI Design",
+        "description": "Applying software architecture patterns to AI-driven UI/UX design, focusing on trust, model integrity, and continuous improvement",
+        "lessons": [
+          {
+            "id": "m1l1",
+            "title": "UX 3.0 Paradigm Framework",
+            "type": "concept",
+            "content": "## Introduction to UX 3.0 Paradigm Framework\nThe UX 3.0 Paradigm Framework is a human-centered approach to AI design, emphasizing trust, model integrity, and continuous improvement. This framework is crucial for designing ethical and user-friendly AI experiences. \n### Key Components\n* Managing user trust in AI behavior\n* Addressing model drift\n* Facilitating continuous learning and improvement\n* Incorporating ethical considerations\nWhen designing AI-powered systems, it's essential to consider the software architecture patterns that underlie the user interface, much like a well-structured API design facilitates seamless communication between different components of a system. A well-designed AI-powered UI can facilitate seamless interaction between humans and machines, much like a well-designed debugging methodology helps identify and address issues in software development.\n## Real-World Example\nCompanies like Google Labs are already leveraging AI-powered tools like Stitch to turn text prompts, images, and wireframes into UI designs and front-end code. This approach enables designers to focus on high-level creative decisions rather than tedious implementation details.\n## Common Pitfalls\n* Neglecting to address model drift\n* Failing to incorporate ethical considerations\n* Overlooking the importance of user trust in AI behavior\n## Key Takeaways\n* The UX 3.0 Paradigm Framework is a human-centered approach to AI design\n* Managing user trust in AI behavior is crucial for designing ethical and user-friendly AI experiences\n* Continuous learning and improvement are essential for ensuring the long-term success of AI-powered systems",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m1l2",
+            "title": "Managing User Trust in AI Behavior",
+            "type": "hands-on",
+            "content": "## Managing User Trust in AI Behavior\nManaging user trust in AI behavior is a critical component of the UX 3.0 Paradigm Framework. This involves designing AI-powered systems that are transparent, explainable, and fair. \n### Strategies for Building Trust\n* Providing clear explanations of AI decision-making processes\n* Offering transparent and accessible AI-powered features\n* Ensuring that AI systems are fair and unbiased\nWhen designing AI-powered systems, it's essential to consider the debugging methodology that will be used to identify and address issues, similar to how a well-designed API is used to debug and test software applications. A well-designed AI-powered system can help designers identify and address issues related to user trust, much like a well-structured software architecture pattern facilitates scalability and maintainability.\n## Real-World Example\nTools like Figma Make and Prompt-to-code generation can help designers create AI-powered systems that are transparent and explainable. For example, Figma Make allows designers to create custom plugins that can be used to generate AI-powered designs.\n## Code Examples\n```python\nimport figma\nfrom figma import Plugin\n\n# Create a custom plugin using Figma Make\nclass AI_Powered_Design(Plugin):\n    def __init__(self):\n        super().__init__()\n\n    def run(self):\n        # Use AI-powered design tools to generate designs\n        design = self.generate_design()\n        return design\n\n# Use the custom plugin to generate AI-powered designs\nplugin = AI_Powered_Design()\ndesign = plugin.run()\n```\n## Common Pitfalls\n* Failing to provide clear explanations of AI decision-making processes\n* Neglecting to ensure that AI systems are fair and unbiased\n* Overlooking the importance of transparency in AI-powered features\n## Key Takeaways\n* Managing user trust in AI behavior is critical for designing ethical and user-friendly AI experiences\n* Providing clear explanations of AI decision-making processes is essential for building trust\n* Ensuring that AI systems are fair and unbiased is crucial for maintaining trust",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m1l3",
+            "title": "Case Study: AI-Powered Design Systems",
+            "type": "case-study",
+            "content": "## Case Study: AI-Powered Design Systems\nAI-powered design systems are revolutionizing the way designers create and interact with digital products. \n### Overview of AI-Powered Design Systems\n* Using AI-powered tools to generate designs and front-end code\n* Leveraging machine learning algorithms to improve design quality and efficiency\n* Integrating AI-powered design systems with existing design workflows\nWhen designing AI-powered design systems, it's essential to consider the software architecture patterns that underlie the system, much like a well-designed microservices architecture facilitates scalability and flexibility. A well-designed AI-powered design system can facilitate efficiency and creativity, similar to how a well-structured API design enables seamless communication between different components of a system.\n## Real-World Example\nCompanies like Google Labs are already using AI-powered design systems to create innovative digital products. For example, the Stitch tool uses AI-powered algorithms to turn text prompts, images, and wireframes into UI designs and front-end code.\n## Code Examples\n```python\nimport stitch\nfrom stitch import DesignSystem\n\ndesign_system = DesignSystem()\n\ndesign = design_system.generate_design(prompt=\"Create a login screen\")\n```\n## Common Pitfalls\n* Failing to integrate AI-powered design systems with existing design workflows\n* Neglecting to ensure that AI-powered design systems are transparent and explainable\n* Overlooking the importance of continuous learning and improvement in AI-powered design systems\n## Key Takeaways\n* AI-powered design systems are revolutionizing the way designers create and interact with digital products\n* Using AI-powered tools to generate designs and front-end code can facilitate efficiency and creativity\n* Integrating AI-powered design systems with existing design workflows is crucial for ensuring success",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m1",
+          "questions": [
+            {
+              "question": "What is the primary focus of the UX 3.0 Paradigm Framework in AI design?",
+              "options": [
+                "Improving model accuracy",
+                "Emphasizing trust, model integrity, and continuous improvement",
+                "Enhancing user experience through aesthetics",
+                "Increasing efficiency in design processes"
+              ],
+              "correctIndex": 1,
+              "explanation": "The UX 3.0 Paradigm Framework is a human-centered approach to AI design, emphasizing trust, model integrity, and continuous improvement, as stated in the Introduction to UX 3.0 Paradigm Framework lesson."
+            },
+            {
+              "question": "How can AI-powered systems facilitate seamless interaction between humans and machines?",
+              "options": [
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the user interface",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
+              ],
+              "correctIndex": 1,
+              "explanation": "A well-designed AI-powered UI can facilitate seamless interaction between humans and machines, much like a well-designed debugging methodology helps identify and address issues in software development, as mentioned in the Introduction to UX 3.0 Paradigm Framework lesson."
+            },
+            {
+              "question": "What is a key component of managing user trust in AI behavior?",
+              "options": [
+                "Providing unclear explanations of AI decision-making processes",
+                "Offering opaque and inaccessible AI-powered features",
+                "Ensuring that AI systems are fair and unbiased",
+                "Ignoring user feedback"
+              ],
+              "correctIndex": 2,
+              "explanation": "Managing user trust in AI behavior involves designing AI-powered systems that are transparent, explainable, and fair, as stated in the Managing User Trust in AI Behavior lesson."
+            },
+            {
+              "question": "What tool can help designers create AI-powered systems that are transparent and explainable?",
+              "options": [
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
+              ],
+              "correctIndex": 0,
+              "explanation": "Tools like Figma Make and Prompt-to-code generation can help designers create AI-powered systems that are transparent and explainable, as mentioned in the Managing User Trust in AI Behavior lesson and the Case Study: AI-Powered Design Systems lesson."
+            }
+          ]
+        }
+      },
+      {
+        "id": "m2",
+        "title": "AI Tools for UX Designers",
+        "description": "Exploring Top AI tools, Figma Make, and Prompt-to-code generation for efficient design processes",
+        "lessons": [
+          {
+            "id": "m2l1",
+            "title": "Introduction to Figma Make and Prompt-to-code",
+            "type": "concept",
+            "content": "## Introduction to Figma Make and Prompt-to-code\nFigma Make and Prompt-to-code are essential tools for UX designers, enabling the creation of interactive prototypes and accelerating the design process. *API design principles* can be applied to understand how these tools integrate with existing workflows, much like designing a well-structured API endpoint. By leveraging Figma Make, designers can create custom workflows, while Prompt-to-code generation simplifies the transition from design to development.\n## Real-World Example\nTop AI tools like Figma Make are being adopted by companies to streamline their design processes. For instance, designers can use Figma Make to create custom workflows that automate repetitive tasks, freeing up time to focus on high-level creative decisions.\n## Code Examples\nNo code is required for this introductory lesson, but understanding the basics of API design and workflow integration is crucial for effective utilization of Figma Make and Prompt-to-code.\n## Common Pitfalls\n* Insufficient understanding of workflow design principles\n* Inadequate integration with existing design tools\n* Overreliance on automated prompt-to-code generation without human oversight\n## Key Takeaways\n* Figma Make enables custom workflow creation\n* Prompt-to-code generation accelerates design-to-development transition\n* Understanding API design principles is essential for effective tool integration",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m2l2",
+            "title": "Hands-on with AI-Powered Prompt-to-code Generation",
+            "type": "hands-on",
+            "content": "## Hands-on with AI-Powered Prompt-to-code Generation\nAI-powered prompt-to-code generation is a game-changer for UX designers, allowing for rapid prototyping and development. By applying *debugging methodology*, designers can identify and resolve issues in their prompt-to-code workflows, ensuring seamless execution. This hands-on lesson will guide you through the process of using AI-powered prompt-to-code generation tools like Figma Make.\n## Real-World Example\nCompanies like Google Labs are developing tools like Stitch, which turns text prompts, images, and wireframes into UI designs and front-end code. This technology has the potential to revolutionize the design process, making it faster and more efficient.\n## Code Examples\n```python\n# Import necessary libraries\nimport figma\n\n# Initialize Figma API\nfigma_api = figma.FigmaAPI()\n\n# Define a custom workflow using Figma Make\nworkflow = figma_api.create_workflow('My Custom Workflow')\n\n# Use prompt-to-code generation to create a UI component\ncomponent = figma_api.generate_component('Button', 'My Button')\n```\n## Common Pitfalls\n* Inadequate testing of prompt-to-code generated code\n* Insufficient understanding of AI-powered prompt-to-code generation limitations\n* Overreliance on automated tools without human review\n## Key Takeaways\n* AI-powered prompt-to-code generation accelerates design-to-development transition\n* Custom workflows can be created using Figma Make\n* Understanding debugging methodology is essential for resolving prompt-to-code issues",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m2l3",
+            "title": "Designing with Advanced Editing Tools",
+            "type": "hands-on",
+            "content": "## Designing with Advanced Editing Tools\nAdvanced editing tools like those found in Figma Make enable designers to refine their prototypes and create high-fidelity designs. By applying *software architecture patterns*, designers can create scalable and maintainable designs, much like designing a robust software system. This hands-on lesson will explore the advanced editing tools available in Figma Make and how to effectively utilize them.\n## Real-World Example\nDesigners at top companies are using advanced editing tools to create complex, interactive prototypes. For instance, a designer can use Figma Make to create a custom workflow that automates the creation of design systems, ensuring consistency across the entire product.\n## Code Examples\n```python\n# Import necessary libraries\nimport figma\n\n# Initialize Figma API\nfigma_api = figma.FigmaAPI()\n\n# Define a custom design system using Figma Make\ndesign_system = figma_api.create_design_system('My Design System')\n\n# Use advanced editing tools to refine the design system\nrefined_design_system = figma_api.refine_design_system(design_system)\n```\n## Common Pitfalls\n* Insufficient understanding of design system principles\n* Inadequate use of advanced editing tools\n* Overreliance on automated design tools without human oversight\n## Key Takeaways\n* Advanced editing tools enable refinement of high-fidelity designs\n* Custom design systems can be created using Figma Make\n* Understanding software architecture patterns is essential for creating scalable designs",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m2",
+          "questions": [
+            {
+              "question": "What is the primary benefit of using Figma Make and Prompt-to-code generation in UX design?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Accelerated design process and creation of interactive prototypes",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Figma Make and Prompt-to-code generation enable the creation of interactive prototypes and accelerate the design process, as stated in the Introduction to Figma Make and Prompt-to-code lesson."
+            },
+            {
+              "question": "What is a common pitfall when using AI-powered prompt-to-code generation?",
+              "options": [
+                "Insufficient understanding of workflow design principles",
+                "Inadequate integration with existing design tools",
+                "Overreliance on automated prompt-to-code generation without human oversight",
+                "All of the above"
+              ],
+              "correctIndex": 3,
+              "explanation": "Common pitfalls when using AI-powered prompt-to-code generation include insufficient understanding of workflow design principles, inadequate integration with existing design tools, and overreliance on automated prompt-to-code generation without human oversight, as mentioned in the Introduction to Figma Make and Prompt-to-code lesson and the Hands-on with AI-Powered Prompt-to-code Generation lesson."
+            },
+            {
+              "question": "How can designers effectively utilize advanced editing tools in Figma Make?",
+              "options": [
+                "By applying software architecture patterns",
+                "By ignoring design system principles",
+                "By focusing solely on user experience",
+                "By using only basic editing tools"
+              ],
+              "correctIndex": 0,
+              "explanation": "Advanced editing tools like those found in Figma Make enable designers to refine their prototypes and create high-fidelity designs, and designers can effectively utilize these tools by applying software architecture patterns, as stated in the Designing with Advanced Editing Tools lesson."
+            },
+            {
+              "question": "What is the benefit of using advanced editing tools in Figma Make?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of complex, interactive prototypes",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Designers at top companies are using advanced editing tools to create complex, interactive prototypes, as mentioned in the Designing with Advanced Editing Tools lesson."
+            }
+          ]
+        }
+      },
+      {
+        "id": "m3",
+        "title": "AI-Powered Design and Prototyping",
+        "description": "Using Stitch and other AI design tools for rapid prototyping and design",
+        "lessons": [
+          {
+            "id": "m3l1",
+            "title": "Introduction to Stitch and AI Design Tools",
+            "type": "concept",
+            "content": "## Introduction to Stitch and AI Design Tools\nDesigning user interfaces with AI-powered tools has become an essential part of the UI/UX design process. Just like software architecture patterns provide a foundation for building robust applications, AI design tools offer a framework for creating efficient and human-centered designs. \n### Key Concepts\n* **Trust**: Building trust in AI behavior is crucial for user adoption and satisfaction.\n* **Model Integrity**: Ensuring the integrity of AI models is vital for maintaining design consistency and accuracy.\n* **Continuous Improvement**: AI design tools facilitate continuous learning and improvement, enabling designers to refine their designs based on user feedback and testing results.\n### Real-World Example\nFigma Make and Prompt-to-code generation are examples of AI-powered design tools that enable designers to create interactive prototypes and generate front-end code. \n### Code Examples\nWhile code is not directly applicable to this conceptual lesson, designers can explore Figma's API and plugin ecosystem to extend the capabilities of their AI-powered design tools.\n### Common Pitfalls\n* Overreliance on AI-generated designs without human oversight\n* Insufficient testing and validation of AI-driven design systems\n* Failure to address model drift and ensure continuous improvement\n### Key Takeaways\n* AI design tools can accelerate the design process and improve design quality\n* Human-centered design principles and ethical considerations are essential for AI-driven design\n* Continuous learning and improvement are critical for maintaining the integrity of AI design systems",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m3l2",
+            "title": "Prototyping with AI-Powered Design Tools",
+            "type": "hands-on",
+            "content": "## Prototyping with AI-Powered Design Tools\nPrototyping is a critical stage of the UI/UX design process, and AI-powered design tools can significantly enhance this stage. By leveraging tools like Stitch, designers can turn text prompts, images, and wireframes into interactive UI designs and front-end code. \n### Designing with AI\n* **API Design**: AI-powered design tools can be thought of as APIs that provide a programmatic interface for designing and prototyping UI components.\n* **Debugging Methodology**: Designers can apply debugging methodologies to identify and fix issues in their AI-driven design systems.\n### Real-World Example\nGoogle Labs' Stitch is a powerful tool for prototyping with AI-powered design. By providing a simple and intuitive interface, Stitch enables designers to create complex UI designs and generate functional front-end code.\n### Code Examples\n```python\nimport requests\n\n# Example API call to Stitch\nresponse = requests.post('https://stitch.googleapis.com/v1/design', json={\n    'prompt': 'Create a login screen with a username and password field',\n    'style': 'material design'\n})\n\nSimilar to how version control systems like Git manage different versions of code, AI-powered design and prototyping tools can manage different versions of design iterations.\n\n# Process the response and generate front-end code\nif response.status_code == 200:\n    design_data = response.json()\n    # Generate front-end code using the design data\n    print('Front-end code generated successfully')\nelse:\n    print('Error generating design')\n```\n### Common Pitfalls\n* Inadequate testing and validation of AI-generated prototypes\n* Insufficient consideration of design principles and human-centered design\n* Overreliance on AI-powered design tools without human oversight\n### Key Takeaways\n* AI-powered design tools can significantly accelerate the prototyping process\n* Designers should apply software architecture patterns and API design principles to their AI-driven design systems\n* Continuous testing and validation are crucial for ensuring the quality and integrity of AI-generated prototypes",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m3l3",
+            "title": "Case Study: AI-Driven Design Systems Integration",
+            "type": "case-study",
+            "content": "## Case Study: AI-Driven Design Systems Integration\nIntegrating AI-driven design systems can have a significant impact on the efficiency and effectiveness of the UI/UX design process. By leveraging tools like Figma Make and Prompt-to-code generation, designers can create seamless and consistent design experiences. \n### Design Systems Integration\n* **Advanced Editing Tools**: AI-powered design tools provide advanced editing capabilities that enable designers to refine and iterate on their designs quickly.\n* **Design System Integration**: AI-driven design systems can be integrated with existing design workflows and tools, enabling designers to work more efficiently and effectively.\n### Real-World Example\nTop AI tools for UX designers, such as Figma Make and Prompt-to-code generation, enable designers to create interactive prototypes and generate front-end code. By integrating these tools into their design workflows, designers can streamline their design processes and improve design quality.\n### Code Examples\nWhile code is not directly applicable to this case study, designers can explore the Figma API and plugin ecosystem to extend the capabilities of their AI-powered design tools.\n### Common Pitfalls\n* Inadequate consideration of design principles and human-centered design\n* Insufficient testing and validation of AI-driven design systems\n* Overreliance on AI-powered design tools without human oversight\n### Key Takeaways\n* AI-driven design systems can significantly improve design efficiency and effectiveness\n* Designers should apply software architecture patterns and API design principles to their AI-driven design systems\n* Continuous testing and validation are crucial for ensuring the quality and integrity of AI-driven design systems",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m3",
+          "questions": [
+            {
+              "question": "What is the primary focus of AI-powered design and prototyping?",
+              "options": [
+                "Improving model accuracy",
+                "Enhancing user experience through aesthetics",
+                "Designing user interfaces with AI-powered tools",
+                "Increasing efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Designing user interfaces with AI-powered tools has become an essential part of the UI/UX design process, as stated in the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "What tool is used to turn text prompts, images, and wireframes into UI designs and front-end code?",
+              "options": [
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
+              ],
+              "correctIndex": 1,
+              "explanation": "The Stitch tool uses AI-powered algorithms to turn text prompts, images, and wireframes into UI designs and front-end code, as mentioned in the Case Study: AI-Powered Design Systems lesson and the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "How can AI-powered design systems facilitate efficiency and creativity in design?",
+              "options": [
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the system",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
+              ],
+              "correctIndex": 1,
+              "explanation": "A well-designed AI-powered design system can facilitate efficiency and creativity, similar to how a well-structured API design enables seamless communication between different components of a system, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            },
+            {
+              "question": "What is the benefit of using AI-powered design systems?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of innovative digital products",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Companies like Google Labs are already using AI-powered design systems to create innovative digital products, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            }
+          ]
+        }
+      },
+      {
+        "id": "m4",
+        "title": "Responsible AI in UI/UX Design",
+        "description": "Incorporating ethical considerations and responsible AI practices in UI/UX design",
+        "lessons": [
+          {
+            "id": "m4l1",
+            "title": "Ethics in AI-Driven Design",
+            "type": "concept",
+            "content": "## Introduction to Ethics in AI-Driven Design\nEthics in AI-driven design is crucial for creating human-centered experiences. Similar to software architecture patterns, where separation of concerns and modularity are key, AI design must prioritize transparency, accountability, and fairness. \n### Key Principles\n* **Trust**: Managing user trust in AI behavior\n* **Model Integrity**: Ensuring AI models are reliable and unbiased\n* **Continuous Improvement**: Facilitating ongoing learning and enhancement\n* **Ethical Considerations**: Incorporating ethical principles into design decisions\n\n## Real-World Example\nFigma, a leading design tool, incorporates AI-powered features like Prompt-to-code generation and Advanced editing tools, emphasizing the need for ethical AI design.\n\n## Code Examples\nNo code is necessary for this concept-focused lesson.\n\n## Common Pitfalls\n* Ignoring model drift and bias\n* Failing to prioritize user trust and transparency\n* Neglecting continuous improvement and feedback loops\n\n## Key Takeaways\n* Ethics is a critical aspect of AI-driven design\n* Key principles include trust, model integrity, continuous improvement, and ethical considerations\n* Designers must prioritize human-centered experiences and transparency",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m4l2",
+            "title": "Addressing Model Drift and Bias",
+            "type": "hands-on",
+            "content": "## Addressing Model Drift and Bias\nModel drift and bias are significant challenges in AI-driven design. Debugging methodology, similar to identifying and fixing bugs in software code, is essential for detecting and addressing these issues. \n### Strategies for Mitigation\n* **Data Quality**: Ensuring diverse, representative, and high-quality training data\n* **Model Monitoring**: Continuously evaluating AI model performance and identifying potential biases\n* **Human Oversight**: Implementing human review and feedback processes to detect and correct errors\n\n## Real-World Example\nStitch, a tool from Google Labs, uses AI to turn text prompts, images, and wireframes into UI designs and front-end code, highlighting the need for careful model training and testing to avoid bias.\n\n## Code Examples\n```python\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.ensemble import RandomForestClassifier\n\n# Example: splitting data into training and testing sets\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Training a model and evaluating its performance\nmodel = RandomForestClassifier()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\nprint('Model Accuracy:', accuracy_score(y_test, y_pred))\n```\n\n## Common Pitfalls\n* Failing to monitor model performance and identify biases\n* Neglecting data quality and diversity\n* Insufficient human oversight and feedback\n\n## Key Takeaways\n* Model drift and bias are critical issues in AI-driven design\n* Strategies for mitigation include data quality, model monitoring, and human oversight\n* Continuous evaluation and improvement are essential for ensuring reliable AI models",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m4l3",
+            "title": "Case Study: Implementing Responsible AI in Design",
+            "type": "case-study",
+            "content": "## Case Study: Implementing Responsible AI in Design\nImplementing responsible AI in design requires a thorough understanding of AI-driven design principles and ethical considerations. API design, similar to designing intuitive and user-friendly APIs, is crucial for creating seamless interactions between humans and AI systems. \n### Case Study Overview\nA design team at a leading tech company aimed to create an AI-powered UI/UX design tool. They prioritized transparency, accountability, and fairness, ensuring that their AI model was reliable, unbiased, and continuously improving.\n\n## Real-World Example\nTop AI tools for UX designers, such as Figma Make and Prompt-to-code generation, demonstrate the potential of AI in design. The team used these tools to create a design system that incorporated AI-powered features while maintaining a human-centered approach.\n\n## Code Examples\nNo code is necessary for this case-study-focused lesson.\n\n## Common Pitfalls\n* Failing to prioritize transparency and accountability\n* Neglecting human-centered design principles\n* Insufficient testing and evaluation of AI models\n\n## Key Takeaways\n* Implementing responsible AI in design requires a thorough understanding of AI-driven design principles and ethical considerations\n* API design and intuitive interactions are crucial for creating seamless human-AI interactions\n* Prioritizing transparency, accountability, and fairness is essential for ensuring reliable and unbiased AI models",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m4",
+          "questions": [
+            {
+              "question": "What is the primary focus of AI-powered design and prototyping in the context of UI/UX design?",
+              "options": [
+                "Improving model accuracy",
+                "Enhancing user experience through aesthetics",
+                "Designing user interfaces with AI-powered tools",
+                "Increasing efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Designing user interfaces with AI-powered tools has become an essential part of the UI/UX design process, as stated in the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "What tool is used to create custom workflows and automate repetitive tasks in UX design?",
+              "options": [
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
+              ],
+              "correctIndex": 0,
+              "explanation": "Figma Make enables designers to create custom workflows and automate repetitive tasks, as mentioned in the Introduction to Figma Make and Prompt-to-code lesson."
+            },
+            {
+              "question": "How can AI-powered design systems facilitate seamless interaction between humans and machines?",
+              "options": [
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the system",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
+              ],
+              "correctIndex": 1,
+              "explanation": "A well-designed AI-powered design system can facilitate seamless interaction between humans and machines, similar to how a well-structured API design enables seamless communication between different components of a system, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            },
+            {
+              "question": "What is the benefit of using AI-powered design systems in UI/UX design?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of innovative digital products",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Companies like Google Labs are already using AI-powered design systems to create innovative digital products, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            }
+          ]
+        }
+      },
+      {
+        "id": "m5",
+        "title": "Advanced AI-Driven Design Workflows",
+        "description": "Using Workflow design tools and AI-powered design systems for efficient and human-centered design",
+        "lessons": [
+          {
+            "id": "m5l1",
+            "title": "Introduction to Advanced Design Workflows",
+            "type": "concept",
+            "content": "## Introduction to Advanced Design Workflows\nAdvanced design workflows in UI/UX leverage AI to streamline the design process, much like how software architecture patterns optimize system performance. By integrating AI-powered tools, designers can focus on high-level creative decisions, similar to how API design enables modular and reusable code. \n### Key Concepts\n* **Human-centered design**: prioritizing user needs and trust in AI-driven design decisions\n* **Continuous improvement**: regularly updating and refining AI models to ensure accuracy and relevance\n* **Ethical considerations**: addressing potential biases and ensuring transparency in AI-driven design processes\n\n## Real-World Example\nTop AI tools like Figma Make and Prompt-to-code generation enable designers to create interactive prototypes and test designs quickly, much like debugging methodology helps identify and fix issues in software development.\n\n## Common Pitfalls\n* Overreliance on AI-generated designs without human oversight\n* Insufficient testing and validation of AI-driven design decisions\n* Failure to consider ethical implications of AI-driven design\n\n## Key Takeaways\n* AI-powered design workflows can enhance efficiency and creativity in UI/UX design\n* Human-centered design principles are crucial in ensuring user trust and satisfaction\n* Continuous improvement and ethical considerations are essential for successful AI-driven design workflows",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m5l2",
+            "title": "Implementing AI-Powered Design Systems",
+            "type": "hands-on",
+            "content": "## Implementing AI-Powered Design Systems\nImplementing AI-powered design systems involves integrating tools like Stitch, which turns text prompts, images, and wireframes into UI designs and front-end code, much like how software architecture patterns provide a foundation for scalable and maintainable systems. \n### Design Workflow\n1. **Define design goals and objectives**: establish clear requirements and constraints for the AI-powered design system\n2. **Select AI-powered design tools**: choose tools that align with design goals and objectives, such as Figma Make or Prompt-to-code generation\n3. **Integrate AI-powered design tools**: incorporate AI-powered design tools into the design workflow, ensuring seamless interaction and feedback\n\n## Real-World Example\nCompanies like Google Labs are developing AI-powered design tools like Stitch, which enables designers to create interactive prototypes and test designs quickly.\n\n## Code Examples\n```python\nfrom prompt_to_code import generate_code\nfrom figma_make import create_prototype\n\n# Define design goals and objectives\ndesign_goals = {\n    'objective': 'create interactive prototype',\n    'constraints': ['responsive design', 'accessible']\n}\n\n# Select AI-powered design tools\nai_tool = 'figma_make'\n\n# Integrate AI-powered design tools\nprototype = create_prototype(design_goals, ai_tool)\ncode = generate_code(prototype)\n\nprint(code)\n```\n\n## Common Pitfalls\n* Insufficient testing and validation of AI-generated code\n* Failure to consider design constraints and objectives\n* Overreliance on AI-powered design tools without human oversight\n\n## Key Takeaways\n* AI-powered design systems can enhance efficiency and creativity in UI/UX design\n* Clear design goals and objectives are crucial for successful AI-powered design systems\n* Integration of AI-powered design tools requires careful consideration of design constraints and objectives",
+            "estimatedReadMinutes": 10
+          },
+          {
+            "id": "m5l3",
+            "title": "Case Study: Optimizing Design Workflows with AI",
+            "type": "case-study",
+            "content": "## Case Study: Optimizing Design Workflows with AI\nA case study on optimizing design workflows with AI involves analyzing the design process and identifying areas where AI can enhance efficiency and creativity, much like how debugging methodology helps identify and fix issues in software development. \n### Case Study Overview\n* **Company**: a leading software development company\n* **Design Challenge**: creating interactive prototypes and testing designs quickly\n* **AI Solution**: implementing AI-powered design tools like Figma Make and Prompt-to-code generation\n\n## Real-World Example\nThe company implemented AI-powered design tools and saw a significant reduction in design time and an increase in design quality, similar to how software architecture patterns can improve system performance.\n\n## Common Pitfalls\n* Insufficient training data for AI-powered design tools\n* Failure to consider ethical implications of AI-driven design decisions\n* Overreliance on AI-powered design tools without human oversight\n\n## Key Takeaways\n* AI-powered design workflows can enhance efficiency and creativity in UI/UX design\n* Clear design goals and objectives are crucial for successful AI-powered design systems\n* Continuous improvement and ethical considerations are essential for successful AI-driven design workflows",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m5",
+          "questions": [
+            {
+              "question": "What is the primary focus of AI-powered design and prototyping in the context of UI/UX design?",
+              "options": [
+                "Improving model accuracy",
+                "Enhancing user experience through aesthetics",
+                "Designing user interfaces with AI-powered tools",
+                "Increasing efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Designing user interfaces with AI-powered tools has become an essential part of the UI/UX design process, as stated in the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "What tool is used to turn text prompts, images, and wireframes into UI designs and front-end code?",
+              "options": [
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
+              ],
+              "correctIndex": 1,
+              "explanation": "The Stitch tool uses AI-powered algorithms to turn text prompts, images, and wireframes into UI designs and front-end code, as mentioned in the Case Study: AI-Powered Design Systems lesson and the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "How can AI-powered design systems facilitate efficiency and creativity in design?",
+              "options": [
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the system",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
+              ],
+              "correctIndex": 1,
+              "explanation": "A well-designed AI-powered design system can facilitate efficiency and creativity, similar to how a well-structured API design enables seamless communication between different components of a system, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            },
+            {
+              "question": "What is the benefit of using AI-powered design systems in UI/UX design?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of innovative digital products",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Companies like Google Labs are already using AI-powered design systems to create innovative digital products, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            }
+          ]
+        }
+      },
+      {
+        "id": "m_org",
+        "title": "Applying AI for UI/UX Design in Velocity AI",
+        "description": "This module explores how Globallogic's Velocity AI platform applies AI concepts to automate enterprise workflows, focusing on Large Language Models and semantic search.",
+        "lessons": [
+          {
+            "id": "m_org_l1",
+            "title": "Introduction to Velocity AI and its Core Architecture",
+            "type": "case-study",
+            "content": "# Introduction to Velocity AI\nVelocity AI is an internal platform designed to accelerate enterprise productivity by combining Large Language Models (LLMs) with specialized agents. It focuses on reducing manual toil in document processing, code reviews, and customer support triage.\n## Core Architecture\nThe system is built on a microservices architecture using FastAPI (Python) and Node.js.\n### Key Components\n1. **Ingestion Engine**: Processes unstructured data (PDFs, emails, Slack messages) and structures it using OCR and weak supervision.\n2. **Semantic Knowledge Graph**: Data is indexed into a vector database (Pinecone) enriched with contextual metadata (Neo4j) to form a knowledge graph.\n3. **Agentic Router**: A lightweight LLM router that classifies user intent and dispatches tasks to specialized agents (e.g., CodeReviewAgent, SupportTriageAgent).\n4. **Execution Sandbox**: A secure Docker-based environment where agents can run Python code or API calls to fulfill complex requests safely.\n## Real-World Applications\n- **Automated RFP Responses**: Velocity AI reduces the time to respond to Request for Proposals (RFPs) from 3 days to 4 hours by instantly pulling relevant answers from past successful bids using semantic search.\n- **Code Review Assistant**: It continuously monitors GitHub PRs and posts contextual feedback regarding performance bottlenecks and security vulnerabilities before human review.",
+            "estimatedReadMinutes": 15
+          },
+          {
+            "id": "m_org_l2",
+            "title": "Key Learnings, Pitfalls, and Tech Stack of Velocity AI",
+            "type": "case-study",
+            "content": "# Key Learnings & Pitfalls\n- **Hallucination Mitigation**: Early versions trusted LLM outputs too heavily. We implemented a \"Verify-Then-Commit\" pattern where the output must pass a deterministic validation step before being served.\n- **Latency**: Chaining too many LLM calls increased response times to over 30 seconds. We optimized this by replacing intermediate LLM calls with classical NLP heuristics or smaller, fine-tuned models.\n## Tech Stack\n- **Models**: Llama-3 (self-hosted for privacy), GPT-4 (for complex logic via API)\n- **Frameworks**: LangChain, LlamaIndex, FastAPI, React\n- **Infrastructure**: Kubernetes, AWS (EKS, RDS, S3), Pinecone\n## Best Practices for Implementation\nWhen implementing a similar platform, consider the trade-offs between model complexity, latency, and hallucination. Implementing a \"Verify-Then-Commit\" pattern and optimizing LLM calls can significantly improve the reliability and performance of the system.",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m_org",
+          "questions": [
+            {
+              "question": "What is the primary goal of the Velocity AI platform?",
+              "options": [
+                "To automate repetitive enterprise workflows",
+                "To improve code review processes",
+                "To enhance customer support",
+                "To develop new AI models"
+              ],
+              "correctIndex": 0,
+              "explanation": "The primary goal of Velocity AI is to accelerate enterprise productivity by automating repetitive workflows using Large Language Models and semantic search."
+            },
+            {
+              "question": "What is the name of the vector database used in Velocity AI's Semantic Knowledge Graph?",
+              "options": [
+                "Pinecone",
+                "Neo4j",
+                "LlamaIndex",
+                "LangChain"
+              ],
+              "correctIndex": 0,
+              "explanation": "Pinecone is the vector database used to index data into a knowledge graph, which is then enriched with contextual metadata from Neo4j."
+            },
+            {
+              "question": "What is the purpose of the Agentic Router in Velocity AI?",
+              "options": [
+                "To classify user intent and dispatch tasks to specialized agents",
+                "To process unstructured data",
+                "To monitor GitHub PRs",
+                "To respond to RFPs"
+              ],
+              "correctIndex": 0,
+              "explanation": "The Agentic Router is a lightweight LLM router that classifies user intent and dispatches tasks to specialized agents, such as the CodeReviewAgent or SupportTriageAgent."
+            },
+            {
+              "question": "What optimization technique was used to reduce latency in Velocity AI?",
+              "options": [
+                "Replacing intermediate LLM calls with classical NLP heuristics",
+                "Increasing the number of LLM calls",
+                "Using smaller models",
+                "Implementing a \"Verify-Then-Commit\" pattern"
+              ],
+              "correctIndex": 0,
+              "explanation": "Replacing intermediate LLM calls with classical NLP heuristics or smaller, fine-tuned models helped optimize latency in Velocity AI."
+            }
+          ]
+        }
+      }
+    ],
+    "capstone": {
+      "title": "AI-Driven UI/UX Design for Trustworthy E-commerce Website",
+      "overview": "Learners will design and develop a human-centered e-commerce website using AI tools, focusing on trust, model integrity, and continuous improvement. The website will incorporate AI-powered design and prototyping, responsible AI practices, and efficient design workflows.",
+      "realWorldRelevance": "This project solves the real-world problem of creating trustworthy and efficient e-commerce websites, which is essential for businesses to establish customer loyalty and increase sales.",
+      "phases": [
+        {
+          "phase": "Phase 1: Human-Centered AI Design",
+          "description": "Design a low-fidelity wireframe of the e-commerce website using Figma, incorporating AI-powered design principles and human-centered design patterns.",
+          "deliverable": "A Figma file with a low-fidelity wireframe of the e-commerce website"
+        },
+        {
+          "phase": "Phase 2: AI-Powered Design and Prototyping",
+          "description": "Use Stitch to generate a UI design from the low-fidelity wireframe, and then use Prompt-to-code generation to create front-end code for the website.",
+          "deliverable": "A working prototype of the e-commerce website with AI-generated UI design and front-end code"
+        },
+        {
+          "phase": "Phase 3: Responsible AI in UI/UX Design",
+          "description": "Incorporate responsible AI practices into the website design, including user trust management, model drift mitigation, and continuous learning and improvement.",
+          "deliverable": "A design document outlining the responsible AI practices implemented in the website design"
+        }
+      ],
+      "techStack": [
+        "Figma",
+        "Stitch",
+        "Prompt-to-code generation"
+      ],
+      "evaluationCriteria": [
+        "Effectiveness of human-centered AI design",
+        "Efficiency of AI-powered design and prototyping",
+        "Implementation of responsible AI practices"
+      ],
+      "stretchGoals": [
+        "Integrate AI-powered A/B testing tools to optimize website design",
+        "Use Workflow design tools to streamline the design process",
+        "Implement AI market research tools to inform design decisions"
+      ]
+    }
+  }
+}
