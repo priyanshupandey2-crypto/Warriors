@@ -15,11 +15,12 @@ const log = logger.child({ component: 'test' });
  * Sample test input for a 1-week Python course
  */
 const SAMPLE_INPUT: UserInput = {
-  topic: 'ethical ai frameworks for UI/UX',
+  topic: ' ai for UI/UX',
   difficulty: 'Intermediate',
   expertiseDomain: 'software engineering',
   learningDuration: '1w',
   tags: ['AI Ethics', 'UI/UX Design', 'Responsible AI', 'Human-Computer Interaction'],
+  organisationName: 'Globallogic',
 };
 
 /**
@@ -94,7 +95,7 @@ async function main(): Promise<void> {
       mod.lessons.forEach((lesson) => {
         const content = mod.quiz?.questions[0] ? '✓' : '?';
         console.log(
-          `    • [${lesson.type.padEnd(10)}] ${lesson.title} (${lesson.content.estimatedReadMinutes}m) ${content}`,
+          `    • [${lesson.type.padEnd(10)}] ${lesson.title} (${lesson.estimatedReadMinutes}m) ${content}`,
         );
       });
       console.log(`  Quiz: ${mod.quiz?.questions?.length ?? 0} questions`);

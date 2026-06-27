@@ -1,6 +1,6 @@
 /**
  * @file stages/stage4_personalizer.ts
- * @description Stage 4 — Personalization patch generation via Gemini 2.0 Flash.
+ * @description Stage 4 — Personalization patch generation via Groq.
  * Does NOT rewrite content. Produces a diff-like patch applied by Stage 5.
  */
 

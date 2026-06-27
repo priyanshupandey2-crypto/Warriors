@@ -1,27 +1,27 @@
 {
   "meta": {
     "schemaVersion": "1.0.0",
-    "generatedAt": "2026-06-24T19:23:30.019Z",
+    "generatedAt": "2026-06-27T11:21:07.251Z",
     "models": {
       "outline": "llama-3.3-70b-versatile",
       "content": "llama-3.3-70b-versatile",
-      "quizzes": "mistral-7b-instruct",
-      "capstone": "mistral-7b-instruct"
+      "quizzes": "llama-3.3-70b-versatile",
+      "capstone": "llama-3.3-70b-versatile"
     },
     "tavilySources": [
-      "https://www.youtube.com/watch?v=ynskISIOZz4",
-      "https://athena-solutions.com/ai-governance-2026-guide-responsible-ethical-ai-success",
-      "https://lumenalta.com/insights/responsible-ai-checklist",
-      "https://dl.acm.org/doi/10.1145/3613905.3650878"
+      "https://interactions.acm.org/archive/view/march-april-2026/a-ux-3.0-paradigm-framework-designing-for-human-centered-ai-experiences",
+      "https://www.figma.com/resource-library/ai-tools-for-ux-designers",
+      "https://aivancity.ai/en/blog/ui-ux-notre-selection-des-meilleurs-outils-ia-generatives-de-2026",
+      "https://www.linkedin.com/posts/cloudbees-technology_uiux-uxdesign-aidesign-activity-7425067637413556224-QvIz"
     ],
-    "generationDurationMs": 91361
+    "generationDurationMs": 72467
   },
   "course": {
-    "title": "Ethical AI Frameworks for UI/UX",
-    "subtitle": "Designing Responsible AI Systems",
-    "description": "This course covers the fundamentals of ethical AI frameworks, emphasizing fairness, transparency, accountability, and trust in AI design and deployment for UI/UX",
+    "title": "AI for UI/UX Design",
+    "subtitle": "Intermediate Course on Human-Centered AI Experiences",
+    "description": "Designing ethical and human-centered UI/UX experiences with AI tools and frameworks",
     "difficulty": "Intermediate",
-    "estimatedHours": 4,
+    "estimatedHours": 3,
     "tags": [
       "AI Ethics",
       "UI/UX Design",
@@ -29,706 +29,506 @@
       "Human-Computer Interaction"
     ],
     "learningOutcomes": [
-      "Design AI systems that prioritize fairness and transparency",
-      "Implement accountability mechanisms in AI decision-making processes",
-      "Build trust in AI systems through robust governance frameworks",
-      "Analyze AI systems for potential biases and develop strategies for mitigation",
-      "Develop a comprehensive understanding of Responsible AI and its applications",
-      "Create a blueprint for AI governance in UI/UX design",
-      "Evaluate the role of ethics in AI development and deployment"
+      "Design human-centered AI experiences using Figma and Adobe Firefly",
+      "Implement trust and model integrity in AI-powered UI/UX design",
+      "Analyze user trust in AI behavior and address model drift",
+      "Build continuous learning and improvement loops in AI-driven design processes",
+      "Implement AI-powered prompt-to-code generation for efficient design",
+      "Integrate AI design tools with existing design systems",
+      "Evaluate AI market research tools for informed design decisions"
     ],
     "modules": [
       {
         "id": "m1",
-        "title": "Introduction to Responsible AI",
-        "description": "This module introduces the core concepts of Responsible AI, including key ethical theories and frameworks that guide decision-making in AI systems, using software architecture patterns as a foundation",
+        "title": "Introduction to Human-Centered AI Design",
+        "description": "Applying software architecture patterns to AI-driven UI/UX design, focusing on trust, model integrity, and continuous improvement",
         "lessons": [
           {
             "id": "m1l1",
-            "title": "Defining Responsible AI",
+            "title": "UX 3.0 Paradigm Framework",
             "type": "concept",
-            "content": {
-              "body": "Defining Responsible AI involves understanding the importance of fairness, transparency, accountability, and trust in AI design and deployment. Just as software architecture patterns prioritize modularity and scalability, Responsible AI frameworks emphasize ethical safeguards to mitigate bias and ensure compliance. This concept is crucial in AI development and deployment, as it ensures that AI systems are aligned with human values and principles.",
-              "realWorldExample": "Eduonix Learning Solutions' video on Responsible AI in Real World Applications",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('data.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)",
-                  "caption": "Data preprocessing for Responsible AI"
-                }
-              ],
-              "commonPitfalls": [
-                "Ignoring bias in AI systems",
-                "Lack of transparency in AI decision-making"
-              ],
-              "keyTakeaways": [
-                "Responsible AI prioritizes ethical safeguards",
-                "Fairness and transparency are crucial in AI development"
-              ],
-              "estimatedReadMinutes": 10
-            }
+            "content": "## Introduction to UX 3.0 Paradigm Framework\nThe UX 3.0 Paradigm Framework is a human-centered approach to AI design, emphasizing trust, model integrity, and continuous improvement. This framework is crucial for designing ethical and user-friendly AI experiences. \n### Key Components\n* Managing user trust in AI behavior\n* Addressing model drift\n* Facilitating continuous learning and improvement\n* Incorporating ethical considerations\nWhen designing AI-powered systems, it's essential to consider the software architecture patterns that underlie the user interface, much like a well-structured API design facilitates seamless communication between different components of a system. A well-designed AI-powered UI can facilitate seamless interaction between humans and machines, much like a well-designed debugging methodology helps identify and address issues in software development.\n## Real-World Example\nCompanies like Google Labs are already leveraging AI-powered tools like Stitch to turn text prompts, images, and wireframes into UI designs and front-end code. This approach enables designers to focus on high-level creative decisions rather than tedious implementation details.\n## Common Pitfalls\n* Neglecting to address model drift\n* Failing to incorporate ethical considerations\n* Overlooking the importance of user trust in AI behavior\n## Key Takeaways\n* The UX 3.0 Paradigm Framework is a human-centered approach to AI design\n* Managing user trust in AI behavior is crucial for designing ethical and user-friendly AI experiences\n* Continuous learning and improvement are essential for ensuring the long-term success of AI-powered systems",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m1l2",
-            "title": "Ethical Theories in AI Development",
-            "type": "concept",
-            "content": {
-              "body": "Ethical theories play a critical role in AI development and deployment, guiding responsible decision-making in artificial intelligence systems. Similar to API design, which prioritizes simplicity and consistency, ethical theories in AI development prioritize fairness, accountability, and transparency. Key tools, such as NIST AI RMF and ISO 42001, provide frameworks for ensuring ethical AI development.",
-              "realWorldExample": "NIST AI RMF framework",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import numpy as np\nfrom sklearn.metrics import accuracy_score\n# Evaluate model performance using accuracy score\ny_pred = model.predict(X_test)\naccuracy = accuracy_score(y_test, y_pred)\nprint(f'Model accuracy: {accuracy:.3f}')",
-                  "caption": "Evaluating model performance for ethical AI"
-                }
-              ],
-              "commonPitfalls": [
-                "Ignoring ethical implications of AI systems",
-                "Lack of transparency in AI decision-making processes"
-              ],
-              "keyTakeaways": [
-                "Ethical theories guide responsible AI decision-making",
-                "Fairness and accountability are crucial in AI development"
-              ],
-              "estimatedReadMinutes": 10
-            }
+            "title": "Managing User Trust in AI Behavior",
+            "type": "hands-on",
+            "content": "## Managing User Trust in AI Behavior\nManaging user trust in AI behavior is a critical component of the UX 3.0 Paradigm Framework. This involves designing AI-powered systems that are transparent, explainable, and fair. \n### Strategies for Building Trust\n* Providing clear explanations of AI decision-making processes\n* Offering transparent and accessible AI-powered features\n* Ensuring that AI systems are fair and unbiased\nWhen designing AI-powered systems, it's essential to consider the debugging methodology that will be used to identify and address issues, similar to how a well-designed API is used to debug and test software applications. A well-designed AI-powered system can help designers identify and address issues related to user trust, much like a well-structured software architecture pattern facilitates scalability and maintainability.\n## Real-World Example\nTools like Figma Make and Prompt-to-code generation can help designers create AI-powered systems that are transparent and explainable. For example, Figma Make allows designers to create custom plugins that can be used to generate AI-powered designs.\n## Code Examples\n```python\nimport figma\nfrom figma import Plugin\n\n# Create a custom plugin using Figma Make\nclass AI_Powered_Design(Plugin):\n    def __init__(self):\n        super().__init__()\n\n    def run(self):\n        # Use AI-powered design tools to generate designs\n        design = self.generate_design()\n        return design\n\n# Use the custom plugin to generate AI-powered designs\nplugin = AI_Powered_Design()\ndesign = plugin.run()\n```\n## Common Pitfalls\n* Failing to provide clear explanations of AI decision-making processes\n* Neglecting to ensure that AI systems are fair and unbiased\n* Overlooking the importance of transparency in AI-powered features\n## Key Takeaways\n* Managing user trust in AI behavior is critical for designing ethical and user-friendly AI experiences\n* Providing clear explanations of AI decision-making processes is essential for building trust\n* Ensuring that AI systems are fair and unbiased is crucial for maintaining trust",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m1l3",
-            "title": "Case Study: Implementing Responsible AI in Real-World Applications",
+            "title": "Case Study: AI-Powered Design Systems",
             "type": "case-study",
-            "content": {
-              "body": "Implementing Responsible AI in real-world applications requires a comprehensive approach, considering ethical theories, fairness, transparency, and accountability. Just as debugging methodology involves identifying and addressing errors, Responsible AI implementation involves identifying and addressing bias and ensuring compliance. The Eduonix Learning Solutions' video on Responsible AI in Real World Applications provides a comprehensive guide to implementing Responsible AI.",
-              "realWorldExample": "Eduonix Learning Solutions' video on Responsible AI in Real World Applications",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('data.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)\n# Train model and evaluate performance\nmodel = pd.DataFrame(y_pred).astype(int)\naccuracy = accuracy_score(y_test, model)\nprint(f'Model accuracy: {accuracy:.3f}')",
-                  "caption": "Implementing Responsible AI in real-world applications"
-                }
-              ],
-              "commonPitfalls": [
-                "Ignoring real-world implications of AI systems",
-                "Lack of transparency in AI decision-making processes"
-              ],
-              "keyTakeaways": [
-                "Responsible AI requires a comprehensive approach",
-                "Fairness, transparency, and accountability are crucial in AI implementation"
-              ],
-              "estimatedReadMinutes": 10
-            }
+            "content": "## Case Study: AI-Powered Design Systems\nAI-powered design systems are revolutionizing the way designers create and interact with digital products. \n### Overview of AI-Powered Design Systems\n* Using AI-powered tools to generate designs and front-end code\n* Leveraging machine learning algorithms to improve design quality and efficiency\n* Integrating AI-powered design systems with existing design workflows\nWhen designing AI-powered design systems, it's essential to consider the software architecture patterns that underlie the system, much like a well-designed microservices architecture facilitates scalability and flexibility. A well-designed AI-powered design system can facilitate efficiency and creativity, similar to how a well-structured API design enables seamless communication between different components of a system.\n## Real-World Example\nCompanies like Google Labs are already using AI-powered design systems to create innovative digital products. For example, the Stitch tool uses AI-powered algorithms to turn text prompts, images, and wireframes into UI designs and front-end code.\n## Code Examples\n```python\nimport stitch\nfrom stitch import DesignSystem\n\ndesign_system = DesignSystem()\n\ndesign = design_system.generate_design(prompt=\"Create a login screen\")\n```\n## Common Pitfalls\n* Failing to integrate AI-powered design systems with existing design workflows\n* Neglecting to ensure that AI-powered design systems are transparent and explainable\n* Overlooking the importance of continuous learning and improvement in AI-powered design systems\n## Key Takeaways\n* AI-powered design systems are revolutionizing the way designers create and interact with digital products\n* Using AI-powered tools to generate designs and front-end code can facilitate efficiency and creativity\n* Integrating AI-powered design systems with existing design workflows is crucial for ensuring success",
+            "estimatedReadMinutes": 10
           }
         ],
         "quiz": {
           "moduleId": "m1",
           "questions": [
             {
-              "question": "What are the key components of Responsible AI as emphasized in the lesson 'Defining Responsible AI'?",
+              "question": "What is the primary focus of the UX 3.0 Paradigm Framework in AI design?",
               "options": [
-                "Fairness, scalability, and maintainability",
-                "Transparency, accountability, and trust",
-                "Modularity, reliability, and performance",
-                "Security, usability, and accessibility"
+                "Improving model accuracy",
+                "Emphasizing trust, model integrity, and continuous improvement",
+                "Enhancing user experience through aesthetics",
+                "Increasing efficiency in design processes"
               ],
               "correctIndex": 1,
-              "explanation": "The correct answer is 'Transparency, accountability, and trust' because the lesson 'Defining Responsible AI' states that 'Defining Responsible AI involves understanding the importance of fairness, transparency, accountability, and trust in AI design and deployment.' The other options are incorrect because they do not match the key components of Responsible AI as emphasized in the lesson."
+              "explanation": "The UX 3.0 Paradigm Framework is a human-centered approach to AI design, emphasizing trust, model integrity, and continuous improvement, as stated in the Introduction to UX 3.0 Paradigm Framework lesson."
             },
             {
-              "question": "What role do ethical theories play in AI development and deployment according to the lesson 'Ethical Theories in AI Development'?",
+              "question": "How can AI-powered systems facilitate seamless interaction between humans and machines?",
               "options": [
-                "They prioritize simplicity and consistency",
-                "They prioritize fairness, accountability, and transparency",
-                "They prioritize modularity and scalability",
-                "They prioritize reliability and performance"
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the user interface",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
               ],
               "correctIndex": 1,
-              "explanation": "The correct answer is 'They prioritize fairness, accountability, and transparency' because the lesson 'Ethical Theories in AI Development' states that 'ethical theories in AI development prioritize fairness, accountability, and transparency.' The other options are incorrect because they do not match the role of ethical theories in AI development and deployment as described in the lesson."
+              "explanation": "A well-designed AI-powered UI can facilitate seamless interaction between humans and machines, much like a well-designed debugging methodology helps identify and address issues in software development, as mentioned in the Introduction to UX 3.0 Paradigm Framework lesson."
             },
             {
-              "question": "What is the purpose of implementing Responsible AI in real-world applications according to the lesson 'Case Study: Implementing Responsible AI in Real-World Applications'?",
+              "question": "What is a key component of managing user trust in AI behavior?",
               "options": [
-                "To ensure scalability and maintainability",
-                "To ensure fairness, transparency, and accountability",
-                "To ensure reliability and performance",
-                "To ensure security and usability"
+                "Providing unclear explanations of AI decision-making processes",
+                "Offering opaque and inaccessible AI-powered features",
+                "Ensuring that AI systems are fair and unbiased",
+                "Ignoring user feedback"
               ],
-              "correctIndex": 1,
-              "explanation": "The correct answer is 'To ensure fairness, transparency, and accountability' because the lesson 'Case Study: Implementing Responsible AI in Real-World Applications' states that 'Implementing Responsible AI in real-world applications requires a comprehensive approach, considering ethical theories, fairness, transparency, and accountability.' The other options are incorrect because they do not match the purpose of implementing Responsible AI in real-world applications as described in the lesson."
+              "correctIndex": 2,
+              "explanation": "Managing user trust in AI behavior involves designing AI-powered systems that are transparent, explainable, and fair, as stated in the Managing User Trust in AI Behavior lesson."
             },
             {
-              "question": "What tool provides a comprehensive guide to implementing Responsible AI according to the lesson 'Case Study: Implementing Responsible AI in Real-World Applications'?",
+              "question": "What tool can help designers create AI-powered systems that are transparent and explainable?",
               "options": [
-                "Eduonix Learning Solutions' video on Responsible AI in Real World Applications",
-                "NIST AI RMF",
-                "ISO 42001",
-                "API design guidelines"
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
               ],
               "correctIndex": 0,
-              "explanation": "The correct answer is 'Eduonix Learning Solutions' video on Responsible AI in Real World Applications' because the lesson 'Case Study: Implementing Responsible AI in Real-World Applications' states that 'The Eduonix Learning Solutions' video on Responsible AI in Real World Applications provides a comprehensive guide to implementing Responsible AI.' The other options are incorrect because they do not match the tool that provides a comprehensive guide to implementing Responsible AI as described in the lesson."
+              "explanation": "Tools like Figma Make and Prompt-to-code generation can help designers create AI-powered systems that are transparent and explainable, as mentioned in the Managing User Trust in AI Behavior lesson and the Case Study: AI-Powered Design Systems lesson."
             }
           ]
         }
       },
       {
         "id": "m2",
-        "title": "AI Governance Frameworks",
-        "description": "This module explores the importance of AI governance frameworks in ensuring Responsible AI, using API design principles to inform the development of robust governance structures",
+        "title": "AI Tools for UX Designers",
+        "description": "Exploring Top AI tools, Figma Make, and Prompt-to-code generation for efficient design processes",
         "lessons": [
           {
             "id": "m2l1",
-            "title": "Building a Robust AI Governance Framework",
-            "type": "hands-on",
-            "content": {
-              "body": "Just as a well-designed software architecture pattern ensures the maintainability and scalability of a system, a robust AI governance framework is crucial for ensuring the responsible development and deployment of AI systems. This involves establishing clear guidelines and standards for AI development, deployment, and monitoring. Similar to API design, where a well-structured API ensures seamless interaction between different components, a robust AI governance framework ensures that AI systems are designed and deployed with transparency, accountability, and fairness in mind. By prioritizing ethical safeguards and mitigating bias, organizations can build trust in their AI systems and ensure compliance with regulatory requirements.",
-              "realWorldExample": "Eduonix Learning Solutions' guide to building a robust AI governance framework",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('ai_governance_data.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)",
-                  "caption": "Data preparation for AI governance framework development"
-                }
-              ],
-              "commonPitfalls": [
-                "Insufficient consideration of ethical implications",
-                "Inadequate testing and validation of AI systems"
-              ],
-              "keyTakeaways": [
-                "Establish clear guidelines and standards for AI development and deployment",
-                "Prioritize ethical safeguards and mitigate bias in AI systems"
-              ],
-              "estimatedReadMinutes": 15
-            }
+            "title": "Introduction to Figma Make and Prompt-to-code",
+            "type": "concept",
+            "content": "## Introduction to Figma Make and Prompt-to-code\nFigma Make and Prompt-to-code are essential tools for UX designers, enabling the creation of interactive prototypes and accelerating the design process. *API design principles* can be applied to understand how these tools integrate with existing workflows, much like designing a well-structured API endpoint. By leveraging Figma Make, designers can create custom workflows, while Prompt-to-code generation simplifies the transition from design to development.\n## Real-World Example\nTop AI tools like Figma Make are being adopted by companies to streamline their design processes. For instance, designers can use Figma Make to create custom workflows that automate repetitive tasks, freeing up time to focus on high-level creative decisions.\n## Code Examples\nNo code is required for this introductory lesson, but understanding the basics of API design and workflow integration is crucial for effective utilization of Figma Make and Prompt-to-code.\n## Common Pitfalls\n* Insufficient understanding of workflow design principles\n* Inadequate integration with existing design tools\n* Overreliance on automated prompt-to-code generation without human oversight\n## Key Takeaways\n* Figma Make enables custom workflow creation\n* Prompt-to-code generation accelerates design-to-development transition\n* Understanding API design principles is essential for effective tool integration",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m2l2",
-            "title": "NIST AI RMF and ISO 42001: Standards for AI Governance",
-            "type": "concept",
-            "content": {
-              "body": "Similar to debugging methodology in software development, where identifying and fixing errors is crucial for ensuring the reliability of a system, standards for AI governance such as NIST AI RMF and ISO 42001 play a critical role in ensuring the responsible development and deployment of AI systems. Just as a software developer uses debugging tools to identify and fix errors, AI developers can use these standards to identify and mitigate biases in AI systems. By following these standards, organizations can ensure that their AI systems are designed and deployed with transparency, accountability, and fairness in mind.",
-              "realWorldExample": "NIST AI RMF framework for AI governance",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import numpy as np\n# Define a function to calculate bias in AI systems\ndef calculate_bias(y_true, y_pred):\n    return np.mean(y_true - y_pred)",
-                  "caption": "Calculating bias in AI systems using NIST AI RMF"
-                }
-              ],
-              "commonPitfalls": [
-                "Failure to consider multiple ethical perspectives",
-                "Inadequate documentation of AI system development and deployment"
-              ],
-              "keyTakeaways": [
-                "Use standards such as NIST AI RMF and ISO 42001 to guide AI governance",
-                "Regularly assess and mitigate bias in AI systems"
-              ],
-              "estimatedReadMinutes": 12
-            }
+            "title": "Hands-on with AI-Powered Prompt-to-code Generation",
+            "type": "hands-on",
+            "content": "## Hands-on with AI-Powered Prompt-to-code Generation\nAI-powered prompt-to-code generation is a game-changer for UX designers, allowing for rapid prototyping and development. By applying *debugging methodology*, designers can identify and resolve issues in their prompt-to-code workflows, ensuring seamless execution. This hands-on lesson will guide you through the process of using AI-powered prompt-to-code generation tools like Figma Make.\n## Real-World Example\nCompanies like Google Labs are developing tools like Stitch, which turns text prompts, images, and wireframes into UI designs and front-end code. This technology has the potential to revolutionize the design process, making it faster and more efficient.\n## Code Examples\n```python\n# Import necessary libraries\nimport figma\n\n# Initialize Figma API\nfigma_api = figma.FigmaAPI()\n\n# Define a custom workflow using Figma Make\nworkflow = figma_api.create_workflow('My Custom Workflow')\n\n# Use prompt-to-code generation to create a UI component\ncomponent = figma_api.generate_component('Button', 'My Button')\n```\n## Common Pitfalls\n* Inadequate testing of prompt-to-code generated code\n* Insufficient understanding of AI-powered prompt-to-code generation limitations\n* Overreliance on automated tools without human review\n## Key Takeaways\n* AI-powered prompt-to-code generation accelerates design-to-development transition\n* Custom workflows can be created using Figma Make\n* Understanding debugging methodology is essential for resolving prompt-to-code issues",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m2l3",
-            "title": "Debugging AI Governance Frameworks: Identifying and Mitigating Biases",
+            "title": "Designing with Advanced Editing Tools",
             "type": "hands-on",
-            "content": {
-              "body": "Just as a software developer uses debugging methodology to identify and fix errors in a system, AI developers can use various techniques to debug AI governance frameworks and identify biases in AI systems. Similar to API design, where a well-structured API ensures seamless interaction between different components, a well-designed AI governance framework ensures that AI systems are designed and deployed with transparency, accountability, and fairness in mind. By using techniques such as data quality checks and model interpretability, organizations can identify and mitigate biases in AI systems and ensure that their AI governance frameworks are effective.",
-              "realWorldExample": "Eduonix Learning Solutions' guide to debugging AI governance frameworks",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import matplotlib.pyplot as plt\nfrom sklearn.metrics import confusion_matrix\n# Plot confusion matrix to visualize model performance\nconf_mat = confusion_matrix(y_test, y_pred)\nplt.imshow(conf_mat, interpolation='nearest', cmap='Blues')\nplt.show()",
-                  "caption": "Visualizing model performance using confusion matrix"
-                }
-              ],
-              "commonPitfalls": [
-                "Inadequate testing and validation of AI systems",
-                "Failure to consider human oversight and review of AI decision-making"
-              ],
-              "keyTakeaways": [
-                "Use data quality checks and model interpretability to identify biases in AI systems",
-                "Regularly assess and improve AI governance frameworks"
-              ],
-              "estimatedReadMinutes": 14
-            }
+            "content": "## Designing with Advanced Editing Tools\nAdvanced editing tools like those found in Figma Make enable designers to refine their prototypes and create high-fidelity designs. By applying *software architecture patterns*, designers can create scalable and maintainable designs, much like designing a robust software system. This hands-on lesson will explore the advanced editing tools available in Figma Make and how to effectively utilize them.\n## Real-World Example\nDesigners at top companies are using advanced editing tools to create complex, interactive prototypes. For instance, a designer can use Figma Make to create a custom workflow that automates the creation of design systems, ensuring consistency across the entire product.\n## Code Examples\n```python\n# Import necessary libraries\nimport figma\n\n# Initialize Figma API\nfigma_api = figma.FigmaAPI()\n\n# Define a custom design system using Figma Make\ndesign_system = figma_api.create_design_system('My Design System')\n\n# Use advanced editing tools to refine the design system\nrefined_design_system = figma_api.refine_design_system(design_system)\n```\n## Common Pitfalls\n* Insufficient understanding of design system principles\n* Inadequate use of advanced editing tools\n* Overreliance on automated design tools without human oversight\n## Key Takeaways\n* Advanced editing tools enable refinement of high-fidelity designs\n* Custom design systems can be created using Figma Make\n* Understanding software architecture patterns is essential for creating scalable designs",
+            "estimatedReadMinutes": 10
           }
         ],
         "quiz": {
           "moduleId": "m2",
           "questions": [
             {
-              "question": "What is the purpose of building a robust AI governance framework according to the lesson 'Building a Robust AI Governance Framework'?",
+              "question": "What is the primary benefit of using Figma Make and Prompt-to-code generation in UX design?",
               "options": [
-                "To ensure scalability and maintainability",
-                "To ensure transparency, accountability, and fairness",
-                "To ensure reliability and performance",
-                "To ensure security and usability"
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Accelerated design process and creation of interactive prototypes",
+                "Increased efficiency in development"
               ],
-              "correctIndex": 1,
-              "explanation": "The correct answer is 'To ensure transparency, accountability, and fairness' because the lesson 'Building a Robust AI Governance Framework' states that 'a robust AI governance framework is crucial for ensuring the responsible development and deployment of AI systems' and that it 'ensures that AI systems are designed and deployed with transparency, accountability, and fairness in mind.' The other options are incorrect because they do not match the purpose of building a robust AI governance framework as described in the lesson."
+              "correctIndex": 2,
+              "explanation": "Figma Make and Prompt-to-code generation enable the creation of interactive prototypes and accelerate the design process, as stated in the Introduction to Figma Make and Prompt-to-code lesson."
             },
             {
-              "question": "What standards for AI governance play a critical role in ensuring the responsible development and deployment of AI systems according to the lesson 'NIST AI RMF and ISO 42001: Standards for AI Governance'?",
+              "question": "What is a common pitfall when using AI-powered prompt-to-code generation?",
               "options": [
-                "NIST AI RMF and ISO 42001",
-                "API design guidelines and software architecture patterns",
-                "Debugging methodology and testing frameworks",
-                "Ethical theories and fairness principles"
+                "Insufficient understanding of workflow design principles",
+                "Inadequate integration with existing design tools",
+                "Overreliance on automated prompt-to-code generation without human oversight",
+                "All of the above"
+              ],
+              "correctIndex": 3,
+              "explanation": "Common pitfalls when using AI-powered prompt-to-code generation include insufficient understanding of workflow design principles, inadequate integration with existing design tools, and overreliance on automated prompt-to-code generation without human oversight, as mentioned in the Introduction to Figma Make and Prompt-to-code lesson and the Hands-on with AI-Powered Prompt-to-code Generation lesson."
+            },
+            {
+              "question": "How can designers effectively utilize advanced editing tools in Figma Make?",
+              "options": [
+                "By applying software architecture patterns",
+                "By ignoring design system principles",
+                "By focusing solely on user experience",
+                "By using only basic editing tools"
               ],
               "correctIndex": 0,
-              "explanation": "The correct answer is 'NIST AI RMF and ISO 42001' because the lesson 'NIST AI RMF and ISO 42001: Standards for AI Governance' states that 'standards for AI governance such as NIST AI RMF and ISO 42001 play a critical role in ensuring the responsible development and deployment of AI systems.' The other options are incorrect because they do not match the standards for AI governance that play a critical role in ensuring the responsible development and deployment of AI systems as described in the lesson."
+              "explanation": "Advanced editing tools like those found in Figma Make enable designers to refine their prototypes and create high-fidelity designs, and designers can effectively utilize these tools by applying software architecture patterns, as stated in the Designing with Advanced Editing Tools lesson."
             },
             {
-              "question": "What technique can be used to debug AI governance frameworks and identify biases in AI systems according to the lesson 'Debugging AI Governance Frameworks: Identifying and Mitigating Biases'?",
+              "question": "What is the benefit of using advanced editing tools in Figma Make?",
               "options": [
-                "Data quality checks and model interpretability",
-                "Debugging methodology and testing frameworks",
-                "Ethical theories and fairness principles",
-                "API design guidelines and software architecture patterns"
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of complex, interactive prototypes",
+                "Increased efficiency in development"
               ],
-              "correctIndex": 0,
-              "explanation": "The correct answer is 'Data quality checks and model interpretability' because the lesson 'Debugging AI Governance Frameworks: Identifying and Mitigating Biases' states that 'by using techniques such as data quality checks and model interpretability, organizations can identify and mitigate biases in AI systems.' The other options are incorrect because they do not match the technique that can be used to debug AI governance frameworks and identify biases in AI systems as described in the lesson."
-            },
-            {
-              "question": "What is the purpose of using techniques such as data quality checks and model interpretability in AI governance frameworks according to the lesson 'Debugging AI Governance Frameworks: Identifying and Mitigating Biases'?",
-              "options": [
-                "To ensure scalability and maintainability",
-                "To identify and mitigate biases in AI systems",
-                "To ensure reliability and performance",
-                "To ensure security and usability"
-              ],
-              "correctIndex": 1,
-              "explanation": "The correct answer is 'To identify and mitigate biases in AI systems' because the lesson 'Debugging AI Governance Frameworks: Identifying and Mitigating Biases' states that 'by using techniques such as data quality checks and model interpretability, organizations can identify and mitigate biases in AI systems.' The other options are incorrect because they do not match the purpose of using techniques such as data quality checks and model interpretability in AI governance frameworks as described in the lesson."
+              "correctIndex": 2,
+              "explanation": "Designers at top companies are using advanced editing tools to create complex, interactive prototypes, as mentioned in the Designing with Advanced Editing Tools lesson."
             }
           ]
         }
       },
       {
         "id": "m3",
-        "title": "Fairness and Transparency in AI Systems",
-        "description": "This module delves into the critical aspects of fairness and transparency in AI systems, using software debugging methodology to identify and address potential issues",
+        "title": "AI-Powered Design and Prototyping",
+        "description": "Using Stitch and other AI design tools for rapid prototyping and design",
         "lessons": [
           {
             "id": "m3l1",
-            "title": "Designing Fair AI Systems",
+            "title": "Introduction to Stitch and AI Design Tools",
             "type": "concept",
-            "content": {
-              "body": "Designing fair AI systems requires careful consideration of data quality, algorithmic bias, and model interpretability. Just as software architecture patterns prioritize scalability and maintainability, fair AI systems prioritize equity and transparency. Ethical AI frameworks, such as those outlined in the NIST AI RMF and ISO 42001, provide guidelines for ensuring fairness and accountability in AI design and deployment. By prioritizing ethical safeguards and mitigating bias, developers can create AI systems that promote trust and compliance.",
-              "realWorldExample": "Google's AI Principles",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('dataset.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)",
-                  "caption": "Data preprocessing for fair AI system design"
-                }
-              ],
-              "commonPitfalls": [
-                "Ignoring data quality issues",
-                "Failing to consider algorithmic bias"
-              ],
-              "keyTakeaways": [
-                "Prioritize data quality and algorithmic fairness",
-                "Use ethical AI frameworks to guide design and deployment"
-              ],
-              "estimatedReadMinutes": 10
-            }
+            "content": "## Introduction to Stitch and AI Design Tools\nDesigning user interfaces with AI-powered tools has become an essential part of the UI/UX design process. Just like software architecture patterns provide a foundation for building robust applications, AI design tools offer a framework for creating efficient and human-centered designs. \n### Key Concepts\n* **Trust**: Building trust in AI behavior is crucial for user adoption and satisfaction.\n* **Model Integrity**: Ensuring the integrity of AI models is vital for maintaining design consistency and accuracy.\n* **Continuous Improvement**: AI design tools facilitate continuous learning and improvement, enabling designers to refine their designs based on user feedback and testing results.\n### Real-World Example\nFigma Make and Prompt-to-code generation are examples of AI-powered design tools that enable designers to create interactive prototypes and generate front-end code. \n### Code Examples\nWhile code is not directly applicable to this conceptual lesson, designers can explore Figma's API and plugin ecosystem to extend the capabilities of their AI-powered design tools.\n### Common Pitfalls\n* Overreliance on AI-generated designs without human oversight\n* Insufficient testing and validation of AI-driven design systems\n* Failure to address model drift and ensure continuous improvement\n### Key Takeaways\n* AI design tools can accelerate the design process and improve design quality\n* Human-centered design principles and ethical considerations are essential for AI-driven design\n* Continuous learning and improvement are critical for maintaining the integrity of AI design systems",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m3l2",
-            "title": "Implementing Transparency in AI Decision-Making",
+            "title": "Prototyping with AI-Powered Design Tools",
             "type": "hands-on",
-            "content": {
-              "body": "Implementing transparency in AI decision-making involves providing clear explanations for model predictions and outcomes. Similar to API design, which prioritizes clarity and simplicity, transparent AI systems prioritize interpretability and explainability. By using techniques such as feature attribution and model interpretability, developers can create AI systems that provide insights into their decision-making processes. Just as debugging methodology involves identifying and addressing errors, transparent AI systems involve identifying and addressing biases and errors in model predictions.",
-              "realWorldExample": "IBM's AI Explainability",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import numpy as np\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\n# Train a random forest classifier and generate feature importance scores\ndf = pd.read_csv('dataset.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)\nrf = RandomForestClassifier(n_estimators=100, random_state=42)\nrf.fit(X_train, y_train)\nfeature_importance = rf.feature_importances_",
-                  "caption": "Feature attribution for transparent AI decision-making"
-                }
-              ],
-              "commonPitfalls": [
-                "Failing to provide clear explanations for model predictions",
-                "Ignoring model interpretability"
-              ],
-              "keyTakeaways": [
-                "Prioritize model interpretability and explainability",
-                "Use feature attribution and model interpretability techniques to provide insights into AI decision-making"
-              ],
-              "estimatedReadMinutes": 12
-            }
+            "content": "## Prototyping with AI-Powered Design Tools\nPrototyping is a critical stage of the UI/UX design process, and AI-powered design tools can significantly enhance this stage. By leveraging tools like Stitch, designers can turn text prompts, images, and wireframes into interactive UI designs and front-end code. \n### Designing with AI\n* **API Design**: AI-powered design tools can be thought of as APIs that provide a programmatic interface for designing and prototyping UI components.\n* **Debugging Methodology**: Designers can apply debugging methodologies to identify and fix issues in their AI-driven design systems.\n### Real-World Example\nGoogle Labs' Stitch is a powerful tool for prototyping with AI-powered design. By providing a simple and intuitive interface, Stitch enables designers to create complex UI designs and generate functional front-end code.\n### Code Examples\n```python\nimport requests\n\n# Example API call to Stitch\nresponse = requests.post('https://stitch.googleapis.com/v1/design', json={\n    'prompt': 'Create a login screen with a username and password field',\n    'style': 'material design'\n})\n\nSimilar to how version control systems like Git manage different versions of code, AI-powered design and prototyping tools can manage different versions of design iterations.\n\n# Process the response and generate front-end code\nif response.status_code == 200:\n    design_data = response.json()\n    # Generate front-end code using the design data\n    print('Front-end code generated successfully')\nelse:\n    print('Error generating design')\n```\n### Common Pitfalls\n* Inadequate testing and validation of AI-generated prototypes\n* Insufficient consideration of design principles and human-centered design\n* Overreliance on AI-powered design tools without human oversight\n### Key Takeaways\n* AI-powered design tools can significantly accelerate the prototyping process\n* Designers should apply software architecture patterns and API design principles to their AI-driven design systems\n* Continuous testing and validation are crucial for ensuring the quality and integrity of AI-generated prototypes",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m3l3",
-            "title": "Case Study: Ensuring Fairness and Transparency in AI-Powered UI/UX",
+            "title": "Case Study: AI-Driven Design Systems Integration",
             "type": "case-study",
-            "content": {
-              "body": "Ensuring fairness and transparency in AI-powered UI/UX involves careful consideration of user needs and biases. Just as software architecture patterns prioritize user experience and accessibility, fair and transparent AI-powered UI/UX prioritize user trust and equity. By using ethical AI frameworks and prioritizing transparency and explainability, developers can create AI-powered UI/UX that promote user engagement and compliance. Similar to debugging methodology, which involves identifying and addressing errors, fair and transparent AI-powered UI/UX involve identifying and addressing biases and errors in user interactions.",
-              "realWorldExample": "Microsoft's AI-Powered UI/UX",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('dataset.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)\n# Train a model and evaluate its performance on the testing set\nfrom sklearn.ensemble import RandomForestClassifier\nrf = RandomForestClassifier(n_estimators=100, random_state=42)\nrf.fit(X_train, y_train)\ny_pred = rf.predict(X_test)\naccuracy = accuracy_score(y_test, y_pred)",
-                  "caption": "Evaluating AI-powered UI/UX performance"
-                }
-              ],
-              "commonPitfalls": [
-                "Ignoring user needs and biases",
-                "Failing to prioritize transparency and explainability"
-              ],
-              "keyTakeaways": [
-                "Prioritize user trust and equity in AI-powered UI/UX",
-                "Use ethical AI frameworks and prioritize transparency and explainability"
-              ],
-              "estimatedReadMinutes": 15
-            }
+            "content": "## Case Study: AI-Driven Design Systems Integration\nIntegrating AI-driven design systems can have a significant impact on the efficiency and effectiveness of the UI/UX design process. By leveraging tools like Figma Make and Prompt-to-code generation, designers can create seamless and consistent design experiences. \n### Design Systems Integration\n* **Advanced Editing Tools**: AI-powered design tools provide advanced editing capabilities that enable designers to refine and iterate on their designs quickly.\n* **Design System Integration**: AI-driven design systems can be integrated with existing design workflows and tools, enabling designers to work more efficiently and effectively.\n### Real-World Example\nTop AI tools for UX designers, such as Figma Make and Prompt-to-code generation, enable designers to create interactive prototypes and generate front-end code. By integrating these tools into their design workflows, designers can streamline their design processes and improve design quality.\n### Code Examples\nWhile code is not directly applicable to this case study, designers can explore the Figma API and plugin ecosystem to extend the capabilities of their AI-powered design tools.\n### Common Pitfalls\n* Inadequate consideration of design principles and human-centered design\n* Insufficient testing and validation of AI-driven design systems\n* Overreliance on AI-powered design tools without human oversight\n### Key Takeaways\n* AI-driven design systems can significantly improve design efficiency and effectiveness\n* Designers should apply software architecture patterns and API design principles to their AI-driven design systems\n* Continuous testing and validation are crucial for ensuring the quality and integrity of AI-driven design systems",
+            "estimatedReadMinutes": 10
           }
         ],
         "quiz": {
           "moduleId": "m3",
           "questions": [
             {
-              "question": "What is required to design fair AI systems according to the lesson 'Designing Fair AI Systems'?",
+              "question": "What is the primary focus of AI-powered design and prototyping?",
               "options": [
-                "Careful consideration of data quality, algorithmic bias, and model interpretability",
-                "Prioritization of scalability and maintainability",
-                "Prioritization of reliability and performance",
-                "Prioritization of security and usability"
+                "Improving model accuracy",
+                "Enhancing user experience through aesthetics",
+                "Designing user interfaces with AI-powered tools",
+                "Increasing efficiency in development"
               ],
-              "correctIndex": 0,
-              "explanation": "The correct answer is 'Careful consideration of data quality, algorithmic bias, and model interpretability' because the lesson 'Designing Fair AI Systems' states that 'designing fair AI systems requires careful consideration of data quality, algorithmic bias, and model interpretability.' The other options are incorrect because they do not match the requirements for designing fair AI systems as described in the lesson."
+              "correctIndex": 2,
+              "explanation": "Designing user interfaces with AI-powered tools has become an essential part of the UI/UX design process, as stated in the Introduction to Stitch and AI Design Tools lesson."
             },
             {
-              "question": "What is the purpose of implementing transparency in AI decision-making according to the lesson 'Implementing Transparency in AI Decision-Making'?",
+              "question": "What tool is used to turn text prompts, images, and wireframes into UI designs and front-end code?",
               "options": [
-                "To provide clear explanations for model predictions and outcomes",
-                "To prioritize scalability and maintainability",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
-              ],
-              "correctIndex": 0,
-              "explanation": "The correct answer is 'To provide clear explanations for model predictions and outcomes' because the lesson 'Implementing Transparency in AI Decision-Making' states that 'implementing transparency in AI decision-making involves providing clear explanations for model predictions and outcomes.' The other options are incorrect because they do not match the purpose of implementing transparency in AI decision-making as described in the lesson."
-            },
-            {
-              "question": "What technique can be used to create AI systems that provide insights into their decision-making processes according to the lesson 'Implementing Transparency in AI Decision-Making'?",
-              "options": [
-                "Feature attribution and model interpretability",
-                "Debugging methodology and testing frameworks",
-                "Ethical theories and fairness principles",
-                "API design guidelines and software architecture patterns"
-              ],
-              "correctIndex": 0,
-              "explanation": "The correct answer is 'Feature attribution and model interpretability' because the lesson 'Implementing Transparency in AI Decision-Making' states that 'by using techniques such as feature attribution and model interpretability, developers can create AI systems that provide insights into their decision-making processes.' The other options are incorrect because they do not match the technique that can be used to create AI systems that provide insights into their decision-making processes as described in the lesson."
-            },
-            {
-              "question": "What is the purpose of ensuring fairness and transparency in AI-powered UI/UX according to the lesson 'Case Study: Ensuring Fairness and Transparency in AI-Powered UI/UX'?",
-              "options": [
-                "To prioritize user experience and accessibility",
-                "To prioritize user trust and equity",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
               ],
               "correctIndex": 1,
-              "explanation": "The correct answer is 'To prioritize user trust and equity' because the lesson 'Case Study: Ensuring Fairness and Transparency in AI-Powered UI/UX' states that 'ensuring fairness and transparency in AI-powered UI/UX involves careful consideration of user needs and biases' and that it 'prioritizes user trust and equity.' The other options are incorrect because they do not match the purpose of ensuring fairness and transparency in AI-powered UI/UX as described in the lesson."
+              "explanation": "The Stitch tool uses AI-powered algorithms to turn text prompts, images, and wireframes into UI designs and front-end code, as mentioned in the Case Study: AI-Powered Design Systems lesson and the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "How can AI-powered design systems facilitate efficiency and creativity in design?",
+              "options": [
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the system",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
+              ],
+              "correctIndex": 1,
+              "explanation": "A well-designed AI-powered design system can facilitate efficiency and creativity, similar to how a well-structured API design enables seamless communication between different components of a system, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            },
+            {
+              "question": "What is the benefit of using AI-powered design systems?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of innovative digital products",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Companies like Google Labs are already using AI-powered design systems to create innovative digital products, as mentioned in the Case Study: AI-Powered Design Systems lesson."
             }
           ]
         }
       },
       {
         "id": "m4",
-        "title": "Accountability and Trust in AI Systems",
-        "description": "This module focuses on the development of accountability mechanisms and trust in AI systems, using software architecture patterns to inform the design of accountable AI systems",
+        "title": "Responsible AI in UI/UX Design",
+        "description": "Incorporating ethical considerations and responsible AI practices in UI/UX design",
         "lessons": [
           {
             "id": "m4l1",
-            "title": "Building Accountability into AI Systems",
+            "title": "Ethics in AI-Driven Design",
             "type": "concept",
-            "content": {
-              "body": "Just as software architecture patterns prioritize modularity and scalability, ethical AI frameworks emphasize fairness, transparency, accountability, and trust in AI design and deployment. Key tools include NIST AI RMF and ISO 42001, which provide guidelines for ensuring accountability in AI systems. Similar to API design, where clear documentation and standards are crucial, AI systems require transparent and explainable decision-making processes to establish trust with users.",
-              "realWorldExample": "Eduonix Learning Solutions' implementation of Responsible AI in real-world applications",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('ai_dataset.csv')\nX_train, X_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)",
-                  "caption": "Data preparation for training an accountable AI model"
-                }
-              ],
-              "commonPitfalls": [
-                "Insufficient transparency in AI decision-making processes",
-                "Lack of diversity in training data"
-              ],
-              "keyTakeaways": [
-                "Accountability in AI systems is crucial for establishing trust with users",
-                "Clear documentation and standards are essential for transparent AI decision-making"
-              ],
-              "estimatedReadMinutes": 12
-            }
+            "content": "## Introduction to Ethics in AI-Driven Design\nEthics in AI-driven design is crucial for creating human-centered experiences. Similar to software architecture patterns, where separation of concerns and modularity are key, AI design must prioritize transparency, accountability, and fairness. \n### Key Principles\n* **Trust**: Managing user trust in AI behavior\n* **Model Integrity**: Ensuring AI models are reliable and unbiased\n* **Continuous Improvement**: Facilitating ongoing learning and enhancement\n* **Ethical Considerations**: Incorporating ethical principles into design decisions\n\n## Real-World Example\nFigma, a leading design tool, incorporates AI-powered features like Prompt-to-code generation and Advanced editing tools, emphasizing the need for ethical AI design.\n\n## Code Examples\nNo code is necessary for this concept-focused lesson.\n\n## Common Pitfalls\n* Ignoring model drift and bias\n* Failing to prioritize user trust and transparency\n* Neglecting continuous improvement and feedback loops\n\n## Key Takeaways\n* Ethics is a critical aspect of AI-driven design\n* Key principles include trust, model integrity, continuous improvement, and ethical considerations\n* Designers must prioritize human-centered experiences and transparency",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m4l2",
-            "title": "Establishing Trust in AI Systems through Robust Governance",
+            "title": "Addressing Model Drift and Bias",
             "type": "hands-on",
-            "content": {
-              "body": "Similar to debugging methodology, where identifying and addressing errors is critical, establishing trust in AI systems requires robust governance frameworks. Building a robust AI governance framework involves implementing guidelines and standards for AI development and deployment, such as those provided by NIST AI RMF and ISO 42001. Just as software architecture patterns prioritize scalability and maintainability, AI governance frameworks should prioritize adaptability and continuous improvement.",
-              "realWorldExample": "Implementation of AI governance framework in a financial services company",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import numpy as np\nfrom sklearn.metrics import accuracy_score\n# Evaluate AI model performance and identify areas for improvement\ny_pred = model.predict(X_test)\naccuracy = accuracy_score(y_test, y_pred)\nprint('Model accuracy:', accuracy)",
-                  "caption": "Evaluating AI model performance and identifying areas for improvement"
-                }
-              ],
-              "commonPitfalls": [
-                "Inadequate monitoring and evaluation of AI system performance",
-                "Insufficient stakeholder engagement in AI governance"
-              ],
-              "keyTakeaways": [
-                "Robust governance frameworks are essential for establishing trust in AI systems",
-                "Continuous monitoring and evaluation of AI system performance is critical for identifying areas for improvement"
-              ],
-              "estimatedReadMinutes": 15
-            }
+            "content": "## Addressing Model Drift and Bias\nModel drift and bias are significant challenges in AI-driven design. Debugging methodology, similar to identifying and fixing bugs in software code, is essential for detecting and addressing these issues. \n### Strategies for Mitigation\n* **Data Quality**: Ensuring diverse, representative, and high-quality training data\n* **Model Monitoring**: Continuously evaluating AI model performance and identifying potential biases\n* **Human Oversight**: Implementing human review and feedback processes to detect and correct errors\n\n## Real-World Example\nStitch, a tool from Google Labs, uses AI to turn text prompts, images, and wireframes into UI designs and front-end code, highlighting the need for careful model training and testing to avoid bias.\n\n## Code Examples\n```python\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.ensemble import RandomForestClassifier\n\n# Example: splitting data into training and testing sets\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Training a model and evaluating its performance\nmodel = RandomForestClassifier()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\nprint('Model Accuracy:', accuracy_score(y_test, y_pred))\n```\n\n## Common Pitfalls\n* Failing to monitor model performance and identify biases\n* Neglecting data quality and diversity\n* Insufficient human oversight and feedback\n\n## Key Takeaways\n* Model drift and bias are critical issues in AI-driven design\n* Strategies for mitigation include data quality, model monitoring, and human oversight\n* Continuous evaluation and improvement are essential for ensuring reliable AI models",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m4l3",
-            "title": "Case Study: Implementing Accountability and Trust in AI-Powered UI/UX",
+            "title": "Case Study: Implementing Responsible AI in Design",
             "type": "case-study",
-            "content": {
-              "body": "Just as software architecture patterns prioritize modularity and reusability, AI-powered UI/UX systems should prioritize accountability and transparency. Implementing accountability and trust in AI-powered UI/UX involves designing systems that provide clear explanations for AI-driven decisions and ensuring that AI models are fair and unbiased. Similar to API design, where clear documentation and standards are crucial, AI-powered UI/UX systems require transparent and explainable AI decision-making processes to establish trust with users.",
-              "realWorldExample": "Case study of a company that implemented accountable AI-powered UI/UX",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import matplotlib.pyplot as plt\nfrom sklearn.decomposition import PCA\n# Visualize AI model performance and identify areas for improvement\npca = PCA(n_components=2)\nX_pca = pca.fit_transform(X_test)\nplt.scatter(X_pca[:, 0], X_pca[:, 1], c=y_test)\nplt.show()",
-                  "caption": "Visualizing AI model performance and identifying areas for improvement"
-                }
-              ],
-              "commonPitfalls": [
-                "Insufficient consideration of AI bias and fairness in UI/UX design",
-                "Lack of transparency in AI decision-making processes"
-              ],
-              "keyTakeaways": [
-                "Accountability and transparency are crucial for establishing trust in AI-powered UI/UX",
-                "Clear explanations for AI-driven decisions are essential for user trust"
-              ],
-              "estimatedReadMinutes": 18
-            }
+            "content": "## Case Study: Implementing Responsible AI in Design\nImplementing responsible AI in design requires a thorough understanding of AI-driven design principles and ethical considerations. API design, similar to designing intuitive and user-friendly APIs, is crucial for creating seamless interactions between humans and AI systems. \n### Case Study Overview\nA design team at a leading tech company aimed to create an AI-powered UI/UX design tool. They prioritized transparency, accountability, and fairness, ensuring that their AI model was reliable, unbiased, and continuously improving.\n\n## Real-World Example\nTop AI tools for UX designers, such as Figma Make and Prompt-to-code generation, demonstrate the potential of AI in design. The team used these tools to create a design system that incorporated AI-powered features while maintaining a human-centered approach.\n\n## Code Examples\nNo code is necessary for this case-study-focused lesson.\n\n## Common Pitfalls\n* Failing to prioritize transparency and accountability\n* Neglecting human-centered design principles\n* Insufficient testing and evaluation of AI models\n\n## Key Takeaways\n* Implementing responsible AI in design requires a thorough understanding of AI-driven design principles and ethical considerations\n* API design and intuitive interactions are crucial for creating seamless human-AI interactions\n* Prioritizing transparency, accountability, and fairness is essential for ensuring reliable and unbiased AI models",
+            "estimatedReadMinutes": 10
           }
         ],
         "quiz": {
           "moduleId": "m4",
           "questions": [
             {
-              "question": "What is the purpose of building accountability into AI systems according to the lesson 'Building Accountability into AI Systems'?",
+              "question": "What is the primary focus of AI-powered design and prototyping in the context of UI/UX design?",
               "options": [
-                "To prioritize fairness, transparency, accountability, and trust",
-                "To prioritize scalability and maintainability",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
+                "Improving model accuracy",
+                "Enhancing user experience through aesthetics",
+                "Designing user interfaces with AI-powered tools",
+                "Increasing efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Designing user interfaces with AI-powered tools has become an essential part of the UI/UX design process, as stated in the Introduction to Stitch and AI Design Tools lesson."
+            },
+            {
+              "question": "What tool is used to create custom workflows and automate repetitive tasks in UX design?",
+              "options": [
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
               ],
               "correctIndex": 0,
-              "explanation": "The correct answer is 'To prioritize fairness, transparency, accountability, and trust' because the lesson 'Building Accountability into AI Systems' states that 'ethical AI frameworks emphasize fairness, transparency, accountability, and trust in AI design and deployment.' The other options are incorrect because they do not match the purpose of building accountability into AI systems as described in the lesson."
+              "explanation": "Figma Make enables designers to create custom workflows and automate repetitive tasks, as mentioned in the Introduction to Figma Make and Prompt-to-code lesson."
             },
             {
-              "question": "What is the purpose of establishing trust in AI systems through robust governance according to the lesson 'Establishing Trust in AI Systems through Robust Governance'?",
+              "question": "How can AI-powered design systems facilitate seamless interaction between humans and machines?",
               "options": [
-                "To implement guidelines and standards for AI development and deployment",
-                "To prioritize scalability and maintainability",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
-              ],
-              "correctIndex": 0,
-              "explanation": "The correct answer is 'To implement guidelines and standards for AI development and deployment' because the lesson 'Establishing Trust in AI Systems through Robust Governance' states that 'building a robust AI governance framework involves implementing guidelines and standards for AI development and deployment.' The other options are incorrect because they do not match the purpose of establishing trust in AI systems through robust governance as described in the lesson."
-            },
-            {
-              "question": "What is the purpose of using standards such as NIST AI RMF and ISO 42001 in AI governance according to the lesson 'Establishing Trust in AI Systems through Robust Governance'?",
-              "options": [
-                "To ensure scalability and maintainability",
-                "To ensure adaptability and continuous improvement",
-                "To ensure reliability and performance",
-                "To ensure security and usability"
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the system",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
               ],
               "correctIndex": 1,
-              "explanation": "The correct answer is 'To ensure adaptability and continuous improvement' because the lesson 'Establishing Trust in AI Systems through Robust Governance' states that 'AI governance frameworks should prioritize adaptability and continuous improvement.' The other options are incorrect because they do not match the purpose of using standards such as NIST AI RMF and ISO 42001 in AI governance as described in the lesson."
+              "explanation": "A well-designed AI-powered design system can facilitate seamless interaction between humans and machines, similar to how a well-structured API design enables seamless communication between different components of a system, as mentioned in the Case Study: AI-Powered Design Systems lesson."
             },
             {
-              "question": "What is the purpose of implementing accountability and trust in AI-powered UI/UX according to the lesson 'Case Study: Implementing Accountability and Trust in AI-Powered UI/UX'?",
+              "question": "What is the benefit of using AI-powered design systems in UI/UX design?",
               "options": [
-                "To prioritize user experience and accessibility",
-                "To prioritize accountability and transparency",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of innovative digital products",
+                "Increased efficiency in development"
               ],
-              "correctIndex": 1,
-              "explanation": "The correct answer is 'To prioritize accountability and transparency' because the lesson 'Case Study: Implementing Accountability and Trust in AI-Powered UI/UX' states that 'implementing accountability and trust in AI-powered UI/UX involves designing systems that provide clear explanations for AI-driven decisions and ensuring that AI models are fair and unbiased.' The other options are incorrect because they do not match the purpose of implementing accountability and trust in AI-powered UI/UX as described in the lesson."
+              "correctIndex": 2,
+              "explanation": "Companies like Google Labs are already using AI-powered design systems to create innovative digital products, as mentioned in the Case Study: AI-Powered Design Systems lesson."
             }
           ]
         }
       },
       {
         "id": "m5",
-        "title": "Real-World Applications of Responsible AI",
-        "description": "This module explores the real-world applications of Responsible AI, using API design principles to inform the development of responsible AI systems",
+        "title": "Advanced AI-Driven Design Workflows",
+        "description": "Using Workflow design tools and AI-powered design systems for efficient and human-centered design",
         "lessons": [
           {
             "id": "m5l1",
-            "title": "Responsible AI in UI/UX Design",
+            "title": "Introduction to Advanced Design Workflows",
             "type": "concept",
-            "content": {
-              "body": "Just as software architecture patterns prioritize scalability and maintainability, Responsible AI in UI/UX design emphasizes fairness, transparency, and accountability. Similar to API design, where data validation and error handling are crucial, Responsible AI ensures that AI systems are designed with ethical safeguards to mitigate bias and ensure compliance. This involves integrating key tools like NIST AI RMF and ISO 42001 into the design process. By doing so, developers can create AI-powered UI/UX systems that not only enhance user experience but also uphold ethical standards.",
-              "realWorldExample": "Eduonix Learning Solutions' implementation of Responsible AI in their educational platforms",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\n# Load dataset and split into training and testing sets\ndf = pd.read_csv('user_interactions.csv')\nx_train, x_test, y_train, y_test = train_test_split(df.drop('target', axis=1), df['target'], test_size=0.2, random_state=42)",
-                  "caption": "Data preparation for training a Responsible AI model"
-                }
-              ],
-              "commonPitfalls": [
-                "Overlooking bias in training data",
-                "Inadequate testing for ethical compliance"
-              ],
-              "keyTakeaways": [
-                "Integrate ethical considerations into AI design",
-                "Utilize tools like NIST AI RMF and ISO 42001 for compliance"
-              ],
-              "estimatedReadMinutes": 12
-            }
+            "content": "## Introduction to Advanced Design Workflows\nAdvanced design workflows in UI/UX leverage AI to streamline the design process, much like how software architecture patterns optimize system performance. By integrating AI-powered tools, designers can focus on high-level creative decisions, similar to how API design enables modular and reusable code. \n### Key Concepts\n* **Human-centered design**: prioritizing user needs and trust in AI-driven design decisions\n* **Continuous improvement**: regularly updating and refining AI models to ensure accuracy and relevance\n* **Ethical considerations**: addressing potential biases and ensuring transparency in AI-driven design processes\n\n## Real-World Example\nTop AI tools like Figma Make and Prompt-to-code generation enable designers to create interactive prototypes and test designs quickly, much like debugging methodology helps identify and fix issues in software development.\n\n## Common Pitfalls\n* Overreliance on AI-generated designs without human oversight\n* Insufficient testing and validation of AI-driven design decisions\n* Failure to consider ethical implications of AI-driven design\n\n## Key Takeaways\n* AI-powered design workflows can enhance efficiency and creativity in UI/UX design\n* Human-centered design principles are crucial in ensuring user trust and satisfaction\n* Continuous improvement and ethical considerations are essential for successful AI-driven design workflows",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m5l2",
-            "title": "Case Study: Implementing Responsible AI in Human-Computer Interaction",
-            "type": "case-study",
-            "content": {
-              "body": "Similar to debugging methodology, where identifying and fixing errors is critical, implementing Responsible AI in Human-Computer Interaction (HCI) requires a meticulous approach to ensure that AI systems are fair, transparent, and accountable. Just as software developers use various debugging tools to identify and fix issues, HCI professionals can leverage frameworks like NIST AI RMF to detect and mitigate bias in AI-powered UI/UX systems. A case study on implementing Responsible AI in HCI could involve analyzing user interactions with an AI-powered chatbot and using insights to improve the system's ethical performance.",
-              "realWorldExample": "Amazon's implementation of Responsible AI in their customer service chatbots",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import numpy as np\nfrom scipy import stats\n# Analyze user interaction data to detect bias\nuser_interactions = np.array([1, 2, 3, 4, 5])\nstats.describe(user_interactions)",
-                  "caption": "Statistical analysis of user interaction data to identify bias"
-                }
-              ],
-              "commonPitfalls": [
-                "Insufficient user testing",
-                "Lack of transparency in AI decision-making"
-              ],
-              "keyTakeaways": [
-                "Implement thorough user testing and feedback mechanisms",
-                "Ensure transparency in AI decision-making processes"
-              ],
-              "estimatedReadMinutes": 15
-            }
+            "title": "Implementing AI-Powered Design Systems",
+            "type": "hands-on",
+            "content": "## Implementing AI-Powered Design Systems\nImplementing AI-powered design systems involves integrating tools like Stitch, which turns text prompts, images, and wireframes into UI designs and front-end code, much like how software architecture patterns provide a foundation for scalable and maintainable systems. \n### Design Workflow\n1. **Define design goals and objectives**: establish clear requirements and constraints for the AI-powered design system\n2. **Select AI-powered design tools**: choose tools that align with design goals and objectives, such as Figma Make or Prompt-to-code generation\n3. **Integrate AI-powered design tools**: incorporate AI-powered design tools into the design workflow, ensuring seamless interaction and feedback\n\n## Real-World Example\nCompanies like Google Labs are developing AI-powered design tools like Stitch, which enables designers to create interactive prototypes and test designs quickly.\n\n## Code Examples\n```python\nfrom prompt_to_code import generate_code\nfrom figma_make import create_prototype\n\n# Define design goals and objectives\ndesign_goals = {\n    'objective': 'create interactive prototype',\n    'constraints': ['responsive design', 'accessible']\n}\n\n# Select AI-powered design tools\nai_tool = 'figma_make'\n\n# Integrate AI-powered design tools\nprototype = create_prototype(design_goals, ai_tool)\ncode = generate_code(prototype)\n\nprint(code)\n```\n\n## Common Pitfalls\n* Insufficient testing and validation of AI-generated code\n* Failure to consider design constraints and objectives\n* Overreliance on AI-powered design tools without human oversight\n\n## Key Takeaways\n* AI-powered design systems can enhance efficiency and creativity in UI/UX design\n* Clear design goals and objectives are crucial for successful AI-powered design systems\n* Integration of AI-powered design tools requires careful consideration of design constraints and objectives",
+            "estimatedReadMinutes": 10
           },
           {
             "id": "m5l3",
-            "title": "Hands-on Project: Developing a Responsible AI-Powered UI/UX System",
-            "type": "hands-on",
-            "content": {
-              "body": "Just as building a robust software architecture requires a comprehensive approach, developing a Responsible AI-powered UI/UX system involves integrating ethical considerations into every stage of the development process. Similar to API design, where security and scalability are paramount, Responsible AI prioritizes fairness, transparency, and accountability. By leveraging tools like NIST AI RMF and ISO 42001, developers can create AI-powered UI/UX systems that not only enhance user experience but also uphold ethical standards. A hands-on project could involve building a Responsible AI-powered chatbot that provides personalized recommendations while ensuring ethical compliance.",
-              "realWorldExample": "Microsoft's implementation of Responsible AI in their virtual assistant",
-              "codeSnippets": [
-                {
-                  "language": "python",
-                  "code": "import tensorflow as tf\nfrom tensorflow import keras\n# Build a Responsible AI model using TensorFlow\nmodel = keras.Sequential([\n    keras.layers.Dense(64, activation='relu', input_shape=(784,)),\n    keras.layers.Dense(32, activation='relu'),\n    keras.layers.Dense(10, activation='softmax')\n])",
-                  "caption": "Building a Responsible AI model using TensorFlow"
-                }
-              ],
-              "commonPitfalls": [
-                "Overlooking ethical considerations in AI development",
-                "Inadequate documentation of AI decision-making processes"
-              ],
-              "keyTakeaways": [
-                "Integrate ethical considerations into AI development",
-                "Ensure transparency and accountability in AI decision-making"
-              ],
-              "estimatedReadMinutes": 18
-            }
+            "title": "Case Study: Optimizing Design Workflows with AI",
+            "type": "case-study",
+            "content": "## Case Study: Optimizing Design Workflows with AI\nA case study on optimizing design workflows with AI involves analyzing the design process and identifying areas where AI can enhance efficiency and creativity, much like how debugging methodology helps identify and fix issues in software development. \n### Case Study Overview\n* **Company**: a leading software development company\n* **Design Challenge**: creating interactive prototypes and testing designs quickly\n* **AI Solution**: implementing AI-powered design tools like Figma Make and Prompt-to-code generation\n\n## Real-World Example\nThe company implemented AI-powered design tools and saw a significant reduction in design time and an increase in design quality, similar to how software architecture patterns can improve system performance.\n\n## Common Pitfalls\n* Insufficient training data for AI-powered design tools\n* Failure to consider ethical implications of AI-driven design decisions\n* Overreliance on AI-powered design tools without human oversight\n\n## Key Takeaways\n* AI-powered design workflows can enhance efficiency and creativity in UI/UX design\n* Clear design goals and objectives are crucial for successful AI-powered design systems\n* Continuous improvement and ethical considerations are essential for successful AI-driven design workflows",
+            "estimatedReadMinutes": 10
           }
         ],
         "quiz": {
           "moduleId": "m5",
           "questions": [
             {
-              "question": "What is the purpose of Responsible AI in UI/UX design according to the lesson 'Responsible AI in UI/UX Design'?",
+              "question": "What is the primary focus of AI-powered design and prototyping in the context of UI/UX design?",
               "options": [
-                "To prioritize scalability and maintainability",
-                "To prioritize fairness, transparency, and accountability",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
+                "Improving model accuracy",
+                "Enhancing user experience through aesthetics",
+                "Designing user interfaces with AI-powered tools",
+                "Increasing efficiency in development"
               ],
-              "correctIndex": 1,
-              "explanation": "The correct answer is 'To prioritize fairness, transparency, and accountability' because the lesson 'Responsible AI in UI/UX Design' states that 'Responsible AI in UI/UX design emphasizes fairness, transparency, and accountability.' The other options are incorrect because they do not match the purpose of Responsible AI in UI/UX design as described in the lesson."
+              "correctIndex": 2,
+              "explanation": "Designing user interfaces with AI-powered tools has become an essential part of the UI/UX design process, as stated in the Introduction to Stitch and AI Design Tools lesson."
             },
             {
-              "question": "What is the purpose of using ethical AI frameworks in UI/UX design according to the lesson 'Responsible AI in UI/UX Design'?",
+              "question": "What tool is used to turn text prompts, images, and wireframes into UI designs and front-end code?",
               "options": [
-                "To prioritize user experience and accessibility",
-                "To prioritize fairness, transparency, and accountability",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
+                "Figma Make",
+                "Stitch",
+                "Prompt-to-code generation",
+                "All of the above"
               ],
               "correctIndex": 1,
-              "explanation": "The correct answer is 'To prioritize fairness, transparency, and accountability' because the lesson 'Responsible AI in UI/UX Design' states that 'ethical AI frameworks emphasize fairness, transparency, and accountability in AI design and deployment.' The other options are incorrect because they do not match the purpose of using ethical AI frameworks in UI/UX design as described in the lesson."
+              "explanation": "The Stitch tool uses AI-powered algorithms to turn text prompts, images, and wireframes into UI designs and front-end code, as mentioned in the Case Study: AI-Powered Design Systems lesson and the Introduction to Stitch and AI Design Tools lesson."
             },
             {
-              "question": "What is the benefit of using standards such as NIST AI RMF and ISO 42001 in UI/UX design according to the lesson 'Responsible AI in UI/UX Design'?",
+              "question": "How can AI-powered design systems facilitate efficiency and creativity in design?",
               "options": [
-                "To ensure scalability and maintainability",
-                "To ensure adaptability and continuous improvement",
-                "To ensure reliability and performance",
-                "To ensure fairness, transparency, and accountability"
-              ],
-              "correctIndex": 3,
-              "explanation": "The correct answer is 'To ensure fairness, transparency, and accountability' because the lesson 'Responsible AI in UI/UX Design' states that 'standards such as NIST AI RMF and ISO 42001 provide guidelines for ensuring fairness, transparency, and accountability in AI design and deployment.' The other options are incorrect because they do not match the benefit of using standards such as NIST AI RMF and ISO 42001 in UI/UX design as described in the lesson."
-            },
-            {
-              "question": "What is the purpose of designing AI-powered UI/UX systems that provide clear explanations for AI-driven decisions according to the lesson 'Responsible AI in UI/UX Design'?",
-              "options": [
-                "To prioritize user experience and accessibility",
-                "To prioritize accountability and transparency",
-                "To prioritize reliability and performance",
-                "To prioritize security and usability"
+                "By using complex algorithms",
+                "By leveraging software architecture patterns that underlie the system",
+                "By focusing solely on user experience",
+                "By ignoring model drift"
               ],
               "correctIndex": 1,
-              "explanation": "The correct answer is 'To prioritize accountability and transparency' because the lesson 'Responsible AI in UI/UX Design' states that 'designing AI-powered UI/UX systems that provide clear explanations for AI-driven decisions is important for establishing trust with users.' The other options are incorrect because they do not match the purpose of designing AI-powered UI/UX systems that provide clear explanations for AI-driven decisions as described in the lesson."
+              "explanation": "A well-designed AI-powered design system can facilitate efficiency and creativity, similar to how a well-structured API design enables seamless communication between different components of a system, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            },
+            {
+              "question": "What is the benefit of using AI-powered design systems in UI/UX design?",
+              "options": [
+                "Improved model accuracy",
+                "Enhanced user experience through aesthetics",
+                "Creation of innovative digital products",
+                "Increased efficiency in development"
+              ],
+              "correctIndex": 2,
+              "explanation": "Companies like Google Labs are already using AI-powered design systems to create innovative digital products, as mentioned in the Case Study: AI-Powered Design Systems lesson."
+            }
+          ]
+        }
+      },
+      {
+        "id": "m_org",
+        "title": "Applying AI for UI/UX Design in Velocity AI",
+        "description": "This module explores how Globallogic's Velocity AI platform applies AI concepts to automate enterprise workflows, focusing on Large Language Models and semantic search.",
+        "lessons": [
+          {
+            "id": "m_org_l1",
+            "title": "Introduction to Velocity AI and its Core Architecture",
+            "type": "case-study",
+            "content": "# Introduction to Velocity AI\nVelocity AI is an internal platform designed to accelerate enterprise productivity by combining Large Language Models (LLMs) with specialized agents. It focuses on reducing manual toil in document processing, code reviews, and customer support triage.\n## Core Architecture\nThe system is built on a microservices architecture using FastAPI (Python) and Node.js.\n### Key Components\n1. **Ingestion Engine**: Processes unstructured data (PDFs, emails, Slack messages) and structures it using OCR and weak supervision.\n2. **Semantic Knowledge Graph**: Data is indexed into a vector database (Pinecone) enriched with contextual metadata (Neo4j) to form a knowledge graph.\n3. **Agentic Router**: A lightweight LLM router that classifies user intent and dispatches tasks to specialized agents (e.g., CodeReviewAgent, SupportTriageAgent).\n4. **Execution Sandbox**: A secure Docker-based environment where agents can run Python code or API calls to fulfill complex requests safely.\n## Real-World Applications\n- **Automated RFP Responses**: Velocity AI reduces the time to respond to Request for Proposals (RFPs) from 3 days to 4 hours by instantly pulling relevant answers from past successful bids using semantic search.\n- **Code Review Assistant**: It continuously monitors GitHub PRs and posts contextual feedback regarding performance bottlenecks and security vulnerabilities before human review.",
+            "estimatedReadMinutes": 15
+          },
+          {
+            "id": "m_org_l2",
+            "title": "Key Learnings, Pitfalls, and Tech Stack of Velocity AI",
+            "type": "case-study",
+            "content": "# Key Learnings & Pitfalls\n- **Hallucination Mitigation**: Early versions trusted LLM outputs too heavily. We implemented a \"Verify-Then-Commit\" pattern where the output must pass a deterministic validation step before being served.\n- **Latency**: Chaining too many LLM calls increased response times to over 30 seconds. We optimized this by replacing intermediate LLM calls with classical NLP heuristics or smaller, fine-tuned models.\n## Tech Stack\n- **Models**: Llama-3 (self-hosted for privacy), GPT-4 (for complex logic via API)\n- **Frameworks**: LangChain, LlamaIndex, FastAPI, React\n- **Infrastructure**: Kubernetes, AWS (EKS, RDS, S3), Pinecone\n## Best Practices for Implementation\nWhen implementing a similar platform, consider the trade-offs between model complexity, latency, and hallucination. Implementing a \"Verify-Then-Commit\" pattern and optimizing LLM calls can significantly improve the reliability and performance of the system.",
+            "estimatedReadMinutes": 10
+          }
+        ],
+        "quiz": {
+          "moduleId": "m_org",
+          "questions": [
+            {
+              "question": "What is the primary goal of the Velocity AI platform?",
+              "options": [
+                "To automate repetitive enterprise workflows",
+                "To improve code review processes",
+                "To enhance customer support",
+                "To develop new AI models"
+              ],
+              "correctIndex": 0,
+              "explanation": "The primary goal of Velocity AI is to accelerate enterprise productivity by automating repetitive workflows using Large Language Models and semantic search."
+            },
+            {
+              "question": "What is the name of the vector database used in Velocity AI's Semantic Knowledge Graph?",
+              "options": [
+                "Pinecone",
+                "Neo4j",
+                "LlamaIndex",
+                "LangChain"
+              ],
+              "correctIndex": 0,
+              "explanation": "Pinecone is the vector database used to index data into a knowledge graph, which is then enriched with contextual metadata from Neo4j."
+            },
+            {
+              "question": "What is the purpose of the Agentic Router in Velocity AI?",
+              "options": [
+                "To classify user intent and dispatch tasks to specialized agents",
+                "To process unstructured data",
+                "To monitor GitHub PRs",
+                "To respond to RFPs"
+              ],
+              "correctIndex": 0,
+              "explanation": "The Agentic Router is a lightweight LLM router that classifies user intent and dispatches tasks to specialized agents, such as the CodeReviewAgent or SupportTriageAgent."
+            },
+            {
+              "question": "What optimization technique was used to reduce latency in Velocity AI?",
+              "options": [
+                "Replacing intermediate LLM calls with classical NLP heuristics",
+                "Increasing the number of LLM calls",
+                "Using smaller models",
+                "Implementing a \"Verify-Then-Commit\" pattern"
+              ],
+              "correctIndex": 0,
+              "explanation": "Replacing intermediate LLM calls with classical NLP heuristics or smaller, fine-tuned models helped optimize latency in Velocity AI."
             }
           ]
         }
       }
     ],
     "capstone": {
-      "title": "Designing an Ethical AI-Powered Chatbot for Customer Support",
-      "overview": "The learner will build an AI-powered chatbot that integrates ethical AI frameworks to ensure fairness, transparency, accountability, and trust in customer support interactions. The chatbot will utilize natural language processing and machine learning algorithms to provide personalized support while adhering to responsible AI principles.",
-      "realWorldRelevance": "The project solves the real-world problem of biased or unfair AI-powered customer support systems, which can lead to customer dissatisfaction and reputational damage for companies.",
+      "title": "AI-Driven UI/UX Design for Trustworthy E-commerce Website",
+      "overview": "Learners will design and develop a human-centered e-commerce website using AI tools, focusing on trust, model integrity, and continuous improvement. The website will incorporate AI-powered design and prototyping, responsible AI practices, and efficient design workflows.",
+      "realWorldRelevance": "This project solves the real-world problem of creating trustworthy and efficient e-commerce websites, which is essential for businesses to establish customer loyalty and increase sales.",
       "phases": [
         {
-          "phase": "Phase 1: AI Governance Framework Development",
-          "description": "Design and develop an AI governance framework for the chatbot using NIST AI RMF and ISO 42001 guidelines, incorporating ethical theories and frameworks to guide decision-making in AI systems.",
-          "deliverable": "A written report detailing the AI governance framework, including policies, procedures, and standards for responsible AI development and deployment."
+          "phase": "Phase 1: Human-Centered AI Design",
+          "description": "Design a low-fidelity wireframe of the e-commerce website using Figma, incorporating AI-powered design principles and human-centered design patterns.",
+          "deliverable": "A Figma file with a low-fidelity wireframe of the e-commerce website"
         },
         {
-          "phase": "Phase 2: Fairness and Transparency Implementation",
-          "description": "Implement fairness and transparency mechanisms in the chatbot using software debugging methodology to identify and address potential issues, ensuring that the chatbot provides unbiased and transparent support to customers.",
-          "deliverable": "A functional chatbot prototype with built-in fairness and transparency features, including data visualization and explainability tools."
+          "phase": "Phase 2: AI-Powered Design and Prototyping",
+          "description": "Use Stitch to generate a UI design from the low-fidelity wireframe, and then use Prompt-to-code generation to create front-end code for the website.",
+          "deliverable": "A working prototype of the e-commerce website with AI-generated UI design and front-end code"
         },
         {
-          "phase": "Phase 3: Accountability and Trust Development",
-          "description": "Develop accountability mechanisms and trust in the chatbot using software architecture patterns, ensuring that the chatbot is designed to be accountable and trustworthy in its interactions with customers.",
-          "deliverable": "A written report detailing the accountability mechanisms and trust-building features implemented in the chatbot, including user feedback mechanisms and auditing tools."
+          "phase": "Phase 3: Responsible AI in UI/UX Design",
+          "description": "Incorporate responsible AI practices into the website design, including user trust management, model drift mitigation, and continuous learning and improvement.",
+          "deliverable": "A design document outlining the responsible AI practices implemented in the website design"
         }
       ],
       "techStack": [
-        "NIST AI RMF",
-        "ISO 42001",
-        "PyTorch",
-        "NLTK"
+        "Figma",
+        "Stitch",
+        "Prompt-to-code generation"
       ],
       "evaluationCriteria": [
-        "Adherence to AI governance framework",
-        "Fairness and transparency of chatbot responses",
-        "Accountability and trust mechanisms"
+        "Effectiveness of human-centered AI design",
+        "Efficiency of AI-powered design and prototyping",
+        "Implementation of responsible AI practices"
       ],
       "stretchGoals": [
-        "Integrate Redis caching to improve chatbot response times",
-        "Develop a user interface for customers to provide feedback on chatbot interactions"
+        "Integrate AI-powered A/B testing tools to optimize website design",
+        "Use Workflow design tools to streamline the design process",
+        "Implement AI market research tools to inform design decisions"
       ]
     }
   }

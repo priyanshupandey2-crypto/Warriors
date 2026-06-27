@@ -18,6 +18,7 @@ export interface UserInput {
   expertiseDomain: string;
   learningDuration: LearningDuration;
   tags: string[];
+  organisationName?: string;
 }
 
 // ─── Tavily Enrichment ────────────────────────────────────────────────────────

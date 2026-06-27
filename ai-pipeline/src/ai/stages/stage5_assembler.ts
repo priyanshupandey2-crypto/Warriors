@@ -19,7 +19,7 @@ import type {
   FullLesson,
   ModuleQuiz,
 } from '../types';
-import { MODEL_MISTRAL, SCHEMA_VERSION } from '../types';
+import { SCHEMA_VERSION } from '../types';
 import { MODEL_CONFIG } from '../config';
 import { stageLogger } from '../logger';
 import type { ZodError } from 'zod';
@@ -40,6 +40,7 @@ export type AssemblerResult =
  * @param contentMap - Stage 2 output
  * @param quizMap - Stage 3a output
  * @param capstone - Stage 3b output
+ * @param orgModule - Stage 3c output (optional)
  * @param patch - Stage 4 output
  * @param pipelineStartMs - Timestamp pipeline started (for duration stamping)
  * @returns AssemblerResult — valid or invalid with partial course and errors
@@ -50,6 +51,7 @@ export function assembleCourse(
   contentMap: LessonContentMap,
   quizMap: QuizMap,
   capstone: CapstoneProject,
+  orgModule: FullModule | null,
   patch: PersonalizationPatch,
   pipelineStartMs: number,
 ): AssemblerResult {
@@ -59,7 +61,10 @@ export function assembleCourse(
   const fullModules: FullModule[] = outline.modules.map((mod) => {
     const lessons: FullLesson[] = mod.lessons.map((lessonOutline) => {
       const rawContent = contentMap[lessonOutline.id];
-      const contentObj = rawContent ?? buildEmptyContent(lessonOutline.title);
+      if (!rawContent) {
+        throw new Error(`Missing expected content for lesson: ${lessonOutline.id}`);
+      }
+      const contentObj = rawContent;
 
       // Apply analogy injections from the personalization patch
       const patchedMarkdown = applyAnalogyInjections(
@@ -77,7 +82,10 @@ export function assembleCourse(
       };
     });
 
-    const quiz = quizMap[mod.id] ?? buildEmptyQuiz(mod.id);
+    const quiz = quizMap[mod.id];
+    if (!quiz) {
+      throw new Error(`Missing expected quiz for module: ${mod.id}`);
+    }
 
     return {
       id: mod.id,
@@ -87,6 +95,10 @@ export function assembleCourse(
       quiz,
     };
   });
+
+  if (orgModule) {
+    fullModules.push(orgModule);
+  }
 
   // 2. Compute estimated hours from lesson read times
   const estimatedHours = computeEstimatedHours(fullModules);
@@ -98,8 +110,8 @@ export function assembleCourse(
     models: {
       outline: MODEL_CONFIG.outline,
       content: MODEL_CONFIG.content,
-      quizzes: process.env['MISTRAL_API_KEY'] ? MODEL_MISTRAL : MODEL_CONFIG.content,
-      capstone: process.env['MISTRAL_API_KEY'] ? MODEL_MISTRAL : MODEL_CONFIG.content,
+      quizzes: MODEL_CONFIG.quiz,
+      capstone: MODEL_CONFIG.capstone,
     },
     tavilySources: ctx.enrichment.rawSources
       .map((s) => s.url)
@@ -146,44 +158,6 @@ export function assembleCourse(
   return { valid: true, course: validated.data as CourseJSON };
 }
 
-function buildEmptyContent(title: string) {
-  return {
-    content: `# ${title}\n\nContent for this lesson will be generated shortly. This is a temporary placeholder to satisfy schema validation until the module is properly requested or retried during generation.`,
-    estimatedReadMinutes: 5,
-  };
-}
-
-function buildEmptyQuiz(moduleId: string): ModuleQuiz {
-  return {
-    moduleId,
-    questions: [
-      {
-        question: 'Quiz placeholder question 1 - to be regenerated',
-        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
-        correctIndex: 0 as const,
-        explanation: 'This is a placeholder. Please regenerate this quiz.',
-      },
-      {
-        question: 'Quiz placeholder question 2 - to be regenerated',
-        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
-        correctIndex: 1 as const,
-        explanation: 'This is a placeholder. Please regenerate this quiz.',
-      },
-      {
-        question: 'Quiz placeholder question 3 - to be regenerated',
-        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
-        correctIndex: 2 as const,
-        explanation: 'This is a placeholder. Please regenerate this quiz.',
-      },
-      {
-        question: 'Quiz placeholder question 4 - to be regenerated',
-        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] as [string, string, string, string],
-        correctIndex: 3 as const,
-        explanation: 'This is a placeholder. Please regenerate this quiz.',
-      },
-    ],
-  };
-}
 
 function applyAnalogyInjections(lessonId: string, content: string, patch: PersonalizationPatch): string {
   const injections = patch.analogyInjections.filter((inj) => inj.lessonId === lessonId);

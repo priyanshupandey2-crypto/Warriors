@@ -1,0 +1,99 @@
+﻿
+> auralearn-ai-pipeline@1.0.0 test-pipeline
+> ts-node-dev --transpile-only src/test-pipeline.ts
+
+[INFO] 14:46:12 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+node.exe : [tavily] This 
+package is deprecated. 
+Please use @tavily/core 
+instead:
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: ([  
+  tavily] This p...y/co   
+ re instead::String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+  npm install @tavily/core
+  https://www.npmjs.com/pa
+ckage/@tavily/core
+
+======================================================================
+AI COURSE GENERATION PIPELINE TEST
+======================================================================
+
+Input:
+  Topic: ethical ai frameworks for UI/UX
+  Difficulty: Intermediate
+  Duration: 1w
+  Domain: software engineering
+  Tags: AI Ethics, UI/UX Design, Responsible AI, Human-Computer Interaction
+
+[ 10%] ΓûêΓûêΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæ enrichment
+
+==================================================
+≡ƒÅü STAGE COMPLETE: enrichment (Progress: 10%)
+==================================================
+{
+  "trendingSummary": "",
+  "currentTools": [],
+  "keyFrameworks": [],
+  "rawSources": []
+}
+[ 15%] ΓûêΓûêΓûêΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæΓûæ prompt_context
+
+==================================================
+≡ƒÅü STAGE COMPLETE: prompt_context (Progress: 15%)
+==================================================
+{
+  "userInput": {
+    "topic": "ethical ai frameworks for UI/UX",
+    "difficulty": "Intermediate",
+    "expertiseDomain": "software engineering",
+    "learningDuration": "1w",
+    "tags": [
+      "AI Ethics",
+      "UI/UX Design",
+      "Responsible AI",
+      "Human-Computer Interaction"
+    ],
+    "organisationName": "Nexus"
+  },
+  "enrichment": {
+    "trendingSummary": "",
+    "currentTools": [],
+    "keyFrameworks": [],
+    "rawSources": []
+  },
+  "domainAnalogy": "Use software architecture patterns, API design, and debugging methodology",
+  "moduleSpec": {
+    "moduleCount": 5,
+    "lessonsPerModule": 3
+  },
+  "createdAt": "2026-06-27T09:16:14.683Z"
+}
+
+======================================================================
+Γ¥î FAILED ΓÇö Course 
+generation produced 
+invalid output
+
+Validation Errors:
+  GROQ_API_KEY is not set
+{"level":"info","time":"2026-06-27T09:16:14.680Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","component":"test","input":{"topic":"ethical ai frameworks for UI/UX","difficulty":"Intermediate","expertiseDomain":"software engineering","learningDuration":"1w","tags":["AI Ethics","UI/UX Design","Responsible AI","Human-Computer Interaction"],"organisationName":"Nexus"},"msg":"≡ƒÜÇ Starting pipeline test"}
+{"level":"info","time":"2026-06-27T09:16:14.681Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","stage":"pipeline","topic":"ethical ai frameworks for UI/UX","difficulty":"Intermediate","msg":"Pipeline started"}
+{"level":"warn","time":"2026-06-27T09:16:14.682Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","stage":"enrichment","msg":"TAVILY_API_KEY not set ΓÇö returning empty enrichment"}
+{"level":"info","time":"2026-06-27T09:16:14.682Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","stage":"pipeline","stage":"enrichment","progress":10,"msg":"Stage complete"}
+{"level":"info","time":"2026-06-27T09:16:14.683Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","stage":"promptBuilder","topic":"ethical ai frameworks for UI/UX","duration":"1w","moduleCount":5,"lessonsPerModule":3,"domain":"software engineering","msg":"PromptContext built"}
+{"level":"info","time":"2026-06-27T09:16:14.683Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","stage":"pipeline","stage":"prompt_context","progress":15,"msg":"Stage complete"}
+{"level":"error","time":"2026-06-27T09:16:14.683Z","pid":14704,"hostname":"del1-lhp-n82896","name":"auralearn-ai-pipeline","stage":"pipeline","err":"GROQ_API_KEY is not set","msg":"Pipeline failed with unrecoverable error"}

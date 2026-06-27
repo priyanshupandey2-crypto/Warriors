@@ -12,6 +12,7 @@ import { generateOutline } from './stages/stage1_outline';
 import { generateLessonContent } from './stages/stage2_content';
 import { generateQuizzes } from './stages/stage3a_quizzes';
 import { generateCapstone } from './stages/stage3b_capstone';
+import { generateOrgModule } from './stages/stage3c_org_module';
 import { generatePersonalizationPatch } from './stages/stage4_personalizer';
 import { assembleCourse } from './stages/stage5_assembler';
 import { UserInputSchema } from './schemas';
@@ -116,13 +117,14 @@ export async function runCoursePipeline(
     checkTimeout(timedOut, 'stage2_content');
     emit('stage2_content', 55, contentMap);
 
-    // ── Stage 3a + 3b: Parallel ────────────────────────────────────────────
-    const [quizMap, capstone] = await Promise.all([
+    // ── Stage 3a + 3b + 3c: Parallel ────────────────────────────────────────────
+    const [quizMap, capstone, orgModule] = await Promise.all([
       generateQuizzes(ctx, outline, contentMap),
       generateCapstone(ctx, outline),
+      generateOrgModule(ctx, outline),
     ]);
     checkTimeout(timedOut, 'stage3_parallel');
-    emit('stage3_quizzes_capstone', 75, { quizMap, capstone });
+    emit('stage3_quizzes_capstone', 75, { quizMap, capstone, orgModule });
 
     // ── Stage 4: Personalization ───────────────────────────────────────────
     const patch = await generatePersonalizationPatch(
@@ -142,6 +144,7 @@ export async function runCoursePipeline(
       contentMap,
       quizMap,
       capstone,
+      orgModule,
       patch,
       pipelineStart,
     );
