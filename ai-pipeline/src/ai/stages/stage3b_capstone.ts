@@ -4,7 +4,6 @@
  * Runs in parallel with stage3a. Uses enrichment tools to avoid hallucinated tech stacks.
  */
 
-import { Mistral } from '@mistralai/mistralai';
 import Groq from 'groq-sdk';
 import { CapstoneSchema } from '../schemas';
 import type {
@@ -12,7 +11,6 @@ import type {
   CourseOutline,
   CapstoneProject,
 } from '../types';
-import { MODEL_MISTRAL } from '../types';
 import { MODEL_CONFIG } from '../config';
 import { withRetry } from '../utils/retry';
 import { stageLogger } from '../logger';
@@ -85,34 +83,9 @@ export async function generateCapstone(
 }
 
 async function callModel(system: string, user: string): Promise<string> {
-  const mistralKey = process.env['MISTRAL_API_KEY'];
   const groqKey = process.env['GROQ_API_KEY'];
-  
-  // Use config route for capstone, configurable via CAPSTONE_MODEL env var
-  const usesMistral = mistralKey && process.env['CAPSTONE_MODEL'] === 'mistral-7b-instruct';
 
-  if (!mistralKey && !groqKey) throw new Error('No LLM API key available');
-
-  if (usesMistral) {
-    try {
-      log.info('Using Mistral 7B for capstone generation');
-      const client = new Mistral({ apiKey: mistralKey });
-      const resp = await client.chat.complete({
-        model: MODEL_MISTRAL,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-        temperature: 0.5,
-        responseFormat: { type: 'json_object' },
-      });
-      const content = resp.choices?.[0]?.message?.content;
-      if (typeof content !== 'string') throw new Error('Empty Mistral response');
-      return content;
-    } catch (err) {
-      log.warn({ err }, 'Mistral failed — falling back to Groq');
-    }
-  }
+  if (!groqKey) throw new Error('No LLM API key available');
 
   log.info(`Using Groq (${MODEL_CONFIG.capstone}) for capstone generation`);
   const groq = new Groq({ apiKey: groqKey });

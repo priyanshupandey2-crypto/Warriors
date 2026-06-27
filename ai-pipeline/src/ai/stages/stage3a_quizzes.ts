@@ -1,11 +1,10 @@
 /**
  * @file stages/stage3a_quizzes.ts
- * @description Stage 3a — Quiz generation via configurable model (Groq default, Mistral opt-in).
+ * @description Stage 3a — Quiz generation via Groq.
  * Runs in parallel with stage3b. Produces 4 scenario-based MCQ per module.
  * Quizzes receive FULL lesson body text to ensure answer/content consistency.
  */
 
-import { Mistral } from '@mistralai/mistralai';
 import Groq from 'groq-sdk';
 import { QuizMapSchema } from '../schemas';
 import type {
@@ -14,7 +13,6 @@ import type {
   LessonContentMap,
   QuizMap,
 } from '../types';
-import { MODEL_MISTRAL } from '../types';
 import { MODEL_CONFIG } from '../config';
 import { withRetry } from '../utils/retry';
 import { stageLogger } from '../logger';
@@ -58,6 +56,13 @@ export async function generateQuizzes(
 
         // Run post-generation validation checks on the quiz content
         const quizMap = validated.data as QuizMap;
+
+        // Ensure all modules from outline are present
+        const missingModules = outline.modules.filter(m => !quizMap[m.id]);
+        if (missingModules.length > 0) {
+          throw new Error(`Missing quizzes for modules: ${missingModules.map(m => m.id).join(', ')}. You MUST generate exactly 4 questions for ALL modules.`);
+        }
+
         for (const [moduleId, moduleQuiz] of Object.entries(quizMap)) {
           // Identify the lesson content for this module to check consistency against
           const moduleOutline = outline.modules.find(m => m.id === moduleId);
@@ -87,33 +92,9 @@ export async function generateQuizzes(
 }
 
 async function callModel(system: string, user: string): Promise<string> {
-  const mistralKey = process.env['MISTRAL_API_KEY'];
   const groqKey = process.env['GROQ_API_KEY'];
-  // Check QUIZ_MODEL env var — if set to "mistral-7b-instruct" and key is available, use Mistral
-  const usesMistral = mistralKey && process.env['QUIZ_MODEL'] === 'mistral-7b-instruct';
 
-  if (!mistralKey && !groqKey) throw new Error('No LLM API key available');
-
-  if (usesMistral) {
-    try {
-      log.info('Using Mistral 7B for quiz generation (QUIZ_MODEL=mistral-7b-instruct)');
-      const client = new Mistral({ apiKey: mistralKey });
-      const resp = await client.chat.complete({
-        model: MODEL_MISTRAL,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-        temperature: 0.5,
-        responseFormat: { type: 'json_object' },
-      });
-      const content = resp.choices?.[0]?.message?.content;
-      if (typeof content !== 'string') throw new Error('Empty Mistral response');
-      return content;
-    } catch (err) {
-      log.warn({ err }, 'Mistral failed — falling back to Groq');
-    }
-  }
+  if (!groqKey) throw new Error('No LLM API key available');
 
   log.info(`Using Groq (${MODEL_CONFIG.quiz}) for quiz generation`);
   const groq = new Groq({ apiKey: groqKey });
@@ -143,7 +124,7 @@ FACTUAL ACCURACY RULES:
 
 QUESTION STANDARDS:
 - Every question must present a realistic scenario requiring analysis, not recall
-- Wrong answers (distractors) must be plausible — common real-world mistakes, not obviously absurd
+- Wrong answers (distractors) must be plausible and topic-relevant — represent common misconceptions or genuinely close alternatives. Do NOT use generic filler phrases or rotating obvious placeholders.
 - Explanations must teach why the correct answer is right AND why each distractor is wrong
 
 TECHSTACK RULES — options and explanations may only reference real installable libraries:
@@ -187,6 +168,18 @@ function buildUserPrompt(
     })
     .join('\n\n---\n\n');
 
+  const exactJsonStructure = '{\n' + outline.modules.map(m => `  "${m.id}": {
+    "moduleId": "${m.id}",
+    "questions": [
+      {
+        "question": "<scenario-based question referencing specific module content>",
+        "options": ["<option A>", "<option B>", "<option C>", "<option D>"],
+        "correctIndex": <0-3>,
+        "explanation": "<why correct + why each distractor is wrong — must cite lesson content>"
+      }
+    ] // generate exactly 4 questions
+  }`).join(',\n') + '\n}';
+
   return `Generate a complete quiz for every module in the course "${outline.title}".
 
 CRITICAL: Every correct answer and its explanation must directly reference content from the lesson body text below.
@@ -199,20 +192,8 @@ If a question would conflict with the lesson body, change the question.
 ## Full Module + Lesson Body Text (ground truth for quiz answers)
 ${moduleDigests.slice(0, 8000)}
 
-## Required JSON Structure
-{
-  "<moduleId>": {
-    "moduleId": "<moduleId>",
-    "questions": [
-      {
-        "question": "<scenario-based question referencing specific module content>",
-        "options": ["<option A>", "<option B>", "<option C>", "<option D>"],
-        "correctIndex": <0-3>,
-        "explanation": "<why correct + why each distractor is wrong — must cite lesson content>"
-      }
-    ]
-  }
-}
+## Required JSON Structure (You MUST include ALL of these keys)
+${exactJsonStructure}
 
 ${feedback ?? ''}
 

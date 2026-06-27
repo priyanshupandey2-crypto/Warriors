@@ -39,6 +39,7 @@ export const UserInputSchema = z.object({
   expertiseDomain: z.string().min(2).max(100),
   learningDuration: LearningDurationSchema,
   tags: z.array(z.string().min(1)).max(10).default([]),
+  organisationName: z.string().optional(),
 });
 
 export type UserInputSchemaType = z.infer<typeof UserInputSchema>;
@@ -66,7 +67,7 @@ export const OutlineSchema = z.object({
     .array(z.string().min(10))
     .min(4)
     .max(8),
-  modules: z.array(ModuleOutlineSchema).min(3).max(8),
+  modules: z.array(ModuleOutlineSchema).min(3).max(9),
 });
 
 export type OutlineSchemaType = z.infer<typeof OutlineSchema>;
@@ -192,7 +193,7 @@ const FullLessonSchema = z.object({
   estimatedReadMinutes: z.number().int().min(1).max(60),
 });
 
-const FullModuleSchema = z.object({
+export const FullModuleSchema = z.object({
   id: z.string(),
   title: z.string().min(5),
   description: z.string().min(20),
@@ -208,7 +209,7 @@ const CourseBodySchema = z.object({
   estimatedHours: z.number().positive(),
   tags: z.array(z.string()),
   learningOutcomes: z.array(z.string().min(10)).min(4).max(8),
-  modules: z.array(FullModuleSchema).min(3).max(8),
+  modules: z.array(FullModuleSchema).min(3).max(9),
   capstone: CapstoneSchema,
 });
 

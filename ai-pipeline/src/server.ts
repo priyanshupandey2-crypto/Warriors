@@ -270,6 +270,7 @@ async function notifyBackend(
           learningDuration: payload.learningDuration,
           expertiseDomain: payload.expertiseDomain,
           tags: payload.tags,
+          organisationName: payload.organisationName,
         };
         const callbackUrl = payload.callback_url;
         const generationId = payload.id;

@@ -92,6 +92,7 @@ export async function enrichWithTavily(
       maxResults: 6,
       searchDepth: 'basic',
       includeAnswer: true,
+      excludeDomains: ['youtube.com', 'youtu.be'],
     });
 
     const allResults = response.results ?? [];

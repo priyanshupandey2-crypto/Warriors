@@ -132,12 +132,13 @@ FACTUAL ACCURACY RULES (highest priority — never violate):
 - TFLiteConverter must use TFLiteConverter.from_keras_model(model) — never mix TF Lite with PyTorch or OpenVINO in the same function without separate imports for each.
 
 DOMAIN ANALOGY REQUIREMENT:
-- The lesson body MUST explicitly reference the domainAnalogy provided in the user prompt.
-- Use the phrase "Just as [domain analogy]..." or "Similar to [domain concept]..." at least once in the body field.
-- This is not optional — analogy embedding is a hard requirement.
+- The lesson body MUST explicitly incorporate the domainAnalogy provided in the user prompt.
+- Blend the analogy naturally into the explanation. Do NOT forcefully start sentences with "Just as [domain analogy]..." or "Similar to...". Weave it in smoothly.
+- This is not optional — analogy embedding is a hard requirement, but it must read naturally.
 
 CODE QUALITY RULES:
-- Code snippets must be complete, standalone, and runnable (all imports at top)
+- Only include code snippets if the lesson is explicitly teaching a technical concept. Do not include code for theoretical concepts (like ethics or model drift).
+- If included, code snippets must be complete, standalone, and runnable (all imports at top)
 - Never reuse a code snippet from a previous lesson verbatim — vary the dataset, variable names, or technique even if covering the same topic
 - If a code snippet DOES reuse a concept, change the example (e.g., use a different dataset or architecture)
 - No code that mixes frameworks (TF + PyTorch + OpenVINO) without appropriate guards/imports
@@ -159,7 +160,7 @@ No markdown fences around the entire response. No preamble. No explanation outsi
 REQUIRED FORMAT per lessonId:
 {
   "lessonId": {
-    "content": "Complete markdown string (800–1500 characters minimum) with all of the following sections:\\n\\n1. Main explanation with headers (##, ###), **bold**, *italics*, and lists. Must reference domain analogy at least once.\\n2. ## Real-World Example\\n<specific named company, project, or dataset>\\n3. ## Code Examples\\n<complete, runnable code blocks with language markers>\\n4. ## Common Pitfalls\\n<bulleted list>\\n5. ## Key Takeaways\\n<bulleted list>",
+    "content": "Complete markdown string (800–1500 characters minimum) with all of the following sections:\n\n1. Main explanation with headers (##, ###), **bold**, *italics*, and lists. Must naturally incorporate domain analogy.\n2. ## Real-World Example\n<specific named company, project, or dataset>\n3. ## Code Examples\n<ONLY if the lesson is explicitly teaching a technical concept. MUST be based on real, installable libraries. Do not include for non-technical topics.>\n4. ## Common Pitfalls\n<bulleted list>\n5. ## Key Takeaways\n<bulleted list>",
     "estimatedReadMinutes": 10
   }
 }`;
@@ -190,7 +191,7 @@ function buildUserPrompt(
 - Difficulty: ${userInput.difficulty}
 - Learner Domain: ${userInput.expertiseDomain}
 
-## Domain Analogy (MUST appear in each lesson body using "Just as..." or "Similar to..." framing)
+## Domain Analogy (MUST be folded naturally into each lesson body)
 ${domainAnalogy}
 
 ## Verified Tools & Frameworks (use ONLY these — do NOT hallucinate other names)
