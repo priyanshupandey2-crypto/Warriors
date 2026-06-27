@@ -1266,19 +1266,6 @@ Docker Compose configuration provided for local development. Production deployme
 
 ---
 
-## Troubleshooting
-
-Common issues and solutions documented for:
-- Database connection failures
-- CORS errors
-- JWT secret configuration
-- API token issues
-- Redis connection problems
-- API key validation
-- Database schema issues
-
----
-
 ## Development Guide
 
 Comprehensive guide for:
