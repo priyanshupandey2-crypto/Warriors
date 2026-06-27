@@ -275,7 +275,7 @@ export default function CoursesPage() {
                               </span>
                               <span className="flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[18px]">schedule</span>
-                                {course.duration_weeks}w
+                                {course.duration_weeks === 0 ? "1w" : `${course.duration_weeks}w`}
                               </span>
                             </div>
                             <div className="mt-auto flex items-center justify-between">
