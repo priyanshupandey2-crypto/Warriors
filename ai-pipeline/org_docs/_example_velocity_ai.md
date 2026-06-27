@@ -1,7 +1,7 @@
 ---
 organisation: "GLoballogic"
 project: "Velocity AI"
-tags: ["AI", "Machine Learning", "Workflow Automation", "NLP", "LLM", "Prompt Engineering"]
+tags: ["AI","ai", "Machine Learning", "NLP", "LLM", "Prompt Engineering"]
 description: "Velocity AI is an internal platform that automates repetitive enterprise workflows using large language models and semantic search."
 ---
 
