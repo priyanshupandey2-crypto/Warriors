@@ -9,6 +9,7 @@ from app.models.user_course import UserCourse
 from app.models.learning_activity import LearningActivity
 from app.models.user_goal import UserGoal
 from app.models.milestone import Milestone
+from app.models.user_note import UserNote
 
 print("="*60)
 print("🔨 Creating Database Tables...")

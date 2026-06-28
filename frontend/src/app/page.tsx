@@ -62,20 +62,25 @@ export default function HomePage() {
       <Navbar />
       <main className="pt-24">
         {/* Hero */}
-        <section className="relative overflow-hidden px-4 md:px-8 py-12 md:py-[120px] max-w-[1280px] mx-auto">
-          <div className="absolute -top-24 -right-24 w-[400px] h-[400px] bg-primary-container/20 rounded-full blur-[100px]" />
-          <div className="absolute -bottom-24 -left-24 w-[400px] h-[400px] bg-secondary-container/10 rounded-full blur-[100px]" />
-          <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <section className="relative px-4 md:px-8 py-12 md:py-[100px] max-w-[1280px] mx-auto">
+          <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 space-y-8">
-              <div className="inline-flex items-center gap-2 bg-surface-container text-primary px-4 py-1 rounded-full border border-primary-container/30">
+              <div
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(196,181,253,0.12))',
+                  border: '1px solid rgba(245,158,11,0.25)',
+                  color: '#b45309',
+                }}
+              >
                 <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-                <span className="text-sm font-medium">Personalized AI-Driven Education</span>
+                <span className="text-sm font-semibold">Personalized AI-Driven Education</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-on-surface leading-tight tracking-tight">
-                The Future of Learning, <br className="hidden md:block" />
-                <span className="text-primary italic">Tailored for You</span>
+              <h1 className="text-4xl md:text-6xl font-bold leading-tight" style={{ color: '#1a1a1a', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+                The Future of Learning,{' '}<br className="hidden md:block" />
+                <span style={{ background: 'linear-gradient(135deg, #92400e, #f59e0b, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontStyle: 'italic' }}>Tailored for You</span>
               </h1>
-              <p className="text-lg text-on-surface-variant max-w-[600px]">
+              <p className="text-lg max-w-[560px]" style={{ color: '#3d3d3d', lineHeight: 1.8 }}>
                 Harness the power of adaptive curriculum and world-class expertise. AuraLearn transforms
                 high-impact education into an accessible, energetic experience designed to help you thrive in
                 the modern economy.
@@ -83,53 +88,76 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/generate"
-                  className="bg-primary text-on-primary text-sm font-medium px-8 py-4 rounded-lg shadow-md hover:shadow-xl hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                  className="btn-primary text-sm px-8 py-4 rounded-xl flex items-center justify-center gap-2 group"
                 >
                   Generate Course
-                  <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
+                  <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-[20px]">
                     arrow_forward
                   </span>
                 </Link>
                 <Link
                   href="/courses"
-                  className="border-2 border-outline-variant text-on-surface text-sm font-medium px-8 py-4 rounded-lg hover:bg-surface-container transition-all flex items-center justify-center gap-2 active:scale-95"
+                  className="text-sm font-semibold px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+                  style={{
+                    background: 'rgba(255,255,255,0.70)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1.5px solid rgba(245,158,11,0.25)',
+                    color: '#92400e',
+                    boxShadow: '0 4px 16px rgba(245,158,11,0.10)'
+                  }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                     play_circle
                   </span>
                   Browse Courses
                 </Link>
               </div>
-              <div className="flex items-center gap-8 pt-6 border-t border-outline-variant/20">
-                <div className="flex -space-x-3">
-                  <div className="w-10 h-10 rounded-full border-2 border-surface bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">
-                    10+
-                  </div>
+              <div className="flex items-center gap-6 pt-6" style={{ borderTop: '1px solid rgba(245,158,11,0.15)' }}>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #c084fc)', boxShadow: '0 4px 12px rgba(245,158,11,0.35)', border: '2px solid rgba(255,255,255,0.80)' }}
+                >
+                  10+
                 </div>
-                <p className="text-xs font-semibold text-on-surface-variant">
-                  Joined by <span className="font-bold text-on-surface underline decoration-primary/30">10+ learners</span> worldwide
+                <p className="text-sm" style={{ color: '#3d3d3d' }}>
+                  Joined by{' '}
+                  <span className="font-bold" style={{ color: '#1a1a1a' }}>10+ learners</span>{' '}
+                  worldwide
                 </p>
               </div>
             </div>
             <div className="lg:col-span-5 relative hidden lg:block">
-              <div className="relative z-10 w-full aspect-square rounded-xl overflow-hidden shadow-2xl hover-lift">
+              {/* Ambient glow rings behind image */}
+              <div
+                className="absolute -inset-8 rounded-full opacity-30 blur-3xl"
+                style={{ background: 'radial-gradient(ellipse, rgba(245,158,11,0.35) 0%, rgba(196,181,253,0.20) 60%, transparent 80%)' }}
+              />
+              {/* Image container — no overflow:hidden so transparent bg shows through */}
+              <div className="relative z-10 w-full hover-lift">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtQdEAMUG-pLpGSwqQwiKz9Nj8jfvA3Lfp0AdRUqfgA0cM9eDPHOO0nuK4QGPl6mRbtERfbovzx9cXL5Ukil0UzywyTaoZmDGPydURMJipBfpU2kQBYyR4hARWydMHz172rbstw_BZG7yGjSK_n0L41qPW2LcfKo1XjUphuNCV5b5N2f6eqL2e2-qQvhmG6KaVEY-DOiZ94-CKonMpKcP3CzWiBd54mF5SHtNk4l5sorROB6UuLVFez192O-OPZ6bKJev8qs67ni5m"
-                  alt="Learning workspace"
+                  className="w-full h-auto object-contain drop-shadow-2xl"
+                  style={{ borderRadius: '24px', maxHeight: '520px' }}
+                  src="/hero-workspace.png"
+                  alt="AuraLearn premium learning workspace with floating course modules"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <div className="absolute bottom-6 left-6 p-4 glass-card rounded-lg border border-white/20 shadow-lg max-w-[280px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 bg-tertiary rounded-full animate-pulse" />
-                    <span className="text-xs font-semibold text-on-surface">Live Now</span>
+                {/* Live pill — positioned at bottom-right of image */}
+                <div
+                  className="absolute bottom-6 right-4 p-3 rounded-2xl flex items-center gap-2.5"
+                  style={{
+                    background: 'rgba(255,255,255,0.88)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255,255,255,0.60)',
+                    boxShadow: '0 8px 24px rgba(245,158,11,0.12), 0 2px 8px rgba(0,0,0,0.06)'
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.60)' }} />
+                  <div>
+                    <p className="text-[10px] font-semibold" style={{ color: '#9ca3af' }}>Live Now</p>
+                    <p className="text-xs font-bold" style={{ color: '#1a1a1a', lineHeight: 1.3 }}>Forward Deployed Engineer</p>
                   </div>
-                  <p className="text-sm font-bold text-on-surface">Forward Deployed Engineer Course</p>
-                  <p className="text-xs text-on-surface-variant">1 learner enrolled</p>
                 </div>
               </div>
-              <div className="absolute -z-10 -bottom-8 -right-8 w-64 h-64 border-4 border-primary-container/20 rounded-xl" />
             </div>
           </div>
         </section>

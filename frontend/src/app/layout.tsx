@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     "AI-powered personalized education platform. Master the skills of tomorrow with tailored courses, adaptive learning paths, and hands-on projects.",
 };
 
+import AuraBot from "@/components/AuraBot";
+import NotesPopup from "@/components/NotesPopup";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,13 +35,28 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans">
-        <AuthProvider>
-          <ToastProvider>
-            <TokenExpirationHandler />
-            <ToastContainer />
-            {children}
-          </ToastProvider>
-        </AuthProvider>
+        {/* Fixed full-viewport gradient background */}
+        <div className="ambient-bg-layer" aria-hidden="true" />
+
+        {/* Organic ambient pebble blobs — ambient light layer */}
+        <div className="ambient-pebble ambient-pebble-amber animate-pulse-soft" aria-hidden="true" style={{ animationDelay: '0s' }} />
+        <div className="ambient-pebble ambient-pebble-sky animate-pulse-soft" aria-hidden="true" style={{ animationDelay: '2s' }} />
+        <div className="ambient-pebble ambient-pebble-violet animate-pulse-soft" aria-hidden="true" style={{ animationDelay: '4s' }} />
+        <div className="ambient-pebble ambient-pebble-peach animate-pulse-soft" aria-hidden="true" style={{ animationDelay: '1s' }} />
+        <div className="ambient-pebble ambient-pebble-mint animate-pulse-soft" aria-hidden="true" style={{ animationDelay: '3s' }} />
+
+        {/* All content above the pebble layer */}
+        <div className="content-layer min-h-full flex flex-col">
+          <AuthProvider>
+            <ToastProvider>
+              <TokenExpirationHandler />
+              <ToastContainer />
+              {children}
+              <AuraBot />
+              <NotesPopup />
+            </ToastProvider>
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );

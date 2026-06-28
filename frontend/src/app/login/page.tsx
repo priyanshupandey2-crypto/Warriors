@@ -56,7 +56,7 @@ export default function LoginPage() {
     <main className="min-h-screen flex items-stretch">
       {/* Left: Visual */}
       <div className="hidden lg:flex flex-1 relative luminous-bg items-center justify-center p-12">
-        <div className="relative z-10 glass-panel p-8 rounded-xl max-w-lg text-white">
+        <div className="relative z-10 glass-panel p-8 rounded-xl max-w-lg text-black">
           <h1 className="text-3xl font-semibold mb-4">Master Tomorrow&apos;s Skills Today</h1>
           <p className="text-lg opacity-90 mb-8">
             Join over 10 learners worldwide and accelerate your momentum with AuraLearn&apos;s AI-powered
@@ -65,16 +65,16 @@ export default function LoginPage() {
           <div className="flex items-center gap-4">
             <div className="flex -space-x-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-primary-container/60 flex items-center justify-center text-xs font-bold text-white">
+                <div key={i} className="w-10 h-10 rounded-full user-circle-gradient flex items-center justify-center text-xs font-bold text-yellow-800">
                   {String.fromCharCode(64 + i)}
                 </div>
               ))}
             </div>
-            <span className="text-sm font-medium">+10 joined this week</span>
+            <span className="text-sm font-medium text-black">+10 joined this week</span>
           </div>
         </div>
         <div className="absolute bottom-8 left-8 z-10">
-          <div className="text-2xl font-bold text-white tracking-tight">AuraLearn</div>
+          <div className="text-2xl font-bold text-black tracking-tight">AuraLearn</div>
         </div>
       </div>
 

@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     JWT_EXPIRATION_HOURS: int
     JWT_ALGORITHM: str = "HS256"
 
+    # Gemini API configuration (optional)
+    GEMINI_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
+
     # Debug flag (optional, defaults to False)
     DEBUG: bool = False
 

@@ -14,6 +14,7 @@ from app.models.module import Module
 from app.models.lesson import Lesson
 from app.models.quiz import Quiz, QuizQuestion, QuestionOption, QuizSubmission
 from app.models.course_generation import CourseGeneration
+from app.models.user_note import UserNote
 
 __all__ = [
     "User",
@@ -29,5 +30,6 @@ __all__ = [
     "QuizQuestion",
     "QuestionOption",
     "QuizSubmission",
-    "CourseGeneration"
+    "CourseGeneration",
+    "UserNote"
 ]

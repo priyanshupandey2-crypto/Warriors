@@ -39,7 +39,7 @@ export default function CoursesPage() {
       try {
         const response = await apiCall<any>("/api/progress/my-courses");
         if (response && response.courses) {
-          const enrolledIds = new Set(response.courses.map((c: any) => c.course_id.toString()));
+          const enrolledIds = new Set<string>(response.courses.map((c: any) => c.course_id.toString()));
           setEnrolledCourseIds(enrolledIds);
         }
       } catch (error) {
@@ -267,28 +267,28 @@ export default function CoursesPage() {
                                   </span>
                                 )}
                               </div>
-                            <p className="text-sm text-on-surface-variant mb-4 line-clamp-2">{course.description}</p>
-                            <div className="flex items-center gap-4 mb-6 text-on-surface-variant text-sm">
-                              <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[18px]">bar_chart</span>
-                                {course.difficulty_level}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[18px]">schedule</span>
-                                {course.duration_weeks === 0 ? "1w" : `${course.duration_weeks}w`}
-                              </span>
-                            </div>
-                            <div className="mt-auto flex items-center justify-between">
-                              <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                                <span className="material-symbols-outlined text-[18px]">group</span>
-                                {course.enrollments} enrolled
+                              <p className="text-sm text-on-surface-variant mb-4 line-clamp-2">{course.description}</p>
+                              <div className="flex items-center gap-4 mb-6 text-on-surface-variant text-sm">
+                                <span className="flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-[18px]">bar_chart</span>
+                                  {course.difficulty_level}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-[18px]">schedule</span>
+                                  {course.duration_weeks === 0 ? "1w" : `${course.duration_weeks}w`}
+                                </span>
                               </div>
-                              <Link href={`/course/${course.id}`} className="bg-primary text-on-primary px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-                                View Course
-                              </Link>
+                              <div className="mt-auto flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                                  <span className="material-symbols-outlined text-[18px]">group</span>
+                                  {course.enrollments} enrolled
+                                </div>
+                                <Link href={`/course/${course.id}`} className="bg-primary text-on-primary px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                                  View Course
+                                </Link>
+                              </div>
                             </div>
                           </div>
-                        </div>
                         );
                       })
                     ) : (
@@ -336,11 +336,10 @@ export default function CoursesPage() {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                          currentPage === page
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${currentPage === page
                             ? "bg-primary text-on-primary"
                             : "border border-outline-variant text-on-surface hover:bg-surface-container"
-                        }`}
+                          }`}
                       >
                         {page}
                       </button>
@@ -353,17 +352,16 @@ export default function CoursesPage() {
                     const end = Math.min(totalPages, start + 8);
                     return end < totalPages;
                   })() && (
-                    <>
-                      <span className="text-outline">...</span>
-                      <button
-                        onClick={() => setCurrentPage(totalPages)}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-outline-variant text-on-surface hover:bg-surface-container"
-                      >
-                        {totalPages}
-                      </button>
-                    </>
-                  )}
-
+                      <>
+                        <span className="text-outline">...</span>
+                        <button
+                          onClick={() => setCurrentPage(totalPages)}
+                          className="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-outline-variant text-on-surface hover:bg-surface-container"
+                        >
+                          {totalPages}
+                        </button>
+                      </>
+                    )}
                   <button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}

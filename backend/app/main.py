@@ -46,6 +46,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    from app.routers import chat, notes
     # Include routers
     app.include_router(health.router)
     app.include_router(test_trace.router)
@@ -61,6 +62,8 @@ def create_app() -> FastAPI:
     app.include_router(admin.router)  # Admin routes (protected)
     app.include_router(admin_courses.router)  # Admin courses & submissions
     app.include_router(course_generation.router)  # Course generation requests
+    app.include_router(chat.router)
+    app.include_router(notes.router)
 
     @app.on_event("startup")
     def startup_event():
